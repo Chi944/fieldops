@@ -40,3 +40,10 @@
 - Post-update checks pass: TypeScript, ESLint, production build, **95/95 unit/integration tests** across nine files and **6/6 local browser tests** in 43.6 seconds. Added a literal prototype-like CSV header regression. Actual Trigger imports and ExcelJS conditional-formatting round trip also pass without network calls.
 - Reran the offline benchmark against final dependencies: `baseline-all-f2a9c86ad905-8dc06a6ab2cb`, 24/24 complete parser manifests, 144/144 authored identifiers, 963/963 source locators and 544/544 bounded regions; baseline pair precision 102/102 and recall 102/116; eight robustness assertions pass. Package text line endings follow the repository LF convention so the committed bytes match the evaluation fingerprint. Historical reports are retained.
 - Final CI/deployment refresh follows this source commit. Live AI and hosted private-cloud checks remain unverified; the user asked to leave the integration disabled.
+
+## Final deployment and handoff
+
+- Source revision `165415c` passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/34712631590): dependency installation/audit, OCR setup, TypeScript, lint, 95 tests, production build and all six browser workflows.
+- Vercel deployment `dpl_4ccf1VtXgN5qVFaN1osiUGws7haT` is READY at the canonical public URL. All four public browser workflows passed again on this updated deployment in 22.2 seconds. Its published evaluation JSON matches `baseline-all-f2a9c86ad905-8dc06a6ab2cb`; status still disables persistence, uploads and AI.
+- Saved the final [release record](release-verification.md), exact external configuration gates, setup/deployment docs, architecture, case study and demonstration script. Local Markdown links resolve. No private data or secrets were published.
+- The agreed credential-free fallback is delivered and verified: public labeled demo plus real local parsing/manual review through matching, comparison and both exports. Live model evaluation and hosted private processing remain explicitly deferred until the user configures the documented free services.

@@ -15,14 +15,14 @@ Verified on 13 September 2026. This release delivers the public fixture demonstr
 | `npm run typecheck` and `npm run lint` | Pass on the final implementation and dependency updates |
 | `npm test` | 95/95 tests across nine files, including actual filesystem persistence, embedded PostgreSQL migrations/RLS, deterministic money/matching rules, parsers, injected model responses, workbook round trips and source invariants |
 | `npm run build` | Next.js production build passes locally; hosted build evidence is linked below |
-| `npm run test:e2e` | Six local browser workflows exercise fixture review through both exports, matching edits, real local text/PDF/PNG upload and manual recovery, source canvases, keyboard navigation and axe checks |
-| Public browser acceptance | Four public-applicable workflows pass against the actual deployment URL; private local upload tests are deliberately excluded |
+| `npm run test:e2e` | 6/6 passed in 43.6 seconds. Local browser workflows exercise fixture review through both exports, matching edits, real local text/PDF/PNG upload and manual recovery, source canvases, keyboard navigation and axe checks |
+| Public browser acceptance | 4/4 passed in 22.2 seconds against the updated deployment URL; private local upload tests are deliberately excluded |
 | `npm run eval -- --mode baseline` | 24/24 parser manifests complete; baseline gold-item pair precision 102/102 and recall 102/116; eight separate robustness assertions pass. No model calls |
 | `npm audit --omit=dev` | Zero reported runtime dependency findings after targeted updates. Full development audit has two entries for one unused Prisma build dependency issue; see [dependency review](dependency-review.md) |
 | SDK compatibility smoke | Trigger SDK/build imports and ExcelJS conditional-formatting write/reload pass without dispatching tasks or contacting a provider |
 | Hosted capability boundary | `/api/status` returns demo mode and `canPersist`, `canUpload`, `canExtract` all false; no Vercel project environment variables, Hobby plan verified |
 
-The clean Linux CI run and final deployment revision are recorded below after the dependency-update release finishes. Earlier verified CI: [3d97e58](https://github.com/Chi944/fieldops/actions/runs/34711908349). Local browser artifacts include screenshots, axe output, downloaded workbooks and a rendered report PDF in ignored `test-results/` and `playwright-report/`. CI retains browser artifacts for seven days. These checks do not establish every accessibility requirement or every possible quotation layout.
+The dependency-update source revision is **`165415c`**. [Clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/34712631590) passed every check, including all six browser workflows. Vercel deployment `dpl_4ccf1VtXgN5qVFaN1osiUGws7haT` is READY and serves the canonical public URL; the public report run ID was verified as `baseline-all-f2a9c86ad905-8dc06a6ab2cb`. A subsequent documentation-only commit records these completed checks without changing application code. Local browser artifacts include screenshots, axe output, downloaded workbooks and a rendered report PDF in ignored `test-results/` and `playwright-report/`. CI retains browser artifacts for seven days. These checks do not establish every accessibility requirement or every possible quotation layout.
 
 ## Reproducible measurement
 

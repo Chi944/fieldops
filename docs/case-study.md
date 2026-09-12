@@ -2,7 +2,7 @@
 
 FieldOps is a procurement workspace for turning differently structured supplier quotations into a comparison a buyer can defend. The difficult part is deciding what can legitimately be compared: a box and an individual unit, an hourly estimate and a fixed scope, or a low item price with unknown delivery costs.
 
-The project was built from a new repository as a focused full-stack and applied-AI portfolio project. Its first release centers on source review, item matching, deterministic calculation, and export. It supports fictional demonstration workspaces and a real processing implementation; live model integration remains disabled until the user configures their confirmed free provider account. No live AI performance or completed cloud deployment is claimed by this case study.
+The project was built from a new repository as a focused full-stack and applied-AI portfolio project. Its first release centers on source review, item matching, deterministic calculation, and export. It supports fictional demonstration workspaces and a real processing implementation; live model integration remains disabled until the user configures their confirmed free provider account. The [public demonstration](https://fieldops-eight-blue.vercel.app) is deployed on Vercel Hobby. The [release record](release-verification.md) documents passing local and public browser checks; hosted private processing and live AI performance remain unverified.
 
 ## Product and engineering decisions
 
