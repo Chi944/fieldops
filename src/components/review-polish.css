@@ -1,0 +1,84 @@
+/* Review and matching use the same quiet evidence-workspace palette as the shell. */
+.review-queue {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 19px 22px;
+  margin-bottom: 20px;
+  border: 1px solid #dce5df;
+  border-left: 3px solid #17665d;
+  border-radius: 8px;
+  background: #fff;
+}
+.review-queue.has-issues { border-left-color: #946322; }
+.review-queue-copy { min-width: 0; }
+.review-queue-copy > strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #172e2a;
+  letter-spacing: -.2px;
+}
+.review-queue-copy > p {
+  margin: 5px 0 7px;
+  color: #52645d;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 75ch;
+}
+.review-queue-copy > span { color: #52645d; font-size: 12px; }
+.review-queue > .button { flex-shrink: 0; }
+.review-issue.active-issue { outline: 2px solid #946322; outline-offset: -2px; }
+.review-evidence-context {
+  margin-bottom: 12px;
+  padding: 0 2px 12px;
+  border-bottom: 1px solid #dce5df;
+}
+.review-evidence-context > strong { display: block; color: #172e2a; font-size: 13px; font-weight: 600; }
+.review-evidence-context > p { color: #52645d; margin: 4px 0 0; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.review-evidence-context > small { display: block; margin-top: 5px; color: #52645d; font-size: 11px; line-height: 1.6; }
+.review-field.selected { background: #edf5f0; border-color: #a8c6b9; }
+.correction-source-note { display: flex; gap: 9px; margin: 12px 0 16px; color: #3b5b50; }
+.correction-source-note > svg { flex-shrink: 0; margin-top: 2px; color: #17665d; }
+.correction-source-note > p { font-size: 12px; line-height: 1.6; margin: 0; }
+.correction-evidence { margin: 0 0 18px; border: 1px solid #dce5df; border-radius: 6px; background: #f6f7f3; }
+.correction-evidence > summary { padding: 10px 12px; cursor: pointer; color: #17665d; font-size: 12px; font-weight: 600; }
+.correction-evidence[open] { max-height: 240px; overflow: auto; }
+.correction-evidence > blockquote { margin: 0; padding: 11px 14px; border-top: 1px solid #dce5df; }
+.correction-evidence > blockquote > small { color: #52645d; font-size: 11px; }
+.correction-evidence > blockquote > p { font-size: 12px; line-height: 1.65; color: #172e2a; white-space: pre-wrap; overflow-wrap: anywhere; margin: 5px 0 0; }
+.matching-review-summary {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin: 18px 0;
+  padding: 18px 0;
+  border-top: 1px solid #dce5df;
+  border-bottom: 1px solid #dce5df;
+}
+.matching-review-summary > div { min-width: 110px; }
+.matching-review-summary strong { display: block; color: #172e2a; font-size: 24px; font-weight: 500; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.7px; }
+.matching-review-summary span { display: block; font-size: 12px; margin-top: 5px; color: #52645d; }
+.matching-review-summary > p { margin: 0 0 0 auto; max-width: 43ch; color: #52645d; font-size: 12px; line-height: 1.7; }
+.matching-controls { flex-wrap: wrap; }
+.matching-controls > .segmented { max-width: 100%; overflow-x: auto; }
+.matching-controls .segmented > button { white-space: nowrap; }
+.match-source-link { display: inline-flex; align-items: center; gap: 5px; color: #17665d; font-size: 12px; margin-top: 13px; min-height: 26px; text-underline-offset: 3px; }
+.match-source-link:hover { text-decoration: underline; }
+.match-source-link:focus-visible, .correction-evidence > summary:focus-visible { outline: 2px solid #17665d; outline-offset: 3px; border-radius: 2px; }
+.match-next-action { padding: 10px 18px; margin: 0; background: #fff; border-top: 1px solid #e6eae6; font-size: 12px; color: #52645d; line-height: 1.65; }
+@media (max-width: 1050px) {
+  .matching-review-summary { gap: 20px; flex-wrap: wrap; }
+  .matching-review-summary > p { flex: 1 1 100%; margin: 0; max-width: 75ch; }
+}
+@media (max-width: 600px) {
+  .review-queue { align-items: flex-start; flex-direction: column; gap: 14px; padding: 17px; }
+  .review-queue-copy > strong { font-size: 15px; }
+  .review-queue > .button { min-height: 38px; }
+  .matching-review-summary { gap: 18px; }
+  .matching-review-summary > div { flex: 1; min-width: 75px; }
+  .matching-review-summary strong { font-size: 23px; }
+  .matching-review-summary span { font-size: 11px; line-height: 1.5; }
+  .match-next-action { padding: 12px 15px; }
+}

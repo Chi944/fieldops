@@ -18,8 +18,10 @@ import {
   emptyItem,
   FieldState,
   FieldValue,
+  ReviewIssue,
   field,
 } from "@/lib/domain/types";
+import { resolveCorrectableField } from "@/lib/domain/corrections";
 import { proposeMatches } from "@/lib/domain/matching";
 import { api, lastCorrection, useWorkspace } from "./context";
 import {
@@ -46,7 +48,9 @@ export function ReviewScreen({
     comparison.quotations.find((q) => q.id === quotationId) ??
     comparison.quotations[0];
   const [selectedSources, setSelectedSources] = useState<string[]>([]),
-    [selectedPath, setSelectedPath] = useState("");
+    [selectedPath, setSelectedPath] = useState(""),
+    [selectedLabel, setSelectedLabel] = useState(""),
+    [selectedIssueId, setSelectedIssueId] = useState("");
   const [editing, setEditing] = useState<{
       path: string;
       label: string;
@@ -91,22 +95,58 @@ export function ReviewScreen({
         }
       />
     );
-  const issues = quotation.issues.filter((i) => !i.resolved);
-  const select = (path: string, value: FieldValue) => {
+  const issues = quotation.issues.filter((i) => !i.resolved).sort((a, b) => Number(b.severity === "error") - Number(a.severity === "error"));
+  const recordedReviews = quotation.issues.filter((issue) => issue.resolved).length;
+  const nextIssue = issues.length ? issues[(issues.findIndex(issue => issue.id === selectedIssueId) + 1) % issues.length] : undefined;
+  const selectedEvidence = quotation.sources.filter(source => selectedSources.includes(source.id));
+  const visiblePath = (path: string) => {
+    const parts = path.split(".");
+    if (/^\d+$/.test(parts[1] ?? "")) {
+      const record = parts[0] === "items" ? quotation.items[Number(parts[1])] : parts[0] === "charges" ? quotation.charges[Number(parts[1])] : undefined;
+      if (record) parts[1] = record.id;
+    }
+    return parts.join(".");
+  };
+  const fieldId = (path: string) => `review-field-${quotation.id}-${path}`;
+  const scrollOptions = (): ScrollIntoViewOptions => ({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+  const select = (path: string, value: FieldValue, label?: string) => {
     setSelectedPath(path);
-    setSelectedSources(value.sourceIds);
-    const source = value.sourceIds[0];
+    setSelectedLabel(label ?? path.split(".").at(-1)!.replace(/([a-z])([A-Z])/g, "$1 $2"));
+    const sourceIds = value.sourceIds.filter(id => quotation.sources.some(source => source.id === id));
+    setSelectedSources(sourceIds);
+    const source = sourceIds[0];
     if (source)
       setTimeout(
         () =>
           document
             .getElementById(`source-${source}`)
-            ?.scrollIntoView({ behavior: "smooth", block: "nearest" }),
+            ?.scrollIntoView(scrollOptions()),
         30,
       );
   };
+  const inspectIssue = (issue: ReviewIssue) => {
+    let supportingIds = issue.sourceIds;
+    if (!supportingIds.length && issue.fieldPath) {
+      try { supportingIds = resolveCorrectableField(quotation, issue.fieldPath).sourceIds; } catch { /* Coverage issues may not identify an editable field. */ }
+    }
+    const validIds = supportingIds.filter(id => quotation.sources.some(source => source.id === id));
+    setSelectedIssueId(issue.id);
+    const path = issue.fieldPath ? visiblePath(issue.fieldPath) : "";
+    setSelectedPath(path);
+    setSelectedLabel(issue.message);
+    setSelectedSources(validIds);
+    setOnlyIssues(false);
+    setTimeout(() => {
+      const target = (path ? document.getElementById(fieldId(path)) : null) ?? (issue.itemId ? document.getElementById(`review-item-${quotation.id}-${issue.itemId}`) : null);
+      for (let parent = target?.parentElement; parent; parent = parent.parentElement) if (parent instanceof HTMLDetailsElement) parent.open = true;
+      target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+      target?.scrollIntoView(scrollOptions());
+      // In the stacked layout, scrolling to evidence would hide the focused field.
+      if (validIds[0] && (!target || window.matchMedia("(min-width: 901px)").matches)) document.getElementById(`source-${validIds[0]}`)?.scrollIntoView(scrollOptions());
+    }, 30);
+  };
   const edit = (path: string, label: string, value: FieldValue) => {
-    select(path, value);
+    select(path, value, label);
     setEditing({ path, label, value });
     setEditValue(value.value ?? "");
     setEditState(value.state);
@@ -116,10 +156,11 @@ export function ReviewScreen({
     <div
       className={`review-field ${selectedPath === path ? "selected" : ""}`}
       key={path}
+      id={fieldId(path)}
     >
       <label>{label}</label>
       <div>
-        <FieldDisplay field={value} onClick={() => select(path, value)} />
+        <FieldDisplay field={value} onClick={() => select(path, value, label)} />
         <button
           className="icon-button edit-field"
           aria-label={`Correct ${label}`}
@@ -156,11 +197,13 @@ export function ReviewScreen({
               setQuotationId(e.target.value);
               setSelectedSources([]);
               setSelectedPath("");
+              setSelectedLabel("");
+              setSelectedIssueId("");
             }}
           >
             {comparison.quotations.map((q) => (
               <option value={q.id} key={q.id}>
-                {supplierName(q)}
+                {supplierName(q)}{q.issues.some(issue => !issue.resolved) ? ` — ${q.issues.filter(issue => !issue.resolved).length} open` : ""}
               </option>
             ))}
           </select>
@@ -183,6 +226,14 @@ export function ReviewScreen({
           </button>
         </div>
       </div>
+      <section className={`review-queue ${issues.length ? "has-issues" : ""}`} aria-label="Quotation review progress">
+        <div className="review-queue-copy">
+          <strong>{issues.length ? `${issues.length} ${issues.length === 1 ? "issue needs" : "issues need"} a decision` : "No open issues flagged"}</strong>
+          <p>{issues.length ? "Check the evidence, then correct the value or record what still needs clarification." : "Check the original for anything missing, then review how items match across suppliers."}</p>
+          <span>{quotation.items.length} line {quotation.items.length === 1 ? "item" : "items"} in this quotation{recordedReviews ? ` · ${recordedReviews} issue ${recordedReviews === 1 ? "review" : "reviews"} recorded` : ""}</span>
+        </div>
+        {nextIssue ? <button className="button primary small" onClick={() => inspectIssue(nextIssue)}>Review next issue <ArrowRight size={15} /></button> : <Link className="button secondary small" href={`/comparisons/${comparison.id}/matching`}>Review item matches <ArrowRight size={15} /></Link>}
+      </section>
       <div className="review-layout">
         <div className="review-data">
           <div className="review-section-header">
@@ -212,11 +263,9 @@ export function ReviewScreen({
               {issues.map((issue) => (
                 <div key={issue.id} className="review-issue-row">
                   <button
-                    className={`review-issue ${issue.severity}`}
-                    onClick={() => {
-                      setSelectedSources(issue.sourceIds);
-                      if (issue.fieldPath) setSelectedPath(issue.fieldPath);
-                    }}
+                    className={`review-issue ${issue.severity} ${selectedIssueId === issue.id ? "active-issue" : ""}`}
+                    aria-pressed={selectedIssueId === issue.id}
+                    onClick={() => inspectIssue(issue)}
                   >
                     <AlertCircle size={16} />
                     <span>{issue.message}</span>
@@ -263,6 +312,7 @@ export function ReviewScreen({
             )}
             {renderField("locale", "Formatting context", quotation.locale)}
             {renderField("revision", "Supplier revision", quotation.revision)}
+            {renderField("statedSubtotal", "Supplier-stated subtotal", quotation.statedSubtotal)}
             {renderField(
               "statedTotal",
               "Supplier-stated total",
@@ -306,8 +356,8 @@ export function ReviewScreen({
           ) : (
             <div className="review-items">
               {filteredItems.map((item, index) => (
-                <div className="review-item" key={item.id}>
-                  <div className="review-item-title">
+                <div className="review-item" key={item.id} id={`review-item-${quotation.id}-${item.id}`}>
+                  <div className="review-item-title" id={fieldId(`items.${item.id}.description`)}>
                     <span className="item-index">
                       {String(index + 1).padStart(2, "0")}
                     </span>
@@ -515,12 +565,19 @@ export function ReviewScreen({
           </div>
         </div>
         <aside className="review-source">
+          <div className="review-evidence-context" role="status" aria-live="polite">
+            <strong>{selectedLabel ? "Selected evidence" : "Original quotation"}</strong>
+            <p>{selectedLabel || "Select a value or review issue to locate its supporting source."}</p>
+            {selectedLabel && <small>{selectedEvidence.length ? `${selectedEvidence.length} preserved source ${selectedEvidence.length === 1 ? "reference" : "references"} highlighted below.` : "No source reference is attached. Inspect the original before making a correction."}</small>}
+          </div>
           {selectedSources.length > 0 && (
             <button
               className="text-button clear-source"
               onClick={() => {
                 setSelectedSources([]);
                 setSelectedPath("");
+                setSelectedLabel("");
+                setSelectedIssueId("");
               }}
             >
               Clear source selection
@@ -642,9 +699,20 @@ export function ReviewScreen({
           }}
         >
           <div className="original-value">
-            <small>Original interpretation</small>
-            <strong>{editing?.value.raw ?? "Not stated"}</strong>
+            <small>Current interpretation</small>
+            <strong>{editing?.value.raw ?? editing?.value.value ?? editing?.value.state.replaceAll("_", " ") ?? "Not stated"}</strong>
           </div>
+          {editing && <div className="correction-source-note">
+            <ShieldCheck size={16} />
+            <p>{editing.value.sourceIds.some(id => quotation.sources.some(source => source.id === id)) ? "This correction keeps its source links. The previous interpretation and your reason remain in correction history." : "This value has no attached source reference. Check the original; your change will be recorded as user input."} Price and scope changes require match review again.</p>
+          </div>}
+          {editing && quotation.sources.some(source => editing.value.sourceIds.includes(source.id)) && <details className="correction-evidence">
+            <summary>View supporting source</summary>
+            {quotation.sources.filter(source => editing.value.sourceIds.includes(source.id)).map(source => <blockquote key={source.id}>
+              <small>{source.sheet ? `${source.sheet}${source.cell ? `!${source.cell}` : ""}` : source.page ? `Page ${source.page}` : typeof source.start === "number" ? `Text from character ${source.start}` : "Text excerpt"}</small>
+              <p>{source.text}</p>
+            </blockquote>)}
+          </details>}
           <label className="form-label">
             Value state
             <select
@@ -911,7 +979,7 @@ export function ReviewScreen({
                   onChange={(e) =>
                     setManual({ ...manual, billingBasis: e.target.value })
                   }
-                  placeholder="e.g. fixed, hourly, monthly"
+                  placeholder="e.g. fixed project, hourly, monthly"
                   required
                 />
               </label>
@@ -952,7 +1020,7 @@ export function ReviewScreen({
               </select>
               <small>
                 Select the original records supporting this item. Unlinked
-                entries stay labelled as user input.
+                entries stay in review and cannot support a price recommendation.
               </small>
             </label>
           )}

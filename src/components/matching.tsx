@@ -32,12 +32,16 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
       itemId: string;
     } | null>(null),
     [targetGroup, setTargetGroup] = useState("");
+  const needsReview = comparison.groups.filter(group => group.status === "proposed" || group.status === "stale");
+  const alternatives = comparison.groups.filter(group => group.classification === "alternative");
+  const unmatched = comparison.groups.filter(group => new Set(group.members.map(member => member.quotationId)).size < 2);
+  const itemCount = comparison.quotations.reduce((count, quotation) => count + quotation.items.length, 0);
   const groups = comparison.groups.filter(
     (g) =>
       filter === "all" ||
       (filter === "review"
-        ? g.status !== "approved"
-        : g.classification === "alternative"),
+        ? g.status === "proposed" || g.status === "stale"
+        : filter === "unmatched" ? unmatched.some(group => group.id === g.id) : g.classification === "alternative"),
   );
   const approved = comparison.groups.filter(
     (g) => g.status === "approved" && g.classification === "equivalent",
@@ -87,10 +91,9 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
     <>
       <div className="section-heading matching-heading">
         <div>
-          <h2>Compare like for like.</h2>
+          <h2>Review which offers belong together</h2>
           <p>
-            Review what belongs together. Similar descriptions are a starting
-            point, not proof.
+            Check specifications, quantities and service scope before approving a match.
           </p>
         </div>
         <Badge tone="teal">
@@ -98,33 +101,43 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
           {approved} of {comparison.groups.length} groups approved
         </Badge>
       </div>
+      <div className="matching-review-summary" aria-label="Matching review progress">
+        <div><strong>{needsReview.length}</strong><span>groups to review</span></div>
+        <div><strong>{unmatched.length}</strong><span>unmatched groups</span></div>
+        <div><strong>{approved}</strong><span>equivalent groups approved</span></div>
+        <p>{needsReview.some(group => group.status === "stale") ? "Some quotations or groupings changed. Review those matches again before comparing costs." : unmatched.length ? "Unmatched items remain visible. Move a suitable offer into a group, or keep it separate." : approved ? "Approved matches are ready for the quantity and cost checks in your comparison." : "Review each suggested group against the original quotations. Approval records your equivalence decision."}</p>
+      </div>
       <div className="matching-guidance">
         <ShieldCheck size={19} />
         <span>
           Only approved equivalent items contribute to comparable costs.
-          Alternatives keep their differences visible.
+          Package constraints, missing costs and source discrepancies are checked separately.
         </span>
       </div>
       <div className="matching-controls">
         <div className="segmented">
           <button
             className={filter === "all" ? "active" : ""}
+            aria-pressed={filter === "all"}
             onClick={() => setFilter("all")}
           >
             All groups <span>{comparison.groups.length}</span>
           </button>
           <button
             className={filter === "review" ? "active" : ""}
+            aria-pressed={filter === "review"}
             onClick={() => setFilter("review")}
           >
-            Needs review
+            Needs review <span>{needsReview.length}</span>
           </button>
           <button
             className={filter === "alternatives" ? "active" : ""}
+            aria-pressed={filter === "alternatives"}
             onClick={() => setFilter("alternatives")}
           >
-            Alternatives
+            Alternatives <span>{alternatives.length}</span>
           </button>
+          <button className={filter === "unmatched" ? "active" : ""} aria-pressed={filter === "unmatched"} onClick={() => setFilter("unmatched")}>Unmatched <span>{unmatched.length}</span></button>
         </div>
         <button
           className="button secondary small"
@@ -183,19 +196,17 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
         {comparison.isDemo
           ? "Saved demonstration suggestions with identifier/text baseline refresh."
           : "Identifier/text baseline is available without AI. AI suggestions require a configured free account."}
+        {" "}Refreshing replaces current groupings and approvals.
       </p>
       {groups.length === 0 ? (
         <EmptyState
           title={
-            comparison.quotations.length
-              ? "No groups in this view"
-              : "Add quotations to match items"
+            !comparison.quotations.length ? "Add quotations to match items" : !itemCount ? "Review your quotation items first" : !comparison.groups.length ? "Your items are ready to group" : filter === "review" ? "No groups waiting for review" : filter === "unmatched" ? "No unmatched groups" : "No alternatives in this view"
           }
           description={
-            comparison.quotations.length
-              ? "Refresh suggestions after adding or correcting your quotation items."
-              : "Extract or manually enter supplier items, then return here."
+            !comparison.quotations.length ? "Add supplier quotations, then review their extracted or manually entered items." : !itemCount ? "Check the original quotations and add missing items in extraction review." : !comparison.groups.length ? "Refresh the baseline to suggest groups from the available item descriptions and identifiers." : filter === "review" ? "Approved and rejected groups remain available under All groups. Approval does not resolve missing prices or terms." : "All source items remain available in the full group list."
           }
+          action={!comparison.quotations.length ? <Link className="button primary" href={`/comparisons/${comparison.id}/upload`}>Add quotations <ArrowRight size={15} /></Link> : !itemCount ? <Link className="button primary" href={`/comparisons/${comparison.id}/review`}>Review quotation items <ArrowRight size={15} /></Link> : comparison.groups.length ? <button className="button secondary" onClick={() => setFilter("all")}>Show all groups</button> : undefined}
         />
       ) : (
         <div className="match-groups">
@@ -269,9 +280,10 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
                           </span>
                         )}
                         {valueOf(item.billingBasis) && (
-                          <span>{valueOf(item.billingBasis)}</span>
+                          <span>{valueOf(item.billingBasis)?.replaceAll("_", " ")}</span>
                         )}
                       </div>
+                      <Link className="match-source-link" href={`/comparisons/${comparison.id}/review?q=${encodeURIComponent(quotation.id)}`} aria-label={`Review source for ${valueOf(item.description) ?? "item"} from ${supplierName(quotation)}`}>Review source <ArrowRight size={12} /></Link>
                       <div className="match-member-price">
                         <span className="money">
                           {formatMoney(
@@ -331,6 +343,7 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
                 )}
                 <p>{group.explanation}</p>
               </div>
+              {(group.members.length < 2 || group.status === "stale" || group.classification !== "equivalent") && <p className="match-next-action">{group.members.length < 2 ? "Move a comparable offer into this group, or keep it unmatched if another supplier has no equivalent offer." : group.classification !== "equivalent" ? "Inspect the differences. Keep as an alternative, or split items that need separate comparison." : "Check the changed items and their sources, then approve equivalence again if it still holds."}</p>}
               <div className="match-group-actions">
                 <label className="classification-select">
                   Treat as

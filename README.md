@@ -2,7 +2,7 @@
 
 [Open the live demo](https://fieldops-eight-blue.vercel.app) · [Reliability evidence](https://fieldops-eight-blue.vercel.app/reliability) · [Build checks](https://github.com/Chi944/fieldops/actions)
 
-![FieldOps workspace](docs/images/workspace.png)
+![FieldOps workspace](docs/images/workspace-v2.png)
 
 An evidence-first workspace for comparing supplier quotations across goods and services. Review each supplier's original document, correct uncertain fields, approve comparable items, and export a comparison whose assumptions remain visible.
 
@@ -36,7 +36,7 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 ## Reliability evidence
 
-Verified locally: **95 unit/integration tests and six browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Four browser workflows also pass against the public URL. Linux CI repeats the checks from a clean checkout.
+Verified locally: **95 unit/integration tests and seven browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Public deployment results are recorded in [release verification](docs/release-verification.md). Linux CI repeats the checks from a clean checkout.
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 
@@ -59,6 +59,8 @@ TypeScript, Next.js and React provide the interface and server API. Decimal.js o
 - [Architecture and data model](docs/architecture.md)
 - [Security and retention behavior](docs/security-and-retention.md) and [dependency review](docs/dependency-review.md)
 - [Release verification](docs/release-verification.md)
+- [Next release and Neon/Supabase assessment](docs/next-release.md)
+- [UI design decisions](docs/design-refinement.md) and [generated artwork provenance](docs/image-assets.md)
 - [Product scope](docs/spec.md) and [implementation milestones](docs/implementation-plan.md)
 - [Measured evaluation](docs/evaluation-report.md) and [fixed failure](docs/failure-notes.md)
 - [Portfolio case study](docs/case-study.md) and [short demonstration script](docs/demo-script.md)
@@ -72,4 +74,4 @@ Supported inputs are bounded English printed quotations: text/scanned PDF, PNG/J
 - [Acceptance status and verification limits](docs/acceptance-status.md)
 - [Browser test instructions](tests/e2e/README.md)
 
-![Supplier comparison with original prices and visible review issues](docs/images/comparison.png)
+![Supplier comparison with original prices and visible review issues](docs/images/comparison-v2.png)

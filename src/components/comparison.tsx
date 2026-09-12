@@ -199,7 +199,7 @@ export function ComparisonScreen({
           )}
         </div>
       )}
-      <div className="matrix-scroll">
+      <div className="matrix-scroll" tabIndex={printable ? undefined : 0} aria-label="Supplier matrix. Scroll to compare items and suppliers.">
         <table className="comparison-matrix">
           <caption className="sr-only">
             {comparison.name} —{" "}

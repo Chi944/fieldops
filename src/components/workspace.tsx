@@ -1,12 +1,14 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  ArrowUpRight,
   Check,
   ChevronRight,
   ClipboardCheck,
+  ShieldCheck,
+  X,
   FileText,
   FolderOpen,
   MoreHorizontal,
@@ -33,148 +35,45 @@ export function WorkspaceScreen({
   const [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [menu, setMenu] = useState<string | null>(null);
-  const allIssues = comparisons
-    .flatMap((c) => c.quotations.flatMap((q) => q.issues))
-    .filter((i) => !i.resolved).length;
-  const quotations = comparisons.reduce(
-    (count, c) => count + c.quotations.length,
-    0,
-  );
-  const visible = useMemo(
-    () =>
-      comparisons.filter(
-        (c) =>
-          c.name.toLowerCase().includes(query.toLowerCase()) &&
-          (filter !== "review" ||
-            c.quotations.some((q) => q.issues.some((i) => !i.resolved))),
-      ),
-    [comparisons, query, filter],
-  );
-  const featured =
-    comparisons.find((c) => c.id === "demo-studio") ??
-    comparisons.find((c) => c.quotations.length);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const needsReview = (c: Comparison) => c.quotations.some(q => q.issues.some(i => !i.resolved) || ["partial", "failed", "cancelled", "waiting_quota"].includes(q.status)) || c.groups.some(g => g.status === "proposed" || g.status === "stale") || (c.quotations.length > 1 && !c.groups.length);
+  const reviewCount = comparisons.filter(needsReview).length;
+  const quotations = comparisons.reduce((count, c) => count + c.quotations.length, 0);
+  const visible = useMemo(() => comparisons.filter(c => c.name.toLowerCase().includes(query.toLowerCase()) && (filter !== "review" || needsReview(c))), [comparisons, query, filter]);
+  const featured = [...comparisons].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).find(c => !c.isDemo && c.quotations.length) ?? comparisons.find(c => c.id === "demo-studio") ?? comparisons.find(c => c.quotations.length);
+  const featuredReview = featured?.quotations.find(q => q.issues.some(i => !i.resolved) || q.status === "partial");
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenu(null);
+      if (event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.altKey && !(event.target as HTMLElement).closest("input, textarea, select, [contenteditable], [role=dialog]")) { event.preventDefault(); searchRef.current?.focus(); }
+    };
+    const outside = (event: PointerEvent) => { if (!(event.target as HTMLElement).closest(".row-actions")) setMenu(null); };
+    document.addEventListener("keydown", key); document.addEventListener("pointerdown", outside);
+    return () => { document.removeEventListener("keydown", key); document.removeEventListener("pointerdown", outside); };
+  }, []);
   return (
-    <>
+    <div className="workspace-v2">
       <div className="workspace-heading">
-        <div>
-          <div className="welcome-line">
-            <span className="status-dot" />
-            Your procurement workspace
-          </div>
-          <h1>
-            Good decisions start
-            <br />
-            with a clear comparison.
-          </h1>
-          <p>Bring your quotations together. Find what matters.</p>
-        </div>
-        <button className="button primary" onClick={onCreate}>
-          <Plus size={17} />
-          New comparison
-        </button>
+        <div><h1>Your quotation workspace</h1><p>Compare supplier offers. Keep the evidence behind every decision.</p></div>
+        <button className="button primary" onClick={onCreate}><Plus size={17} />New comparison</button>
       </div>
-      <section className="workspace-intro" aria-label="Workspace at a glance">
-        <div className="intro-content">
-          <Badge tone="teal">
-            <ClipboardCheck size={12} />
-            Evidence-led buying
-          </Badge>
-          <h2>
-            Different suppliers.
-            <br />
-            One shared view.
-          </h2>
-          <p>
-            Go beyond the headline price. Review the source, compare like for
-            like, and keep the details that change a decision.
-          </p>
-          {featured && (
-            <Link
-              href={`/comparisons/${featured.id}/compare`}
-              className="intro-link"
-            >
-              Explore a sample comparison <ArrowRight size={17} />
-            </Link>
-          )}
-        </div>
-        <div
-          className="comparison-illustration"
-          aria-label="Illustration of a comparison with three supplier quotations"
-        >
-          <div className="mini-quote back-one">
-            <FileText size={18} />
-            <i />
-            <i />
-            <i />
-            <div className="mini-lines" />
-          </div>
-          <div className="mini-quote back-two">
-            <FileText size={18} />
-            <i />
-            <i />
-            <i />
-            <div className="mini-lines" />
-          </div>
-          <div className="mini-matrix">
-            <div className="mini-matrix-title">
-              <span className="mini-mark">
-                <Check size={13} />
-              </span>
-              Compare with confidence<span className="mini-dots">•••</span>
-            </div>
-            <div className="mini-matrix-grid">
-              <span>Required items</span>
-              <span>A</span>
-              <span>B</span>
-              <span>C</span>
-              <b>Equipment</b>
-              <i className="mini-bar" />
-              <i className="mini-bar chosen" />
-              <i className="mini-bar" />
-              <b>Installation</b>
-              <i className="mini-bar" />
-              <i className="mini-warning" />
-              <i className="mini-bar" />
-              <b>Delivery</b>
-              <i className="mini-bar chosen" />
-              <i className="mini-bar" />
-              <i className="mini-dash" />
-            </div>
-            <div className="mini-bottom">
-              <span className="status-dot" />
-              Every value linked to its source
-              <Check size={13} />
-            </div>
+      <section className="workspace-welcome" aria-label="Continue your work">
+        <div className="welcome-copy">
+          <span className="welcome-context"><span className="status-dot" />{featured?.isDemo ? "A practical place to start" : featured ? "Continue your latest comparison" : "Start a comparison"}</span>
+          <h2>{featured?.name ?? "Bring the whole picture together."}</h2>
+          <p>{featured?.description || "Add your quotations, review what matters and build a comparison you can stand behind."}</p>
+          <div className="welcome-actions">
+            {featured ? <><Link className="button primary" href={`/comparisons/${featured.id}/${featuredReview ? `review?q=${encodeURIComponent(featuredReview.id)}` : "compare"}`}>
+              {featuredReview ? "Continue review" : "Open comparison"}<ArrowRight size={16} />
+            </Link><span className="welcome-detail">{featured.quotations.length} supplier quotations{featured.isDemo ? " / Fictional sample" : ""}</span></> : <button className="button primary" onClick={onCreate}>Create your first comparison<ArrowRight size={16} /></button>}
           </div>
         </div>
+        <div className="welcome-art" aria-hidden="true"><Image src="/images/quotation-still-life-v1.webp" alt="" fill sizes="(max-width: 760px) 1px, 420px" loading="eager" unoptimized /></div>
       </section>
-      <div className="workspace-stats">
-        <div>
-          <span className="stat-icon">
-            <FolderOpen size={19} />
-          </span>
-          <strong>{comparisons.length}</strong>
-          <span>Comparisons</span>
-        </div>
-        <div>
-          <span className="stat-icon">
-            <FileText size={19} />
-          </span>
-          <strong>{quotations}</strong>
-          <span>Supplier quotations</span>
-        </div>
-        <div>
-          <span className="stat-icon amber-icon">
-            <ClipboardCheck size={19} />
-          </span>
-          <strong>{allIssues}</strong>
-          <span>Items to review</span>
-        </div>
-        <span className="stats-disclosure">
-          {capabilities.canPersist
-            ? "Samples and private comparisons"
-            : "Realistic samples. No private documents."}
-        </span>
+      <div className="workspace-pulse" aria-label="Workspace summary">
+        <div><FolderOpen size={18} /><strong>{comparisons.length}</strong><span>Comparisons</span></div>
+        <div><FileText size={18} /><strong>{quotations}</strong><span>Quotations</span></div>
+        <button onClick={() => { setFilter(filter === "review" ? "all" : "review"); setQuery(""); }} aria-pressed={filter === "review"}><ClipboardCheck size={18} /><strong>{reviewCount}</strong><span>{reviewCount === 1 ? "Comparison needs review" : "Comparisons need review"}</span><ChevronRight size={14} /></button>
       </div>
       <section className="comparisons-section">
         <div className="section-heading">
@@ -187,27 +86,31 @@ export function WorkspaceScreen({
           <div className="search-control">
             <Search size={16} />
             <input
+              ref={searchRef}
+              aria-keyshortcuts="Control+k Meta+k"
               aria-label="Search comparisons"
               placeholder="Search comparisons"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <kbd>/</kbd>
+            {query ? <button className="search-clear" onClick={() => { setQuery(""); searchRef.current?.focus(); }} aria-label="Clear search"><X size={14} /></button> : <kbd>Ctrl K</kbd>}
           </div>
         </div>
         <div className="list-controls">
           <div className="segmented">
             <button
               className={filter === "all" ? "active" : ""}
+              aria-pressed={filter === "all"}
               onClick={() => setFilter("all")}
             >
               All comparisons
             </button>
             <button
               className={filter === "review" ? "active" : ""}
+              aria-pressed={filter === "review"}
               onClick={() => setFilter("review")}
             >
-              Needs review{allIssues > 0 && <span>{allIssues}</span>}
+              Needs review{reviewCount > 0 && <span>{reviewCount}</span>}
             </button>
           </div>
           <span className="muted small">Most recently updated</span>
@@ -217,7 +120,7 @@ export function WorkspaceScreen({
             <div className="comparison-list-head">
               <span>Comparison</span>
               <span>Suppliers</span>
-              <span>Review status</span>
+              <span>Next step</span>
               <span>Updated</span>
               <span />
             </div>
@@ -227,6 +130,12 @@ export function WorkspaceScreen({
                 const unresolved = c.quotations
                   .flatMap((q) => q.issues)
                   .filter((i) => !i.resolved).length;
+                const pendingMatches = c.groups.filter(g => g.status === "proposed" || g.status === "stale").length;
+                const processing = c.quotations.some(q => ["queued", "validating", "parsing", "extracting", "reconciling"].includes(q.status));
+                const incomplete = c.quotations.some(q => ["partial", "failed", "cancelled", "waiting_quota"].includes(q.status));
+                const needsRetry = c.quotations.some(q => ["failed", "cancelled", "waiting_quota"].includes(q.status));
+                const nextRoute = processing || needsRetry || !c.quotations.length ? "upload" : unresolved || incomplete ? "review" : c.quotations.length < 2 ? "upload" : pendingMatches || !c.groups.length ? "matching" : "compare";
+                const reviewQuotation = c.quotations.find(q => q.issues.some(i => !i.resolved) || q.status === "partial");
                 return (
                   <div className="comparison-list-row" key={c.id}>
                     <Link
@@ -262,21 +171,10 @@ export function WorkspaceScreen({
                         <span className="muted small">No suppliers yet</span>
                       )}
                     </div>
-                    <div>
-                      {unresolved ? (
-                        <Badge tone="amber">
-                          <span className="status-dot amber" />
-                          {unresolved} to review
-                        </Badge>
-                      ) : c.quotations.length ? (
-                        <Badge tone="teal">
-                          <Check size={12} />
-                          Ready to compare
-                        </Badge>
-                      ) : (
-                        <Badge>Add quotations</Badge>
-                      )}
-                    </div>
+                    <Link className="next-step-link" href={`/comparisons/${c.id}/${nextRoute}${nextRoute === "review" && reviewQuotation ? `?q=${encodeURIComponent(reviewQuotation.id)}` : ""}`}>
+                      {processing ? <Badge tone="blue">Processing quotations</Badge> : unresolved || incomplete ? <Badge tone="amber"><span className="status-dot amber" />{unresolved ? `${unresolved} open ${unresolved === 1 ? "issue" : "issues"}` : "Check extraction"}</Badge> : pendingMatches ? <Badge tone="amber">{pendingMatches} {pendingMatches === 1 ? "match" : "matches"} to review</Badge> : c.quotations.length < 2 ? <Badge>{c.quotations.length ? "Add another supplier" : "Add quotations"}</Badge> : c.groups.length ? <Badge tone="teal"><Check size={12} />Review complete</Badge> : <Badge>Match items</Badge>}
+                      <span className="sr-only"> — Next step for {c.name}</span>
+                    </Link>
                     <time className="updated-date" dateTime={c.updatedAt}>
                       {new Date(c.updatedAt).toLocaleDateString("en-GB", {
                         day: "numeric",
@@ -332,30 +230,20 @@ export function WorkspaceScreen({
             title={
               query
                 ? "No matching comparisons"
-                : "Your next decision starts here"
+                : filter === "review" ? "Your review queue is clear" : "Your next decision starts here"
             }
             description={
               query
                 ? "Try another name or clear the search."
-                : "Create a comparison and add quotations from your suppliers."
+                : filter === "review" ? "No comparisons are waiting for review. You can still revisit their evidence and assumptions." : "Create a comparison and add quotations from your suppliers."
             }
             action={
-              <button className="button primary" onClick={onCreate}>
-                <Plus size={16} />
-                New comparison
-              </button>
+              query || filter === "review" ? <button className="button secondary" onClick={() => { setQuery(""); setFilter("all"); }}>Show all comparisons</button> : <button className="button primary" onClick={onCreate}><Plus size={16} />New comparison</button>
             }
           />
         )}
       </section>
-      <div className="workspace-footnote">
-        <Check size={15} />
-        <p>
-          Supplier-stated values stay intact. Corrections, assumptions and
-          unresolved questions travel with your report.
-        </p>
-        <ArrowUpRight size={15} />
-      </div>
-    </>
+      <div className="workspace-assurance"><ShieldCheck size={18} /><p>{capabilities.canPersist ? "Private originals stay in your workspace. " : "Fictional quotations. Your sample edits stay in this browser. "}Sources, corrections and open questions travel with every report.</p><Link href="/reliability">See reliability evidence<ArrowRight size={14} /></Link></div>
+    </div>
   );
 }
