@@ -1,0 +1,43 @@
+Alder Office IT
+QUOTATION: OFFICE-1-26
+Date: 10 September 2026
+Currency: SGD
+Number convention: decimal point
+Fictional benchmark quotation; self-authored; no real supplier.
+
+1. Business monitor | ID OFFICE-1
+Quantity 4 each; unit price SGD 220.00; line amount SGD 880.00
+Specification: 27 inch; 2560x1440; IPS
+
+2. USB C cable | ID OFFICE-2
+Quantity 5 pack; unit price SGD 24.00; line amount SGD 120.00
+Package contents: 2 each per pack; whole packs only
+Specification: 1 m; 100 W; USB 3.2
+
+3. Keyboard | ID OFFICE-3
+Quantity 4 each; unit price SGD 45.00; line amount SGD 180.00
+Specification: US layout; wired
+Minimum order: 4 each
+
+4. Ethernet cable | ID OFFICE-4
+Quantity 100 m; unit price SGD 1.20; line amount SGD 120.00
+Specification: Cat6; solid copper
+
+5. Workstation setup | ID OFFICE-5
+Quantity 4 device; unit price SGD 90.00; line amount SGD 360.00
+Billing: fixed_project; scope: Install operating system; connect peripherals; test connectivity
+
+6. Remote support | ID OFFICE-6
+Quantity 6 hour; unit price SGD 60.00; line amount SGD 360.00
+Billing: hourly; scope: Weekday remote support; hardware excluded
+
+Subtotal SGD 2020.00
+Shipping SGD 25
+Tax: 9%; all prices tax-exclusive; tax amount SGD 184.05
+Quoted total SGD 2229.05
+
+Lead time: 3 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.
+

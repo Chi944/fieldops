@@ -1,0 +1,41 @@
+Beacon Translation services
+QUOTATION: TRANSLATION-2-26
+Date: 10 September 2026
+Currency: SGD
+Number convention: decimal point
+Fictional benchmark quotation; self-authored; no real supplier.
+
+1. English to French translation | ID TRANSLATION-1
+Quantity 1200 word; unit price SGD 0.11; line amount SGD 132.00
+Billing: per_word; scope: General business text; French France; source word count
+
+2. Independent proofreading | ID TRANSLATION-2
+Quantity 1200 word; unit price SGD 0.04; line amount SGD 48.00
+Billing: per_word; scope: Second linguist reviews translated text
+
+3. Layout formatting | ID TRANSLATION-3
+Quantity 4 hour; unit price SGD 32.90; line amount SGD 131.60
+Billing: hourly; scope: Preserve source PDF layout; editable file delivered
+Minimum order: 4 hour
+
+4. Terminology glossary | ID TRANSLATION-4
+Quantity 1 project; unit price SGD 84.60; line amount SGD 84.60
+Billing: fixed_project; scope: Forty approved business terms
+
+5. Project coordination | ID TRANSLATION-5
+Quantity 1 project; unit price SGD 56.40; line amount SGD 56.40
+Billing: fixed_project; scope: One revision round; delivery coordination
+
+6. Monthly language support | ID TRANSLATION-6
+Quantity 1 account; unit price SGD 169.20; line amount SGD 169.20
+Billing: monthly; scope: Two hours advisory support per month; translation excluded
+
+Subtotal SGD 621.80
+Tax: 9%; all prices tax-exclusive; tax amount SGD 55.96
+Quoted total SGD 677.76; delivery excluded and not priced
+
+Lead time: 5 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.
+

@@ -1,0 +1,42 @@
+Beacon Facilities maintenance
+QUOTATION: FACILITIES-2-26
+Date: 10 September 2026
+Currency: EUR
+Number convention: decimal comma
+Fictional benchmark quotation; self-authored; no real supplier.
+
+1. Office cleaning | ID FACILITIES-1
+Quantity 1 site; unit price EUR 639,20; line amount EUR 639,20
+Billing: monthly; scope: 120 sqm; twice weekly; cleaning consumables included
+
+2. HVAC replacement filter | ID FACILITIES-2
+Quantity 6 each; unit price EUR 22,56; line amount EUR 135,36
+Specification: MERV 13; 20x20 inches
+All-unit tiers (each): 1-199 at 22,56; 200 and above at 20,30
+
+3. Emergency maintenance | ID FACILITIES-3
+Quantity 2 hour; unit price EUR 79,90; line amount EUR 159,80
+Billing: hourly; scope: Weekday labour; parts excluded
+Minimum order: 2 hour
+
+4. Refuse sack | ID FACILITIES-4
+Quantity 60 each; unit price EUR 0,42; line amount EUR 25,20
+Specification: 120 l; heavy duty
+
+5. Window cleaning | ID FACILITIES-5
+Quantity 1 project; unit price EUR 131,60; line amount EUR 131,60
+Billing: fixed_project; scope: Interior glass; ground floor; 20 sqm
+
+6. Safety inspection | ID FACILITIES-6
+Quantity 1 project; unit price EUR 178,60; line amount EUR 178,60
+Billing: fixed_project; scope: Visual inspection; checklist report; certification excluded
+
+Subtotal EUR 1269,76
+Tax: 9%; all prices tax-exclusive; tax amount EUR 114,28
+Quoted total EUR 1384,04; delivery excluded and not priced
+
+Lead time: 5 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.
+

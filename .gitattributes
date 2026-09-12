@@ -1,0 +1,9 @@
+* text=auto eol=lf
+# Source byte hashes and offsets must survive every checkout unchanged.
+eval/originals/** -text -whitespace
+eval/robustness/** -text -whitespace
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.xlsx binary

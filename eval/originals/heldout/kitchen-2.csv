@@ -1,0 +1,34 @@
+"Section","Quotation content","Reference"
+"header","Beacon Commercial kitchen equipment
+QUOTATION: KITCHEN-2-26
+Date: 10 September 2026
+Currency: EUR
+Number convention: decimal comma
+Fictional benchmark quotation; self-authored; no real supplier.",""
+"line-1","1. Stainless prep table | ID KITCHEN-1
+Quantity 2 each; unit price EUR 319,60; line amount EUR 639,20
+Specification: 1200x600 mm; grade 304","KITCHEN-1"
+"line-2","2. Food storage container | ID KITCHEN-2
+Quantity 12 each; unit price EUR 16,92; line amount EUR 203,04
+Specification: 10 l; food grade; lid included
+All-unit tiers (each): 1-199 at 16,92; 200 and above at 15,23","KITCHEN-2"
+"line-3","3. Digital kitchen scale | ID KITCHEN-3
+Quantity 2 each; unit price EUR 61,10; line amount EUR 122,20
+Specification: 15 kg capacity; 1 g resolution
+Minimum order: 2 each","KITCHEN-3"
+"line-4","4. Extraction duct | ID KITCHEN-4
+Quantity 10 m; unit price EUR 20,68; line amount EUR 206,80
+Specification: 150 mm diameter; galvanized steel","KITCHEN-4"
+"line-5","5. Equipment installation | ID KITCHEN-5
+Quantity 1 project; unit price EUR 357,20; line amount EUR 357,20
+Billing: fixed_project; scope: Place and level supplied equipment; electrical work excluded","KITCHEN-5"
+"line-6","6. Kitchen maintenance | ID KITCHEN-6
+Quantity 2 hour; unit price EUR 89,30; line amount EUR 178,60
+Billing: hourly; scope: Inspection and cleaning; replacement parts excluded","KITCHEN-6"
+"totals","Subtotal EUR 1707,04
+Tax: 9%; all prices tax-exclusive; tax amount EUR 153,63
+Quoted total EUR 1860,67; delivery excluded and not priced",""
+"terms","Lead time: 5 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.",""

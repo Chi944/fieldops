@@ -1,0 +1,12 @@
+.env*
+!.env.example
+.fieldops
+.trigger
+.git
+playwright-report
+test-results
+coverage
+eval/runs/private
+
+node_modules
+.next

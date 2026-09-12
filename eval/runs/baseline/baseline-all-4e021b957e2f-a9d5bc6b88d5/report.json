@@ -1,0 +1,770 @@
+{
+  "version": 1,
+  "measuredAt": "2026-09-12T17:50:59.516Z",
+  "runId": "baseline-all-4e021b957e2f-a9d5bc6b88d5",
+  "mode": "baseline",
+  "split": "all",
+  "datasetHash": "a9d5bc6b88d503e0b2b8e12232b682cc350cb4004fd290944284d4cd073ab536",
+  "configurationHash": "4e021b957e2fc53897584dbbd528eac77c5aeecf93692f11bd69b7dfd5f82fbe",
+  "holdoutStatus": "Untuned held-out content; offline measurement only",
+  "dataset": {
+    "documents": 24,
+    "scenarios": 8,
+    "logicalItems": 144,
+    "annotatedFields": 1106,
+    "sourceFormats": {
+      "text_pdf": 8,
+      "scan_pdf": 4,
+      "xlsx": 4,
+      "text": 4,
+      "csv": 2,
+      "png": 2
+    }
+  },
+  "matching": {
+    "equivalentPrecision": {
+      "numerator": 102,
+      "denominator": 102,
+      "value": 1
+    },
+    "equivalentRecall": {
+      "numerator": 102,
+      "denominator": 116,
+      "value": 0.8793103448275862
+    },
+    "truePositive": 102,
+    "falsePositive": 0,
+    "falseNegative": 14,
+    "candidatePairs": 864,
+    "hardNegativeFalseEquivalences": {
+      "numerator": 0,
+      "denominator": 28,
+      "value": 0
+    }
+  },
+  "parser": {
+    "completeDocuments": 24,
+    "attemptedDocuments": 24,
+    "identifierCoverage": {
+      "numerator": 144,
+      "denominator": 144,
+      "value": 1
+    },
+    "sourceLocationsPresent": {
+      "numerator": 963,
+      "denominator": 963,
+      "value": 1
+    },
+    "boxesWithinPage": {
+      "numerator": 544,
+      "denominator": 544,
+      "value": 1
+    },
+    "timing": {
+      "count": 24,
+      "medianMs": 13.622999999999593,
+      "minimumMs": 0.22559999999793945,
+      "maximumMs": 5842.2828,
+      "totalMs": 27850.837199999994
+    },
+    "documents": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 1106.4586,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "industrial-2",
+        "format": "scan_pdf",
+        "split": "dev",
+        "elapsedMs": 5842.2828,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "industrial-3",
+        "format": "xlsx",
+        "split": "dev",
+        "elapsedMs": 723.7996999999996,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-1",
+        "format": "text",
+        "split": "dev",
+        "elapsedMs": 0.6965000000000146,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "split": "dev",
+        "elapsedMs": 16.886999999998807,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 13.622999999999593,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "event-1",
+        "format": "png",
+        "split": "dev",
+        "elapsedMs": 2798.2168,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 33,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        }
+      },
+      {
+        "id": "event-2",
+        "format": "xlsx",
+        "split": "dev",
+        "elapsedMs": 12.638199999999415,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "event-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 29.553900000000795,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "translation-1",
+        "format": "scan_pdf",
+        "split": "dev",
+        "elapsedMs": 4990.977299999999,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "split": "dev",
+        "elapsedMs": 0.2283000000006723,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 32,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "translation-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 13.570999999999913,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-1",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 10.129500000000917,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-2",
+        "format": "scan_pdf",
+        "split": "heldout",
+        "elapsedMs": 4885.423299999999,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-3",
+        "format": "xlsx",
+        "split": "heldout",
+        "elapsedMs": 17.788100000001577,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-1",
+        "format": "text",
+        "split": "heldout",
+        "elapsedMs": 0.22559999999793945,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-2",
+        "format": "csv",
+        "split": "heldout",
+        "elapsedMs": 3.3526999999994587,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 12.159500000001572,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "installation-1",
+        "format": "png",
+        "split": "heldout",
+        "elapsedMs": 2498.0229,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        }
+      },
+      {
+        "id": "installation-2",
+        "format": "xlsx",
+        "split": "heldout",
+        "elapsedMs": 8.192999999999302,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "installation-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 11.937799999999697,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "facilities-1",
+        "format": "scan_pdf",
+        "split": "heldout",
+        "elapsedMs": 4841.5815,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "facilities-2",
+        "format": "text",
+        "split": "heldout",
+        "elapsedMs": 0.37960000000020955,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 33,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "facilities-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 12.710599999998522,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      }
+    ]
+  },
+  "robustness": [
+    {
+      "id": "exact-duplicate",
+      "path": "eval/robustness/duplicate.pdf",
+      "expected": "same_hash",
+      "mode": "duplicate",
+      "notes": "Exact byte copy of the first development original; should offer duplicate recovery without resetting saved work.",
+      "passed": true,
+      "actual": "hash equality check",
+      "elapsedMs": 1.0578999999997905
+    },
+    {
+      "id": "intentional-revision",
+      "path": "eval/robustness/intentional-revision.txt",
+      "expected": "different_hash_same_quote_id",
+      "mode": "revision",
+      "notes": "Changed content with same quotation identifier and explicit revision; it must not be discarded as a duplicate.",
+      "passed": true,
+      "actual": "different bytes, same identifier, explicit revision",
+      "elapsedMs": 0.9490000000005239
+    },
+    {
+      "id": "password-pdf",
+      "path": "eval/robustness/password-protected.pdf",
+      "expected": "password_protected",
+      "mode": "parse",
+      "notes": "Real self-authored encrypted PDF; test password fixture-only. Not a claim about all encryption variants.",
+      "passed": true,
+      "actual": "password_protected",
+      "elapsedMs": 3.3810000000012224
+    },
+    {
+      "id": "malformed-file",
+      "path": "eval/robustness/malformed.pdf",
+      "expected": "malformed_file",
+      "mode": "parse",
+      "notes": "Artificially malformed PDF, separate from valid extraction denominators.",
+      "passed": true,
+      "actual": "malformed_file",
+      "elapsedMs": 3.463500000001659
+    },
+    {
+      "id": "unreadable-scan",
+      "path": "eval/robustness/unreadable-scan.png",
+      "expected": "unreadable_or_partial",
+      "mode": "parse",
+      "notes": "Artificial blank grey raster used as an unreadable input; does not model the distribution of real scan degradation.",
+      "passed": true,
+      "actual": "partial",
+      "elapsedMs": 540.0443999999989
+    },
+    {
+      "id": "unsupported-format",
+      "path": "eval/robustness/unsupported.docx",
+      "expected": "unsupported_format",
+      "mode": "parse",
+      "notes": "Unsupported extension must produce a format/re-export recovery path.",
+      "passed": true,
+      "actual": "unsupported_format",
+      "elapsedMs": 1.3205999999991036
+    },
+    {
+      "id": "excessive-size",
+      "expected": "file_too_large",
+      "mode": "oversize",
+      "notes": "Constructs a 20 MiB + 1 byte buffer at evaluation time; the large artificial payload is not committed.",
+      "passed": true,
+      "actual": "file_too_large",
+      "elapsedMs": 1.2737000000015541
+    },
+    {
+      "id": "malicious-instructions",
+      "path": "eval/robustness/misleading-instructions.txt",
+      "expected": "data_only_no_actions",
+      "mode": "injection",
+      "notes": "Parser preservation is measurable without AI; model resistance requires a real live run and remains unverified here.",
+      "passed": true,
+      "actual": "Untrusted text preserved as source data; live model resistance NOT TESTED",
+      "elapsedMs": 1.122400000000198
+    }
+  ],
+  "ai": {
+    "status": "UNVERIFIED",
+    "reason": "Integration is disabled until the user configures and confirms a Groq Free Plan key. No inference was run; no model extraction, matching, ambiguity, attack-resistance or cost claims are made."
+  },
+  "providerCostUsd": "0",
+  "independentReview": "Independent gold review has not yet been recorded.",
+  "limitations": [
+    "Small synthetic English-only dataset; authored layout and content diversity do not establish general supplier-format coverage.",
+    "Baseline matching uses gold-normalized rows and explicit identifiers. It does not include extraction error and favors the identifier baseline.",
+    "Parser identifier coverage measures presence of authored item IDs, not detected rows or semantic field extraction accuracy.",
+    "Source-location presence and geometric bounds do not prove that every reference supports a semantic assertion.",
+    "Raw live field scoring uses exact identifiers for row alignment, canonical strings for text, and separately reports intentionally annotated missing states.",
+    "Robustness hash checks do not by themselves test the browser upload flow, durable retries, cross-user access or live prompt-injection resistance.",
+    "The unreadable fixture is an artificial blank raster. Production degraded scans require a broader permissioned dataset.",
+    "No human gold verification or production latency distribution is implied. Inspect the separate review record and per-file measurements."
+  ]
+}

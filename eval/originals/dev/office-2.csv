@@ -1,0 +1,34 @@
+"Section","Quotation content","Reference"
+"header","Beacon Office IT
+QUOTATION: OFFICE-2-26
+Date: 10 September 2026
+Currency: SGD
+Number convention: decimal point
+Fictional benchmark quotation; self-authored; no real supplier.",""
+"line-1","1. Business monitor | ID OFFICE-1
+Quantity 4 each; unit price SGD 206.80; line amount SGD 827.20
+Specification: 27 inch; 2560x1440; IPS","OFFICE-1"
+"line-2","2. USB C cable | ID OFFICE-2
+Quantity 10 each; unit price SGD 11.28; line amount SGD 112.80
+Specification: 1 m; 100 W; USB 3.2
+All-unit tiers (each): 1-199 at 11.28; 200 and above at 10.15","OFFICE-2"
+"line-3","3. Keyboard | ID OFFICE-3
+Quantity 4 each; unit price SGD 42.30; line amount SGD 169.20
+Specification: US layout; wired
+Minimum order: 4 each","OFFICE-3"
+"line-4","4. Ethernet cable | ID OFFICE-4
+Quantity 100 m; unit price SGD 1.13; line amount SGD 113.00
+Specification: Cat6; solid copper","OFFICE-4"
+"line-5","5. Workstation setup | ID OFFICE-5
+Quantity 4 device; unit price SGD 84.60; line amount SGD 338.40
+Billing: fixed_project; scope: Install operating system; connect peripherals; test connectivity","OFFICE-5"
+"line-6","6. Remote support | ID OFFICE-6
+Quantity 6 hour; unit price SGD 56.40; line amount SGD 338.40
+Billing: hourly; scope: Weekday remote support; hardware excluded","OFFICE-6"
+"totals","Subtotal SGD 1899.00
+Tax: 9%; all prices tax-exclusive; tax amount SGD 170.91
+Quoted total SGD 2069.91; delivery excluded and not priced",""
+"terms","Lead time: 5 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.",""

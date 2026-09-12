@@ -1,0 +1,771 @@
+{
+  "version": 1,
+  "measuredAt": "2026-09-12T18:28:24.506Z",
+  "runId": "baseline-all-2970cebd8624-8dc06a6ab2cb",
+  "mode": "baseline",
+  "split": "all",
+  "datasetHash": "8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6",
+  "configurationHash": "2970cebd86241752c591efc574d7b0b1ffdc9481794ab82a7118c5e1a2ad5545",
+  "holdoutStatus": "Untuned held-out content; offline measurement only",
+  "dataset": {
+    "documents": 24,
+    "scenarios": 8,
+    "logicalItems": 144,
+    "annotatedFields": 1106,
+    "sourceFormats": {
+      "text_pdf": 8,
+      "scan_pdf": 4,
+      "xlsx": 4,
+      "text": 4,
+      "csv": 2,
+      "png": 2
+    }
+  },
+  "matching": {
+    "equivalentPrecision": {
+      "numerator": 102,
+      "denominator": 102,
+      "value": 1
+    },
+    "equivalentRecall": {
+      "numerator": 102,
+      "denominator": 116,
+      "value": 0.8793103448275862
+    },
+    "truePositive": 102,
+    "falsePositive": 0,
+    "falseNegative": 14,
+    "candidatePairs": 864,
+    "hardNegativeFalseEquivalences": {
+      "numerator": 0,
+      "denominator": 28,
+      "value": 0
+    }
+  },
+  "parser": {
+    "completeDocuments": 24,
+    "attemptedDocuments": 24,
+    "identifierCoverage": {
+      "numerator": 144,
+      "denominator": 144,
+      "value": 1
+    },
+    "sourceLocationsPresent": {
+      "numerator": 963,
+      "denominator": 963,
+      "value": 1
+    },
+    "boxesWithinPage": {
+      "numerator": 544,
+      "denominator": 544,
+      "value": 1
+    },
+    "timing": {
+      "count": 24,
+      "medianMs": 13.754899999999907,
+      "minimumMs": 0.1959000000024389,
+      "maximumMs": 4706.695900000002,
+      "totalMs": 25068.70390000001
+    },
+    "documents": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 1002.6479000000002,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "industrial-2",
+        "format": "scan_pdf",
+        "split": "dev",
+        "elapsedMs": 4497.8116,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "industrial-3",
+        "format": "xlsx",
+        "split": "dev",
+        "elapsedMs": 525.5337,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-1",
+        "format": "text",
+        "split": "dev",
+        "elapsedMs": 0.49430000000029395,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "split": "dev",
+        "elapsedMs": 12.999899999999798,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "office-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 12.741500000000087,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "event-1",
+        "format": "png",
+        "split": "dev",
+        "elapsedMs": 2492.2999,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 33,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        }
+      },
+      {
+        "id": "event-2",
+        "format": "xlsx",
+        "split": "dev",
+        "elapsedMs": 21.41660000000047,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "event-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 23.40309999999954,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "translation-1",
+        "format": "scan_pdf",
+        "split": "dev",
+        "elapsedMs": 4680.8984,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "split": "dev",
+        "elapsedMs": 0.269800000000032,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 32,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "translation-3",
+        "format": "text_pdf",
+        "split": "dev",
+        "elapsedMs": 13.754899999999907,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-1",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 9.417099999998754,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-2",
+        "format": "scan_pdf",
+        "split": "heldout",
+        "elapsedMs": 4667.006799999999,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 39,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 39,
+          "denominator": 39,
+          "value": 1
+        }
+      },
+      {
+        "id": "laboratory-3",
+        "format": "xlsx",
+        "split": "heldout",
+        "elapsedMs": 15.967200000002777,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-1",
+        "format": "text",
+        "split": "heldout",
+        "elapsedMs": 0.32480000000214204,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-2",
+        "format": "csv",
+        "split": "heldout",
+        "elapsedMs": 3.499900000002526,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "kitchen-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 10.815300000002026,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "installation-1",
+        "format": "png",
+        "split": "heldout",
+        "elapsedMs": 2342.222099999999,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 34,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        }
+      },
+      {
+        "id": "installation-2",
+        "format": "xlsx",
+        "split": "heldout",
+        "elapsedMs": 7.360499999998865,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 58,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 58,
+          "denominator": 58,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "installation-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 10.911000000000058,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "facilities-1",
+        "format": "scan_pdf",
+        "split": "heldout",
+        "elapsedMs": 4706.695900000002,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      {
+        "id": "facilities-2",
+        "format": "text",
+        "split": "heldout",
+        "elapsedMs": 0.1959000000024389,
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 33,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 33,
+          "denominator": 33,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      {
+        "id": "facilities-3",
+        "format": "text_pdf",
+        "split": "heldout",
+        "elapsedMs": 10.015800000001036,
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      }
+    ]
+  },
+  "robustness": [
+    {
+      "id": "exact-duplicate",
+      "path": "eval/robustness/duplicate.pdf",
+      "expected": "same_hash",
+      "mode": "duplicate",
+      "notes": "Exact byte copy of the first development original; should offer duplicate recovery without resetting saved work.",
+      "passed": true,
+      "actual": "hash equality check",
+      "elapsedMs": 1.5074000000022352
+    },
+    {
+      "id": "intentional-revision",
+      "path": "eval/robustness/intentional-revision.txt",
+      "expected": "different_hash_same_quote_id",
+      "mode": "revision",
+      "notes": "Changed content with same quotation identifier and explicit revision; it must not be discarded as a duplicate.",
+      "passed": true,
+      "actual": "different bytes, same identifier, explicit revision",
+      "elapsedMs": 0.8289000000004307
+    },
+    {
+      "id": "password-pdf",
+      "path": "eval/robustness/password-protected.pdf",
+      "expected": "password_protected",
+      "mode": "parse",
+      "notes": "Real self-authored encrypted PDF; test password fixture-only. Not a claim about all encryption variants.",
+      "passed": true,
+      "actual": "password_protected",
+      "elapsedMs": 3.0552999999999884
+    },
+    {
+      "id": "malformed-file",
+      "path": "eval/robustness/malformed.pdf",
+      "expected": "malformed_file",
+      "mode": "parse",
+      "notes": "Artificially malformed PDF, separate from valid extraction denominators.",
+      "passed": true,
+      "actual": "malformed_file",
+      "elapsedMs": 1.944100000000617
+    },
+    {
+      "id": "unreadable-scan",
+      "path": "eval/robustness/unreadable-scan.png",
+      "expected": "unreadable_or_partial",
+      "mode": "parse",
+      "notes": "Artificial blank grey raster used as an unreadable input; does not model the distribution of real scan degradation.",
+      "passed": true,
+      "actual": "partial",
+      "elapsedMs": 501.9025999999976
+    },
+    {
+      "id": "unsupported-format",
+      "path": "eval/robustness/unsupported.docx",
+      "expected": "unsupported_format",
+      "mode": "parse",
+      "notes": "Unsupported extension must produce a format/re-export recovery path.",
+      "passed": true,
+      "actual": "unsupported_format",
+      "elapsedMs": 1.448500000002241
+    },
+    {
+      "id": "excessive-size",
+      "expected": "file_too_large",
+      "mode": "oversize",
+      "notes": "Constructs a 20 MiB + 1 byte buffer at evaluation time; the large artificial payload is not committed.",
+      "passed": true,
+      "actual": "file_too_large",
+      "elapsedMs": 0.06999999999970896
+    },
+    {
+      "id": "malicious-instructions",
+      "path": "eval/robustness/misleading-instructions.txt",
+      "expected": "data_only_no_actions",
+      "mode": "injection",
+      "notes": "Parser preservation is measurable without AI; model resistance requires a real live run and remains unverified here.",
+      "passed": true,
+      "actual": "Untrusted text preserved as source data; live model resistance NOT TESTED",
+      "elapsedMs": 1.110000000000582
+    }
+  ],
+  "ai": {
+    "status": "UNVERIFIED",
+    "reason": "Integration is disabled until the user configures and confirms a Groq Free Plan key. No inference was run; no model extraction, matching, ambiguity, attack-resistance or cost claims are made."
+  },
+  "providerCostUsd": "0",
+  "independentReview": "# Independent original-document review\n\nReviewed on 13 September 2026 by the document-processing implementation agent, independently of the agent that authored the benchmark specifications and gold records. This is **agent review, not human verification**. It checks a stated subset; it does not certify all 24 quotations or measure live AI accuracy.\n\n## Procedure and scope\n\nThe reviewer read original content before looking up the corresponding gold values. PDFs were rendered with Poppler at 110 DPI and every rendered page was visually inspected. XLSX cells and merged ranges were read with Python/openpyxl, independently of the application's ExcelJS parser. CSV and text originals were read directly. No OCR output, fixture generator values, or extraction result was used as the source of the manual transcription. No model calls were made, and held-out content was not used to modify extraction or matching prompts.\n\n| Primary original | Original inspection | Logical item rows | Critical checks |\n| --- | --- | ---: | ---: |\n| `originals/dev/industrial-1.pdf` | Both text PDF pages, rendered visually | 6 | 40 |\n| `originals/dev/office-2.csv` | Complete raw CSV, including quoted multiline records | 6 | 40 |\n| `originals/dev/event-2.xlsx` | All nonempty cells and merged ranges in Quotation and Continuation | 6 | 40 |\n| `originals/heldout/laboratory-2.pdf` | Both scanned pages, rendered visually | 6 | 40 |\n| `originals/heldout/facilities-1.pdf` | Both scanned pages, rendered visually | 6 | 40 |\n\nThe 40 checks per quotation comprise supplier name, quotation number, original currency, date, item count; identifier, quantity, unit, unit price and stated amount for each of six items; stated subtotal, stated total, shipping amount/state, tax amount, and stated lead time. Numeric equality used decimal arithmetic, allowing only formatting differences such as `24` versus `24.00`. This is a separate review count, not the benchmark field-accuracy denominator.\n\n**Result: 200/200 critical checks agree with the gold records after the metadata corrections below.** The following transcriptions retain the original quote currency. Laboratory monetary commas are normalized to decimal points here only for readability.\n\n| Original | Supplier / reference | Currency | Stated subtotal | Shipping | Tax | Stated total | Lead time from confirmed order |\n| --- | --- | --- | ---: | ---: | ---: | ---: | --- |\n| industrial-1 | Alder Industrial supplies / INDUSTRIAL-1-26 | SGD | 539.50 | 25.00 | 50.81 | 615.31 | 3 business days |\n| office-2 | Beacon Office IT / OFFICE-2-26 | SGD | 1899.00 | Not stated; delivery excluded | 170.91 | 2069.91 | 5 business days |\n| event-2 | Beacon Event production / EVENT-2-26 | SGD | 1146.80 | Not stated; delivery excluded | 103.21 | 1250.01 | 5 business days |\n| laboratory-2 | Beacon Laboratory consumables / LABORATORY-2-26 | EUR | 348.46 | Not stated; delivery excluded | 31.36 | 379.82 | 5 business days |\n| facilities-1 | Alder Facilities maintenance / FACILITIES-1-26 | SGD | 1351.00 | 25.00 | 123.84 | 1499.84 | 3 business days |\n\nAll five originals state **10 September 2026**, payment **30 days from invoice**, and validity **30 September 2026**. These written dates support ISO normalization, but the raw excerpt must remain the supplier's written form.\n\n| Item identifier | Quantity | Unit | Unit price | Stated line amount |\n| --- | ---: | --- | ---: | ---: |\n| INDUSTRIAL-1 | 200 | each | 0.18 | 36.00 |\n| INDUSTRIAL-2 | 3 | pack | 24.00 | 72.00 |\n| INDUSTRIAL-3 | 5 | l | 12.50 | 62.50 |\n| INDUSTRIAL-4 | 2 | each | 34.50 | 69.00 |\n| INDUSTRIAL-5 | 2 | hour | 80.00 | 160.00 |\n| INDUSTRIAL-6 | 1 | project | 140.00 | 140.00 |\n| OFFICE-1 | 4 | each | 206.80 | 827.20 |\n| OFFICE-2 | 10 | each | 11.28 | 112.80 |\n| OFFICE-3 | 4 | each | 42.30 | 169.20 |\n| OFFICE-4 | 100 | m | 1.13 | 113.00 |\n| OFFICE-5 | 4 | device | 84.60 | 338.40 |\n| OFFICE-6 | 6 | hour | 56.40 | 338.40 |\n| EVENT-1 | 1 | system | 282.00 | 282.00 |\n| EVENT-2 | 1 | project | 169.20 | 169.20 |\n| EVENT-3 | 6 | hour | 47.00 | 282.00 |\n| EVENT-4 | 40 | each | 0.47 | 18.80 |\n| EVENT-5 | 1 | kit | 131.60 | 131.60 |\n| EVENT-6 | 1 | project | 263.20 | 263.20 |\n| LABORATORY-1 | 60 | each | 0.71 | 42.60 |\n| LABORATORY-2 | 100 | each | 0.08 | 8.00 |\n| LABORATORY-3 | 3 | each | 16.92 | 50.76 |\n| LABORATORY-4 | 120 | each | 0.14 | 16.80 |\n| LABORATORY-5 | 1 | shelf | 89.30 | 89.30 |\n| LABORATORY-6 | 1 | project | 141.00 | 141.00 |\n| FACILITIES-1 | 1 | site | 680.00 | 680.00 |\n| FACILITIES-2 | 3 | pack | 48.00 | 144.00 |\n| FACILITIES-3 | 2 | hour | 85.00 | 170.00 |\n| FACILITIES-4 | 60 | each | 0.45 | 27.00 |\n| FACILITIES-5 | 1 | project | 140.00 | 140.00 |\n| FACILITIES-6 | 1 | project | 190.00 | 190.00 |\n\n## Material interpretation checks\n\n- **Industrial packaging:** the gloves explicitly contain 10 pairs per pack, with whole packs only. Three packs therefore contain 30 pairs. The lubricant MOQ is five litres. Inspection is hourly and excludes repairs; calibration is a fixed project for two instruments and certificates.\n- **Office CSV:** physical newlines inside quoted records are not additional items. Cable prices have an all-units tier of 11.28 for quantities 1–199 and 10.15 at 200 or more; the keyboard MOQ is four. Workstation setup is a fixed project, while remote support is hourly and excludes hardware. Unknown delivery must not become zero.\n- **Event spreadsheet:** data rows 3, 5 and 7 on each sheet are six items. Merged rows 4, 6 and 8 contain specifications or scope, not another six items. The audio operator is hourly with a six-hour minimum; the recording deliverable excludes editing.\n- **Laboratory scan:** decimal comma is explicitly stated, including amounts such as `42,60`. Tips are filtered sterile 200-microlitre tips with an all-units price of 0.08 for 1–199 and 0.07 from 200. Bench-roll MOQ is three. Cold storage is monthly at one shelf, minus 20°C, with monitoring included. Inventory audit is a fixed project with CSV inventory and no sample handling.\n- **Facilities scan:** cleaning is monthly for 120 square metres twice weekly, including consumables. The HVAC filters contain two each per pack and require whole packs; specification is MERV 13, 20 × 20 inches. Maintenance is hourly, minimum two hours, with parts excluded. Safety inspection excludes certification.\n\n## Targeted matching review\n\nThree companion originals were inspected for these five selected pair judgments: both rendered pages of `originals/dev/industrial-2.pdf`, cells and merged continuation descriptions in `originals/dev/industrial-3.xlsx`, and the complete raw `originals/heldout/facilities-2.txt`. These companions are **not** included in the 200 core-field checks. In total, eight PDF pages were visually inspected across four PDF originals.\n\n| Selected pair | Original-based judgment | Gold agreement |\n| --- | --- | --- |\n| industrial-1 / industrial-2, INDUSTRIAL-2 gloves | Same size-L, powder-free specification; explicit 10 pairs per pack allows pack/pair normalization. Three packs correspond to 30 pairs. | Both use `industrial:2` |\n| industrial-1 / industrial-2, INDUSTRIAL-5 inspection | Both hourly, visual inspection and written checklist, repairs excluded. | Both use `industrial:5` |\n| facilities-1 / facilities-2, FACILITIES-2 filters | Same stated specification; two each per pack permits comparison of contents. SGD versus EUR still prevents a common-currency price winner without user-supplied FX. | Both use `facilities:2`; currency remains separate |\n| industrial-1 / industrial-3, INDUSTRIAL-4 filter | Cedar explicitly adds “alternate lower specification” but gives no exact changed specification. This is a possible alternative requiring clarification; equivalence is unsupported. | Cedar key is null, specification ambiguity recorded |\n| industrial-1 / industrial-3, INDUSTRIAL-6 calibration | Cedar additionally excludes a final report or revision deliverable. Scope conflict must remain visible. | Cedar key is null, scope ambiguity recorded |\n\nThe companion industrial-2 scan also contains a deliberate discrepancy: 200 bolts at 0.17 independently calculate to **34.00**, while its line states **36.00**. Gold correctly preserves 36.00 and records the amount ambiguity. This check must not silently alter the supplier's stated amount.\n\n## Findings corrected during review\n\nCritical numeric and item-count values had no discrepancies. Provenance metadata did need correction:\n\n1. Gold locale fields previously asserted geographic locales (`en-SG` / `de-DE`) without literal source support. They now record explicit decimal and date-format context with header references. Decimal comma alone does not establish a country.\n2. Gold validity `raw` previously repeated normalized ISO dates. It now retains `30 September 2026` from the original while the normalized value remains `2026-09-30`.\n3. Package order increments now cite `whole packs only`, rather than a coincidental numeric `1` in the same excerpt.\n4. The fixture author also aligned tax-rate references with the totals text containing 9%, and charge-currency references with the header. These provenance repairs were generated without altering original document content.\n\nThe separate demo audit checks all **60 source spans across nine sample quotations** for exact `originalText.slice(start, end)` equality, unique IDs and document ownership. It also checks that every supplier-stated value's raw excerpt exists in its cited source. That test exposed 19 absent raw excerpts: nine format-context fields, nine validity dates, and one package increment. The demo metadata was corrected; `tests/source-invariants.test.ts` now passes both invariants. These tests establish source consistency, not model extraction accuracy or complete semantic correctness of every demo value.\n\n## Remaining limitations\n\nThe other 19 primary benchmark originals did not receive this complete 40-check review. Three of them received only the targeted companion checks described above. No independent human reviewed the gold set. This review does not establish real-model extraction accuracy, matching precision/recall, cost, or latency. The synthetic layouts and finite comparison cases remain narrower than real supplier documents. The vague alternate-specification fixture is deliberately insufficient evidence for equivalence; it does not support inferring a specific lower MERV rating.\n",
+  "limitations": [
+    "Small synthetic English-only dataset; authored layout and content diversity do not establish general supplier-format coverage.",
+    "Baseline matching uses gold-normalized rows and explicit identifiers. It does not include extraction error and favors the identifier baseline.",
+    "Parser identifier coverage measures presence of authored item IDs, not detected rows or semantic field extraction accuracy.",
+    "Source-location presence and geometric bounds do not prove that every reference supports a semantic assertion.",
+    "Raw live field scoring uses exact identifiers for row alignment, canonical strings for text, and separately reports intentionally annotated missing states.",
+    "Robustness hash checks do not by themselves test the browser upload flow, durable retries, cross-user access or live prompt-injection resistance.",
+    "The unreadable fixture is an artificial blank raster. Production degraded scans require a broader permissioned dataset.",
+    "No human gold verification or production latency distribution is implied. Inspect the separate review record and per-file measurements."
+  ],
+  "modelUsage": null
+}

@@ -1,0 +1,43 @@
+Alder Commercial kitchen equipment
+QUOTATION: KITCHEN-1-26
+Date: 10 September 2026
+Currency: SGD
+Number convention: decimal point
+Fictional benchmark quotation; self-authored; no real supplier.
+
+1. Stainless prep table | ID KITCHEN-1
+Quantity 2 each; unit price SGD 340.00; line amount SGD 680.00
+Specification: 1200x600 mm; grade 304
+
+2. Food storage container | ID KITCHEN-2
+Quantity 6 pack; unit price SGD 36.00; line amount SGD 216.00
+Package contents: 2 each per pack; whole packs only
+Specification: 10 l; food grade; lid included
+
+3. Digital kitchen scale | ID KITCHEN-3
+Quantity 2 each; unit price SGD 65.00; line amount SGD 130.00
+Specification: 15 kg capacity; 1 g resolution
+Minimum order: 2 each
+
+4. Extraction duct | ID KITCHEN-4
+Quantity 10 m; unit price SGD 22.00; line amount SGD 220.00
+Specification: 150 mm diameter; galvanized steel
+
+5. Equipment installation | ID KITCHEN-5
+Quantity 1 project; unit price SGD 380.00; line amount SGD 380.00
+Billing: fixed_project; scope: Place and level supplied equipment; electrical work excluded
+
+6. Kitchen maintenance | ID KITCHEN-6
+Quantity 2 hour; unit price SGD 95.00; line amount SGD 190.00
+Billing: hourly; scope: Inspection and cleaning; replacement parts excluded
+
+Subtotal SGD 1816.00
+Shipping SGD 25
+Tax: 9%; all prices tax-exclusive; tax amount SGD 165.69
+Quoted total SGD 2006.69
+
+Lead time: 3 business days from confirmed order
+Payment: 30 days from invoice. Valid until 30 September 2026.
+Exclusions: Unlisted work and materials. Services have no goods warranty.
+No exchange rate has been agreed.
+
