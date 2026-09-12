@@ -605,6 +605,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
           Originals remain private in a configured workspace. Samples in this
           demo are fictional.
         </p>
+        {!comparison.isDemo && capabilities.canExtract && <p className="small">Automatic extraction sends parsed quotation text and source references to Groq. Review the extracted values before comparing. Free processing quotas can interrupt a job; successful work is preserved.</p>}
       </aside>
       <Modal
         open={!!deleteQuote}

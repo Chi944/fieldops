@@ -1,6 +1,6 @@
 # FieldOps
 
-[Open the live demo](https://fieldops-eight-blue.vercel.app) ? [Reliability evidence](https://fieldops-eight-blue.vercel.app/reliability) ? [Build checks](https://github.com/Chi944/fieldops/actions)
+[Open the live demo](https://fieldops-eight-blue.vercel.app) · [Reliability evidence](https://fieldops-eight-blue.vercel.app/reliability) · [Build checks](https://github.com/Chi944/fieldops/actions)
 
 ![FieldOps workspace](docs/images/workspace.png)
 
