@@ -22,3 +22,21 @@
 - Observed failures fixed: decimal pack surplus residue; unknown box contents treated as equivalent; demo raw-evidence mismatches; local Next forwarding headers rejected by isolation guard.
 - Build and browser/export/accessibility checks underway; no release-completion claim yet.
 - Existing Vercel login verified as Hobby. New FieldOps deployment will contain public fictional samples only. No existing project will be reused; private AI/cloud provisioning remains disabled.
+
+## 2026-09-13 — public release verification
+
+- Published the dedicated [FieldOps repository](https://github.com/Chi944/fieldops) and the [public demonstration](https://fieldops-eight-blue.vercel.app). Next.js production build and Vercel deployment passed.
+- Integrated checks passed: **94 unit/integration tests across nine files**, **6/6 local browser tests in 24.9 seconds**, and **4/4 public production browser tests in 23.9 seconds**. Browser coverage includes the connected sample workflow, correction/reapproval history, matching edits, downloaded workbook, print rendering, automated accessibility checks and mobile keyboard/dialog use. Local-only tests also exercise real text/PDF/image parsing, preserved originals and manual recovery with AI disabled.
+- [GitHub Linux CI](https://github.com/Chi944/fieldops/actions/runs/34711908349) is green at commit `3d97e58`. Results describe the tested revision; subsequent dependency changes need their own validation.
+- Verified the hosted `/api/status` reports `canUpload: false`, `canPersist: false`, and `canExtract: false`. Vercel has no project environment variables configured and runs on the verified Hobby plan. The public deployment presents fictional fixtures, with visitor edits stored in that browser.
+- The saved offline baseline report retains **24 authored originals**, **102/102 equivalent-pair precision** and **102/116 recall**, measured on gold-normalized rows. It is not AI field extraction or semantic-matching performance. See [evaluation report](evaluation-report.md) for source/parser denominators, timing, hashes and limitations.
+- Live AI remains disabled per the user's instruction. Hosted Supabase, OAuth and Trigger are unconfigured; private-cloud and real model acceptance remain unverified. No inference or alternative-provider calls were made.
+- Dependency-advisory remediation is in progress. Final audit status and post-update reruns will be recorded after installation completes. Evaluator configuration hashes now include both dependency manifest and lockfile, Node version/platform/architecture and the installed English OCR language-asset SHA-256 (or an explicit missing marker). This prevents processing-environment changes from reusing older live checkpoints or run IDs. New reports include runtime/asset identity; the next baseline rerun remains offline.
+- Updated [acceptance status](acceptance-status.md) with verified release evidence, explicit unverified boundaries and deferred features.
+
+## Dependency-update release verification
+
+- Updated Sharp to 0.35.4 and csv-parse to 7.0.2; applied scoped compatible OpenTelemetry, ws and ExcelJS uuid overrides. Runtime audit now reports zero findings. Two development-tool entries remain for one unused Prisma/deepmerge issue; see [dependency review](dependency-review.md). CI now runs the runtime audit.
+- Post-update checks pass: TypeScript, ESLint, production build, **95/95 unit/integration tests** across nine files and **6/6 local browser tests** in 43.6 seconds. Added a literal prototype-like CSV header regression. Actual Trigger imports and ExcelJS conditional-formatting round trip also pass without network calls.
+- Reran the offline benchmark against final dependencies: `baseline-all-f2a9c86ad905-8dc06a6ab2cb`, 24/24 complete parser manifests, 144/144 authored identifiers, 963/963 source locators and 544/544 bounded regions; baseline pair precision 102/102 and recall 102/116; eight robustness assertions pass. Package text line endings follow the repository LF convention so the committed bytes match the evaluation fingerprint. Historical reports are retained.
+- Final CI/deployment refresh follows this source commit. Live AI and hosted private-cloud checks remain unverified; the user asked to leave the integration disabled.

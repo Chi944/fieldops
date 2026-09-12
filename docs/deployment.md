@@ -2,6 +2,12 @@
 
 The public fixture demonstration can be deployed independently of private processing. The private cloud path is implemented but requires configuration and hosted verification. AI stays disabled until its key and account confirmations are explicitly configured. This document does not assert that a hosted private pilot or live model has been verified.
 
+## Current deployment
+
+The public demonstration is deployed at [fieldops-eight-blue.vercel.app](https://fieldops-eight-blue.vercel.app), from the new [Chi944/fieldops repository](https://github.com/Chi944/fieldops). The dedicated Vercel project is `fieldops`, on the verified Hobby account. No existing project was repurposed and no billing upgrade was enabled.
+
+The deployment has no environment variables or private quotations. Its `/api/status` reports `mode: "demo"`, with persistence, uploads and live extraction disabled. Four browser acceptance tests passed against the actual public URL, including workbook/print exports, matching actions, accessibility and mobile navigation. [Release verification](release-verification.md) records the checked build, commands and remaining gates.
+
 ## Public portfolio demonstration
 
 1. Create a **new** Git repository and a **new** Vercel project for FieldOps; do not attach or modify an existing project.

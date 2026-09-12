@@ -29,6 +29,18 @@ describe("real document parsers", () => {
     expect(parsed.sources.find(source => source.cell === "C2")?.text).toBe("1.234,50");
     expect(parsed.manifest.complete).toBe(true);
   });
+  it("preserves duplicate prototype-shaped CSV headers and values as literal cell evidence", async () => {
+    const csv = '__proto__,__proto__,constructor,prototype,toString\nfirst,second,"{""quoted"":true}",0,=SUM(A1:A2)\n';
+    const parsed = await parseDocument({ documentId: "csv-prototype", filename: "quote.csv", bytes: Buffer.from(csv) });
+    expect(parsed.originalText).toBe(csv);
+    expect(parsed.sources.map(source => [source.cell, source.text])).toEqual([
+      ["A1", "__proto__"], ["B1", "__proto__"], ["C1", "constructor"], ["D1", "prototype"], ["E1", "toString"],
+      ["A2", "first"], ["B2", "second"], ["C2", '{"quoted":true}'], ["D2", "0"], ["E2", "=SUM(A1:A2)"],
+    ]);
+    expect(new Set(parsed.sources.map(source => source.id)).size).toBe(10);
+    expect(parsed.sources.every(source => Object.getPrototypeOf(source) === Object.prototype && !Object.hasOwn(source, "__proto__"))).toBe(true);
+    expect(parsed.manifest.complete).toBe(true);
+  });
   it("reads merged XLSX masters and distinguishes formula caches from missing results", async () => {
     const workbook = new ExcelJS.Workbook(); const sheet = workbook.addWorksheet("Supplier quote");
     sheet.mergeCells("A1:C1"); sheet.getCell("A1").value = "Acme Supplies";

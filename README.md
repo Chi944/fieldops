@@ -36,7 +36,7 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 ## Reliability evidence
 
-Verified locally: **94 unit/integration tests and six browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Linux CI repeats the checks from a clean checkout.
+Verified locally: **95 unit/integration tests and six browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Four browser workflows also pass against the public URL. Linux CI repeats the checks from a clean checkout.
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 
@@ -57,7 +57,8 @@ TypeScript, Next.js and React provide the interface and server API. Decimal.js o
 - [Setup, recovery and API contracts](docs/setup.md)
 - [Free-tier deployment instructions](docs/deployment.md)
 - [Architecture and data model](docs/architecture.md)
-- [Security and retention behavior](docs/security-and-retention.md)
+- [Security and retention behavior](docs/security-and-retention.md) and [dependency review](docs/dependency-review.md)
+- [Release verification](docs/release-verification.md)
 - [Product scope](docs/spec.md) and [implementation milestones](docs/implementation-plan.md)
 - [Measured evaluation](docs/evaluation-report.md) and [fixed failure](docs/failure-notes.md)
 - [Portfolio case study](docs/case-study.md) and [short demonstration script](docs/demo-script.md)
