@@ -55,3 +55,9 @@
 - Independent review caught mobile navigation scrolling the focused field out of view, visible next-step labels missing from accessible names, and an unmodified character shortcut. Fixed all three and added browser regression assertions. Final local production build, TypeScript and lint pass; **95/95 unit/integration tests and 7/7 browser tests pass**, with the final browser run taking 27.7 seconds.
 - Recorded [the next release](next-release.md): configure and test dedicated hosted Supabase/Auth/Storage/Trigger, separate parser-only cloud uploads from AI readiness, add storage admission/cleanup/operational recovery, validate shared resource limits, and evaluate live AI only after the user configures it. Keep Supabase for this release; Neon Auth and Storage are now beta alternatives but migrating would require reworking and retesting the implemented access boundary.
 - Public refresh and clean Linux verification follow this source commit. No model extraction was enabled, provider project provisioned, private document published or existing project modified.
+
+## UI deployment verified
+
+- UI source `486ef98` passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/34714827733), including runtime audit, OCR setup, type/lint checks, 95 unit/integration tests, build and all seven browser workflows.
+- Vercel deployment `dpl_EtS4ErNWBDNyJjm53EgjqBVxgZe2` is READY at [FieldOps](https://fieldops-eight-blue.vercel.app). Five public browser tests passed in 25.9 seconds. Captured fresh public sample screenshots for the README and release record.
+- Verified the deployed image matches its recorded SHA-256 and public capabilities still disable uploads, private persistence and AI. No credentials or hosted private services were added. The remaining operational work is documented precisely in [next release](next-release.md).

@@ -8,7 +8,15 @@ Verified on 13 September 2026. This release delivers the public fixture demonstr
 - [Independent source repository](https://github.com/Chi944/fieldops), complete [requirements](spec.md), [implementation plan](implementation-plan.md) and [acceptance status](acceptance-status.md).
 - [Local setup](setup.md), five Supabase migrations, [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md).
 
-## Checks and evidence
+## UI refinement verification
+
+Source revision **`486ef98`** passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/34714827733): runtime dependency audit, OCR setup, TypeScript, lint, **95 unit/integration tests**, production build and **all seven browser workflows**. The local production-build browser run passed 7/7 in 27.7 seconds. The new test covers review guidance, visible source evidence, accessible next-step labels, search/filter recovery, unmatched offers and mobile focus visibility.
+
+Vercel deployment `dpl_EtS4ErNWBDNyJjm53EgjqBVxgZe2` is READY at the canonical public URL. **5/5 public browser tests passed in 25.9 seconds**, including the new guidance test and the existing export, matching, keyboard and axe checks. The two real-upload tests remain local-only. The published decorative WebP is 36,228 bytes and matches the source hash recorded in [image provenance](image-assets.md). Public `/api/status` still reports demo mode with persistence, uploads and extraction disabled.
+
+The updated [workspace](images/workspace-v2.png), [review](images/review-v2.png) and [comparison](images/comparison-v2.png) screenshots use only fictional samples and were captured from that public deployment. A documentation-only follow-up records these results. The [private-pilot plan](next-release.md) identifies the remaining hosted and AI gates; this UI release does not change their unverified status. Parser/model/calculation code and the offline evaluation fingerprint are unchanged, so the existing measured report remains applicable within its stated limits.
+
+## Original release checks and evidence
 
 | Check | Result and boundary |
 | --- | --- |

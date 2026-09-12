@@ -6,7 +6,7 @@ Keep **Supabase Free + Trigger.dev Free + the existing Vercel Hobby deployment**
 
 ## What works, and what still blocks live operation
 
-The public [FieldOps demonstration](https://fieldops-eight-blue.vercel.app) is deployed. Its sample quotations are labeled fixtures. Actual local parsing, source review, manual entry, matching, corrections, persistence and exports work with AI disabled. The recorded release passed 95 unit/integration tests, six local browser workflows and four public browser workflows; see [release verification](release-verification.md) and [acceptance status](acceptance-status.md).
+The public [FieldOps demonstration](https://fieldops-eight-blue.vercel.app) is deployed. Its sample quotations are labeled fixtures. Actual local parsing, source review, manual entry, matching, corrections, persistence and exports work with AI disabled. The UI refinement passed 95 unit/integration tests, seven local browser workflows and five public browser workflows; see [release verification](release-verification.md) and [acceptance status](acceptance-status.md).
 
 | Gap | Evidence in the current repository | Practical consequence |
 | --- | --- | --- |
