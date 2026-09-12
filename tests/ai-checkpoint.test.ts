@@ -21,7 +21,7 @@ async function document() {
 }
 function chunk(request: AIRequest) {
   const { sources } = JSON.parse(request.user) as { sources: { id: string; text: string }[] };
-  const entry = (key: string, value: string, sourceId = sources[1].id) => ({ key, state: "value", value, raw: value, sourceIds: [sourceId] });
+  const entry = (key: string, value: string, sourceId = sources[1].id) => ({ key, label: key, type: "text", unit: null as string | null, state: "value", value, raw: value, sourceIds: [sourceId] });
   return { supplier: [entry("name", "Acme Supplies", sources[0].id)], quotation: [], terms: [],
     items: [{ sourceIds: [sources[1].id], kind: "goods", fields: [entry("description", "Widget"), entry("quantity", "2"), entry("unit", "each"), entry("unitPrice", "12.50"), entry("lineAmount", "25.00"), entry("currency", "USD")], taxBasis: "not_stated", tiers: [], discount: null, attributes: [] }],
     charges: [], attributes: [], uncertainties: [], coverage: sources.map(source => ({ sourceId: source.id, disposition: "used", reason: "Synthetic field evidence" })) };
@@ -30,11 +30,44 @@ beforeEach(() => { transport.mockReset(); vi.spyOn(console, "info").mockImplemen
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe("validated AI checkpoints with synthetic injected responses", () => {
+  it("gives changed provider schemas distinct deterministic strict-output names", async () => {
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "TEST-ONLY-NOT-A-REAL-KEY");
+    vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "true");
+    transport.mockResolvedValue({ choices: [{ finish_reason: "stop", message: { content: "{}" } }], usage: { prompt_tokens: 1, completion_tokens: 1 } });
+    for (const schema of [{ type: "object" }, { type: "object", additionalProperties: false }, { type: "object" }]) await requestAI({ purpose: "extraction", schema, system: "Synthetic", user: "Synthetic", maxOutputTokens: 5 });
+    const names = transport.mock.calls.map(call => call[0].response_format.json_schema.name);
+    expect(names[0]).toMatch(/^fieldops_extraction_[a-f0-9]{12}$/); expect(names[0]).not.toBe(names[1]); expect(names[0]).toBe(names[2]);
+    expect(transport.mock.calls.every(call => call[0].response_format.json_schema.strict === true)).toBe(true);
+  });
+
+  it("rejects empty separators, missing source records and arbitrary coverage strings", async () => {
+    const parsed = await document();
+    for (const kind of ["empty", "missing", "nonempty"]) {
+      await expect(extractQuotation(parsed, { request: async req => {
+        const data = chunk(req);
+        return response({ ...data, coverage: kind === "missing" ? data.coverage.slice(0, 1) : [...data.coverage, kind === "empty" ? "" : "supplier-stated"] });
+      } })).rejects.toMatchObject({ code: "invalid_output" });
+    }
+  });
+
+  it("normalizes explicit quantity-unit metadata and rejects units absent from its cited source", async () => {
+    const parsed = await document();
+    const request = async (req: AIRequest) => {
+      const data = chunk(req); data.items[0].fields = data.items[0].fields.filter(field => field.key !== "unit");
+      Object.assign(data.items[0].fields.find(field => field.key === "quantity")!, { unit: "each" });
+      return response(data);
+    };
+    const quote = await extractQuotation(parsed, { request });
+    expect(quote.items[0].unit).toMatchObject({ value: "each", raw: "each", origin: "supplier", sourceIds: [parsed.sources[1].id] });
+    const unsupported = async (req: AIRequest) => { const result = await request(req); (result.data as ReturnType<typeof chunk>).items[0].fields.find(field => field.key === "quantity")!.unit = "box"; return result; };
+    await expect(extractQuotation(parsed, { request: unsupported })).rejects.toMatchObject({ code: "invalid_evidence" });
+  });
+
   it("retains explicit specifications and package wording as text attributes without inventing conversions", async () => {
     const parsed = await parseDocument({ documentId: "package-wording", filename: "quote.txt", text: "Acme Supplies\nWidget quantity 2 each unit price 12.50 amount 25.00 currency USD; stainless steel; assorted pack" });
     const quote = await extractQuotation(parsed, { request: async req => {
       const data = chunk(req);
-      data.items[0].fields.push({ key: "specification", state: "value", value: "stainless steel", raw: "stainless steel", sourceIds: [parsed.sources[1].id] }, { key: "packageContents", state: "value", value: "assorted pack", raw: "assorted pack", sourceIds: [parsed.sources[1].id] });
+      data.items[0].fields.push({ key: "specification", label: "specification", type: "text", unit: null, state: "value", value: "stainless steel", raw: "stainless steel", sourceIds: [parsed.sources[1].id] }, { key: "packageContents", label: "packageContents", type: "text", unit: null, state: "value", value: "assorted pack", raw: "assorted pack", sourceIds: [parsed.sources[1].id] });
       return response(data);
     } });
     expect(quote.items[0].attributes.map(attribute => [attribute.key, attribute.type, attribute.value.value, attribute.value.sourceIds])).toEqual([
@@ -47,12 +80,12 @@ describe("validated AI checkpoints with synthetic injected responses", () => {
   it("rejects invented numeric values and a tax amount relabeled as a rate", async () => {
     const source = await document();
     const request = vi.fn(async (req: AIRequest) => {
-      const data = chunk(req); data.items[0].fields.push({ key: "taxRate", state: "value", value: "0", raw: "Widget", sourceIds: [source.sources[1].id] });
+      const data = chunk(req); data.items[0].fields.push({ key: "taxRate", label: "taxRate", type: "text", unit: null, state: "value", value: "0", raw: "Widget", sourceIds: [source.sources[1].id] });
       return response(data);
     });
     await expect(extractQuotation(source, { request })).rejects.toMatchObject({ code: "invalid_evidence" });
     const taxSource = await parseDocument({ documentId: "tax-amount-only", filename: "tax.txt", text: "Acme Supplies\nWidget quantity 2 each unit price 12.50 amount 25.00 currency USD tax amount 0" });
-    request.mockImplementation(async req => { const data = chunk(req); data.items[0].fields.push({ key: "taxRate", state: "value", value: "0", raw: "tax amount 0", sourceIds: [taxSource.sources[1].id] }); return response(data); });
+    request.mockImplementation(async req => { const data = chunk(req); data.items[0].fields.push({ key: "taxRate", label: "taxRate", type: "text", unit: null, state: "value", value: "0", raw: "tax amount 0", sourceIds: [taxSource.sources[1].id] }); return response(data); });
     await expect(extractQuotation(taxSource, { request })).rejects.toMatchObject({ code: "invalid_evidence" });
   });
 

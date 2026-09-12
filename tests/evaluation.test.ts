@@ -68,6 +68,9 @@ describe("reproducible benchmark integrity", () => {
     expect(parseOptions([])).toEqual({ live: false, split: "all", allowPosthoc: false, waitQuota: false });
     expect(() => parseOptions(["--live"])).toThrow("explicit --split");
     expect(parseOptions(["--live", "--split", "dev", "--wait-quota", "--max-new-requests", "1"])).toMatchObject({ waitQuota: true, maxNewRequests: 1 });
+    expect(parseOptions(["--live", "--split", "dev", "--document", "industrial-1"])).toMatchObject({ documentId: "industrial-1" });
+    expect(() => parseOptions(["--live", "--split", "heldout", "--document", "laboratory-1"])).toThrow("held-out selection is prohibited");
+    expect(() => parseOptions(["--split", "dev", "--document"])).toThrow("requires one document ID");
     expect(() => parseOptions(["--live", "--split", "dev", "--max-new-requests", "0"])).toThrow("integer");
     vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "");
     await expect(evaluate({ live: true, split: "dev" })).rejects.toThrow("GROQ_API_KEY");

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
 export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; }
-export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; }
+export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
   get(key: string): Promise<AIResult | null>;
@@ -12,7 +12,7 @@ export interface AICheckpoint {
 }
 export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
-export const PROMPT_VERSION = "fieldops-extraction-2";
+export const PROMPT_VERSION = "fieldops-extraction-3";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
 // One request at a time. Provider quota remains authoritative across deployed workers.
 let pending: Promise<unknown> = Promise.resolve();
@@ -125,7 +125,7 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
     checkCancelled(options.signal);
     try {
       const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: wire.request.system }, { role: "user", content: wire.request.user }], reasoning_effort: "low", temperature: 0,
-        max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}`, strict: true, schema: request.schema } } }, { signal: options.signal }), 45000, options.signal);
+        max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}_${createHash("sha256").update(JSON.stringify(request.schema)).digest("hex").slice(0, 12)}`, strict: true, schema: request.schema } } }, { signal: options.signal }), 45000, options.signal);
       const choice = response.choices[0];
       const result: AIResult = { data: choice?.message.content ?? null, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, costUsd: "0", elapsedMs: Date.now() - started, finishReason: choice?.finish_reason ?? "missing" };
       if (!choice || choice.finish_reason !== "stop" || !choice.message.content) throw new RejectedResponse("The model returned an incomplete extraction. Split this section into fewer rows and retry; no partial model output was accepted.", result);
@@ -137,10 +137,10 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
       if (options.signal?.aborted) throw new ProcessingError("cancelled", "Extraction cancelled. Saved parser and extraction chunks remain available.");
       if (error instanceof ProcessingError) throw error;
       const status = (error as { status?: number }).status;
-      const payload = (error as { error?: { error?: { code?: string; failed_generation?: unknown }; code?: string; failed_generation?: unknown } }).error;
+      const payload = (error as { error?: { error?: { code?: string; message?: unknown; failed_generation?: unknown }; code?: string; message?: unknown; failed_generation?: unknown } }).error;
       const validation = payload?.error ?? payload;
       if (status === 400 && validation?.code === "json_validate_failed" && typeof validation.failed_generation === "string") {
-        throw new RejectedResponse("The provider rejected its generated structured output. No interpretation was accepted; retry this quotation section or use manual review.", { data: validation.failed_generation, model: configuration.model, inputTokens: 0, outputTokens: 0, elapsedMs: Date.now() - started, costUsd: null, finishReason: "provider_schema_rejected", usageAvailable: false });
+        throw new RejectedResponse("The provider rejected its generated structured output. No interpretation was accepted; retry this quotation section or use manual review.", { data: validation.failed_generation, model: configuration.model, inputTokens: 0, outputTokens: 0, elapsedMs: Date.now() - started, costUsd: null, finishReason: "provider_schema_rejected", usageAvailable: false, providerError: { code: validation.code, message: typeof validation.message === "string" ? validation.message : null } });
       }
       if (status === 429) {
         const headers = (error as { headers?: { get?(key: string): string | null; [key: string]: unknown } }).headers;

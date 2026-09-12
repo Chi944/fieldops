@@ -1,653 +1,73 @@
 {
   "version": 1,
-  "measuredAt": "2026-09-12T22:50:05.388Z",
-  "runId": "baseline-all-c46b4849dea0-8dc06a6ab2cb",
-  "mode": "baseline",
-  "split": "all",
+  "measuredAt": "2026-09-12T22:41:08.147Z",
+  "runId": "live-dev-document-0693e948-2cde89584bf4-8dc06a6ab2cb",
+  "mode": "live",
+  "split": "dev",
   "datasetHash": "8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6",
-  "configurationHash": "c46b4849dea02967f2e976065794107eb142a19afd427a413b102e15adc7262e",
-  "holdoutStatus": "Untuned held-out content; offline measurement only",
+  "configurationHash": "2cde89584bf4c470c14a4c5a8d312d54c987e90254d5d05ff5c28acc86413690",
+  "holdoutStatus": "Development set",
   "dataset": {
-    "documents": 24,
-    "scenarios": 8,
-    "logicalItems": 144,
-    "annotatedFields": 1106,
+    "documents": 1,
+    "scenarios": 1,
+    "logicalItems": 6,
+    "annotatedFields": 46,
     "sourceFormats": {
-      "text_pdf": 8,
-      "scan_pdf": 4,
-      "xlsx": 4,
-      "text": 4,
-      "csv": 2,
-      "png": 2
+      "text_pdf": 1
     }
   },
   "matching": {
     "equivalentPrecision": {
-      "numerator": 102,
-      "denominator": 102,
-      "value": 1
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
     },
     "equivalentRecall": {
-      "numerator": 102,
-      "denominator": 116,
-      "value": 0.8793103448275862
+      "numerator": 0,
+      "denominator": 0,
+      "value": null
     },
-    "truePositive": 102,
+    "truePositive": 0,
     "falsePositive": 0,
-    "falseNegative": 14,
-    "candidatePairs": 864,
+    "falseNegative": 0,
+    "candidatePairs": 0,
     "hardNegativeFalseEquivalences": {
       "numerator": 0,
-      "denominator": 28,
-      "value": 0
+      "denominator": 0,
+      "value": null
     }
   },
   "parser": {
-    "completeDocuments": 24,
-    "attemptedDocuments": 24,
+    "completeDocuments": 1,
+    "attemptedDocuments": 1,
     "identifierCoverage": {
-      "numerator": 144,
-      "denominator": 144,
+      "numerator": 6,
+      "denominator": 6,
       "value": 1
     },
     "sourceLocationsPresent": {
-      "numerator": 963,
-      "denominator": 963,
+      "numerator": 40,
+      "denominator": 40,
       "value": 1
     },
     "boxesWithinPage": {
-      "numerator": 544,
-      "denominator": 544,
+      "numerator": 40,
+      "denominator": 40,
       "value": 1
     },
     "timing": {
-      "count": 24,
-      "medianMs": 9.82589999999982,
-      "minimumMs": 0.13429999999971187,
-      "maximumMs": 4058.5432,
-      "totalMs": 21503.447999999997
+      "count": 1,
+      "medianMs": 784.2013,
+      "minimumMs": 784.2013,
+      "maximumMs": 784.2013,
+      "totalMs": 784.2013
     },
     "documents": [
       {
         "id": "industrial-1",
         "format": "text_pdf",
         "split": "dev",
-        "elapsedMs": 801.8662,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "industrial-2",
-        "format": "scan_pdf",
-        "split": "dev",
-        "elapsedMs": 3988.5218000000004,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 39,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        }
-      },
-      {
-        "id": "industrial-3",
-        "format": "xlsx",
-        "split": "dev",
-        "elapsedMs": 466.7600999999995,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 58,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 58,
-          "denominator": 58,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "office-1",
-        "format": "text",
-        "split": "dev",
-        "elapsedMs": 0.44070000000010623,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 34,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 34,
-          "denominator": 34,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "office-2",
-        "format": "csv",
-        "split": "dev",
-        "elapsedMs": 10.958700000000135,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 27,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 27,
-          "denominator": 27,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "office-3",
-        "format": "text_pdf",
-        "split": "dev",
-        "elapsedMs": 11.056899999999587,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "event-1",
-        "format": "png",
-        "split": "dev",
-        "elapsedMs": 2139.5216,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 33,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 33,
-          "denominator": 33,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 33,
-          "denominator": 33,
-          "value": 1
-        }
-      },
-      {
-        "id": "event-2",
-        "format": "xlsx",
-        "split": "dev",
-        "elapsedMs": 8.848799999999756,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 58,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 58,
-          "denominator": 58,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "event-3",
-        "format": "text_pdf",
-        "split": "dev",
-        "elapsedMs": 8.453999999999724,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "translation-1",
-        "format": "scan_pdf",
-        "split": "dev",
-        "elapsedMs": 4058.5432,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 39,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        }
-      },
-      {
-        "id": "translation-2",
-        "format": "text",
-        "split": "dev",
-        "elapsedMs": 0.23250000000007276,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 32,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 32,
-          "denominator": 32,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "translation-3",
-        "format": "text_pdf",
-        "split": "dev",
-        "elapsedMs": 8.585499999999229,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "laboratory-1",
-        "format": "text_pdf",
-        "split": "heldout",
-        "elapsedMs": 8.91110000000117,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "laboratory-2",
-        "format": "scan_pdf",
-        "split": "heldout",
-        "elapsedMs": 3927.5993000000017,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 39,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 39,
-          "denominator": 39,
-          "value": 1
-        }
-      },
-      {
-        "id": "laboratory-3",
-        "format": "xlsx",
-        "split": "heldout",
-        "elapsedMs": 14.375500000000102,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 58,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 58,
-          "denominator": 58,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "kitchen-1",
-        "format": "text",
-        "split": "heldout",
-        "elapsedMs": 0.13429999999971187,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 34,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 34,
-          "denominator": 34,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "kitchen-2",
-        "format": "csv",
-        "split": "heldout",
-        "elapsedMs": 2.2656999999999243,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 27,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 27,
-          "denominator": 27,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "kitchen-3",
-        "format": "text_pdf",
-        "split": "heldout",
-        "elapsedMs": 7.274400000000242,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "installation-1",
-        "format": "png",
-        "split": "heldout",
-        "elapsedMs": 2063.1705999999995,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 34,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 34,
-          "denominator": 34,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 34,
-          "denominator": 34,
-          "value": 1
-        }
-      },
-      {
-        "id": "installation-2",
-        "format": "xlsx",
-        "split": "heldout",
-        "elapsedMs": 7.473399999998946,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 58,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 58,
-          "denominator": 58,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "installation-3",
-        "format": "text_pdf",
-        "split": "heldout",
-        "elapsedMs": 9.258399999998801,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "facilities-1",
-        "format": "scan_pdf",
-        "split": "heldout",
-        "elapsedMs": 3949.1434999999983,
-        "complete": true,
-        "units": 2,
-        "parsedUnits": 2,
-        "sourceCount": 40,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 40,
-          "denominator": 40,
-          "value": 1
-        }
-      },
-      {
-        "id": "facilities-2",
-        "format": "text",
-        "split": "heldout",
-        "elapsedMs": 0.22589999999763677,
-        "complete": true,
-        "units": 1,
-        "parsedUnits": 1,
-        "sourceCount": 33,
-        "itemIdentifierCoverage": {
-          "numerator": 6,
-          "denominator": 6,
-          "value": 1
-        },
-        "sourceLocationsPresent": {
-          "numerator": 33,
-          "denominator": 33,
-          "value": 1
-        },
-        "boxesWithinPage": {
-          "numerator": 0,
-          "denominator": 0,
-          "value": null
-        }
-      },
-      {
-        "id": "facilities-3",
-        "format": "text_pdf",
-        "split": "heldout",
-        "elapsedMs": 9.82589999999982,
+        "elapsedMs": 784.2013,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -679,7 +99,7 @@
       "notes": "Exact byte copy of the first development original; should offer duplicate recovery without resetting saved work.",
       "passed": true,
       "actual": "hash equality check",
-      "elapsedMs": 0.6785999999992782
+      "elapsedMs": 0.27109999999993306
     },
     {
       "id": "intentional-revision",
@@ -689,7 +109,7 @@
       "notes": "Changed content with same quotation identifier and explicit revision; it must not be discarded as a duplicate.",
       "passed": true,
       "actual": "different bytes, same identifier, explicit revision",
-      "elapsedMs": 0.46780000000217115
+      "elapsedMs": 0.16670000000067375
     },
     {
       "id": "password-pdf",
@@ -699,7 +119,7 @@
       "notes": "Real self-authored encrypted PDF; test password fixture-only. Not a claim about all encryption variants.",
       "passed": true,
       "actual": "password_protected",
-      "elapsedMs": 2.0349999999998545
+      "elapsedMs": 2.1592000000000553
     },
     {
       "id": "malformed-file",
@@ -709,7 +129,7 @@
       "notes": "Artificially malformed PDF, separate from valid extraction denominators.",
       "passed": true,
       "actual": "malformed_file",
-      "elapsedMs": 1.7724999999991269
+      "elapsedMs": 1.5927999999994427
     },
     {
       "id": "unreadable-scan",
@@ -719,7 +139,7 @@
       "notes": "Artificial blank grey raster used as an unreadable input; does not model the distribution of real scan degradation.",
       "passed": true,
       "actual": "partial",
-      "elapsedMs": 470.81210000000283
+      "elapsedMs": 519.0672999999997
     },
     {
       "id": "unsupported-format",
@@ -729,7 +149,7 @@
       "notes": "Unsupported extension must produce a format/re-export recovery path.",
       "passed": true,
       "actual": "unsupported_format",
-      "elapsedMs": 0.43990000000121654
+      "elapsedMs": 0.6045999999996639
     },
     {
       "id": "excessive-size",
@@ -738,7 +158,7 @@
       "notes": "Constructs a 20 MiB + 1 byte buffer at evaluation time; the large artificial payload is not committed.",
       "passed": true,
       "actual": "file_too_large",
-      "elapsedMs": 0.06179999999949359
+      "elapsedMs": 0.19820000000072469
     },
     {
       "id": "malicious-instructions",
@@ -748,14 +168,341 @@
       "notes": "Parser preservation is measurable without AI; model resistance requires a real live run and remains unverified here.",
       "passed": true,
       "actual": "Untrusted text preserved as source data; live model resistance NOT TESTED",
-      "elapsedMs": 0.3918000000012398
+      "elapsedMs": 0.6781000000000859
     }
   ],
   "ai": {
-    "status": "UNVERIFIED",
-    "reason": "This offline run made no inference calls. AI extraction, matching, ambiguity, attack-resistance and model cost are not measured by this run; separately reported live development probes have their own configurations and denominators."
+    "status": "LIVE_ATTEMPTED_NO_VALIDATED_EXTRACTIONS",
+    "extractions": [
+      {
+        "id": "industrial-1",
+        "errorCode": "invalid_output",
+        "statedFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 46,
+          "value": 0
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 43,
+          "value": 0
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemPrecision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemRecall": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Alder Industrial supplies",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "quotationNumber",
+            "expected": "INDUSTRIAL-1-26",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "date",
+            "expected": "2026-09-10",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.identifier",
+            "expected": "INDUSTRIAL-1",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.quantity",
+            "expected": "200",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.unitPrice",
+            "expected": "0.18",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.lineAmount",
+            "expected": "36.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.identifier",
+            "expected": "INDUSTRIAL-2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.quantity",
+            "expected": "3",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.unit",
+            "expected": "pack",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.unitPrice",
+            "expected": "24.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.lineAmount",
+            "expected": "72.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageSize",
+            "expected": "10",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageUnit",
+            "expected": "pair",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.identifier",
+            "expected": "INDUSTRIAL-3",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.quantity",
+            "expected": "5",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.unit",
+            "expected": "l",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.unitPrice",
+            "expected": "12.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.lineAmount",
+            "expected": "62.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.identifier",
+            "expected": "INDUSTRIAL-4",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.quantity",
+            "expected": "2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.unitPrice",
+            "expected": "34.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.lineAmount",
+            "expected": "69.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.identifier",
+            "expected": "INDUSTRIAL-5",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.quantity",
+            "expected": "2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.unit",
+            "expected": "hour",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.unitPrice",
+            "expected": "80.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.lineAmount",
+            "expected": "160.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.billingBasis",
+            "expected": "hourly",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.identifier",
+            "expected": "INDUSTRIAL-6",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.quantity",
+            "expected": "1",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.unit",
+            "expected": "project",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.unitPrice",
+            "expected": "140.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.lineAmount",
+            "expected": "140.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.billingBasis",
+            "expected": "fixed_project",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "statedSubtotal",
+            "expected": "539.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "statedTotal",
+            "expected": "615.31",
+            "actual": null,
+            "state": "no_accepted_output"
+          }
+        ],
+        "mappedItems": {},
+        "usage": null
+      }
+    ],
+    "goldInputSemanticResults": [],
+    "endToEndSemanticResults": []
   },
-  "providerCostUsd": "0",
+  "providerCostUsd": null,
   "independentReview": "# Independent original-document review\n\nReviewed on 13 September 2026 by the document-processing implementation agent, independently of the agent that authored the benchmark specifications and gold records. This is **agent review, not human verification**. It checks a stated subset; it does not certify all 24 quotations or measure live AI accuracy.\n\n## Procedure and scope\n\nThe reviewer read original content before looking up the corresponding gold values. PDFs were rendered with Poppler at 110 DPI and every rendered page was visually inspected. XLSX cells and merged ranges were read with Python/openpyxl, independently of the application's ExcelJS parser. CSV and text originals were read directly. No OCR output, fixture generator values, or extraction result was used as the source of the manual transcription. No model calls were made, and held-out content was not used to modify extraction or matching prompts.\n\n| Primary original | Original inspection | Logical item rows | Critical checks |\n| --- | --- | ---: | ---: |\n| `originals/dev/industrial-1.pdf` | Both text PDF pages, rendered visually | 6 | 40 |\n| `originals/dev/office-2.csv` | Complete raw CSV, including quoted multiline records | 6 | 40 |\n| `originals/dev/event-2.xlsx` | All nonempty cells and merged ranges in Quotation and Continuation | 6 | 40 |\n| `originals/heldout/laboratory-2.pdf` | Both scanned pages, rendered visually | 6 | 40 |\n| `originals/heldout/facilities-1.pdf` | Both scanned pages, rendered visually | 6 | 40 |\n\nThe 40 checks per quotation comprise supplier name, quotation number, original currency, date, item count; identifier, quantity, unit, unit price and stated amount for each of six items; stated subtotal, stated total, shipping amount/state, tax amount, and stated lead time. Numeric equality used decimal arithmetic, allowing only formatting differences such as `24` versus `24.00`. This is a separate review count, not the benchmark field-accuracy denominator.\n\n**Result: 200/200 critical checks agree with the gold records after the metadata corrections below.** The following transcriptions retain the original quote currency. Laboratory monetary commas are normalized to decimal points here only for readability.\n\n| Original | Supplier / reference | Currency | Stated subtotal | Shipping | Tax | Stated total | Lead time from confirmed order |\n| --- | --- | --- | ---: | ---: | ---: | ---: | --- |\n| industrial-1 | Alder Industrial supplies / INDUSTRIAL-1-26 | SGD | 539.50 | 25.00 | 50.81 | 615.31 | 3 business days |\n| office-2 | Beacon Office IT / OFFICE-2-26 | SGD | 1899.00 | Not stated; delivery excluded | 170.91 | 2069.91 | 5 business days |\n| event-2 | Beacon Event production / EVENT-2-26 | SGD | 1146.80 | Not stated; delivery excluded | 103.21 | 1250.01 | 5 business days |\n| laboratory-2 | Beacon Laboratory consumables / LABORATORY-2-26 | EUR | 348.46 | Not stated; delivery excluded | 31.36 | 379.82 | 5 business days |\n| facilities-1 | Alder Facilities maintenance / FACILITIES-1-26 | SGD | 1351.00 | 25.00 | 123.84 | 1499.84 | 3 business days |\n\nAll five originals state **10 September 2026**, payment **30 days from invoice**, and validity **30 September 2026**. These written dates support ISO normalization, but the raw excerpt must remain the supplier's written form.\n\n| Item identifier | Quantity | Unit | Unit price | Stated line amount |\n| --- | ---: | --- | ---: | ---: |\n| INDUSTRIAL-1 | 200 | each | 0.18 | 36.00 |\n| INDUSTRIAL-2 | 3 | pack | 24.00 | 72.00 |\n| INDUSTRIAL-3 | 5 | l | 12.50 | 62.50 |\n| INDUSTRIAL-4 | 2 | each | 34.50 | 69.00 |\n| INDUSTRIAL-5 | 2 | hour | 80.00 | 160.00 |\n| INDUSTRIAL-6 | 1 | project | 140.00 | 140.00 |\n| OFFICE-1 | 4 | each | 206.80 | 827.20 |\n| OFFICE-2 | 10 | each | 11.28 | 112.80 |\n| OFFICE-3 | 4 | each | 42.30 | 169.20 |\n| OFFICE-4 | 100 | m | 1.13 | 113.00 |\n| OFFICE-5 | 4 | device | 84.60 | 338.40 |\n| OFFICE-6 | 6 | hour | 56.40 | 338.40 |\n| EVENT-1 | 1 | system | 282.00 | 282.00 |\n| EVENT-2 | 1 | project | 169.20 | 169.20 |\n| EVENT-3 | 6 | hour | 47.00 | 282.00 |\n| EVENT-4 | 40 | each | 0.47 | 18.80 |\n| EVENT-5 | 1 | kit | 131.60 | 131.60 |\n| EVENT-6 | 1 | project | 263.20 | 263.20 |\n| LABORATORY-1 | 60 | each | 0.71 | 42.60 |\n| LABORATORY-2 | 100 | each | 0.08 | 8.00 |\n| LABORATORY-3 | 3 | each | 16.92 | 50.76 |\n| LABORATORY-4 | 120 | each | 0.14 | 16.80 |\n| LABORATORY-5 | 1 | shelf | 89.30 | 89.30 |\n| LABORATORY-6 | 1 | project | 141.00 | 141.00 |\n| FACILITIES-1 | 1 | site | 680.00 | 680.00 |\n| FACILITIES-2 | 3 | pack | 48.00 | 144.00 |\n| FACILITIES-3 | 2 | hour | 85.00 | 170.00 |\n| FACILITIES-4 | 60 | each | 0.45 | 27.00 |\n| FACILITIES-5 | 1 | project | 140.00 | 140.00 |\n| FACILITIES-6 | 1 | project | 190.00 | 190.00 |\n\n## Material interpretation checks\n\n- **Industrial packaging:** the gloves explicitly contain 10 pairs per pack, with whole packs only. Three packs therefore contain 30 pairs. The lubricant MOQ is five litres. Inspection is hourly and excludes repairs; calibration is a fixed project for two instruments and certificates.\n- **Office CSV:** physical newlines inside quoted records are not additional items. Cable prices have an all-units tier of 11.28 for quantities 1–199 and 10.15 at 200 or more; the keyboard MOQ is four. Workstation setup is a fixed project, while remote support is hourly and excludes hardware. Unknown delivery must not become zero.\n- **Event spreadsheet:** data rows 3, 5 and 7 on each sheet are six items. Merged rows 4, 6 and 8 contain specifications or scope, not another six items. The audio operator is hourly with a six-hour minimum; the recording deliverable excludes editing.\n- **Laboratory scan:** decimal comma is explicitly stated, including amounts such as `42,60`. Tips are filtered sterile 200-microlitre tips with an all-units price of 0.08 for 1–199 and 0.07 from 200. Bench-roll MOQ is three. Cold storage is monthly at one shelf, minus 20°C, with monitoring included. Inventory audit is a fixed project with CSV inventory and no sample handling.\n- **Facilities scan:** cleaning is monthly for 120 square metres twice weekly, including consumables. The HVAC filters contain two each per pack and require whole packs; specification is MERV 13, 20 × 20 inches. Maintenance is hourly, minimum two hours, with parts excluded. Safety inspection excludes certification.\n\n## Targeted matching review\n\nThree companion originals were inspected for these five selected pair judgments: both rendered pages of `originals/dev/industrial-2.pdf`, cells and merged continuation descriptions in `originals/dev/industrial-3.xlsx`, and the complete raw `originals/heldout/facilities-2.txt`. These companions are **not** included in the 200 core-field checks. In total, eight PDF pages were visually inspected across four PDF originals.\n\n| Selected pair | Original-based judgment | Gold agreement |\n| --- | --- | --- |\n| industrial-1 / industrial-2, INDUSTRIAL-2 gloves | Same size-L, powder-free specification; explicit 10 pairs per pack allows pack/pair normalization. Three packs correspond to 30 pairs. | Both use `industrial:2` |\n| industrial-1 / industrial-2, INDUSTRIAL-5 inspection | Both hourly, visual inspection and written checklist, repairs excluded. | Both use `industrial:5` |\n| facilities-1 / facilities-2, FACILITIES-2 filters | Same stated specification; two each per pack permits comparison of contents. SGD versus EUR still prevents a common-currency price winner without user-supplied FX. | Both use `facilities:2`; currency remains separate |\n| industrial-1 / industrial-3, INDUSTRIAL-4 filter | Cedar explicitly adds “alternate lower specification” but gives no exact changed specification. This is a possible alternative requiring clarification; equivalence is unsupported. | Cedar key is null, specification ambiguity recorded |\n| industrial-1 / industrial-3, INDUSTRIAL-6 calibration | Cedar additionally excludes a final report or revision deliverable. Scope conflict must remain visible. | Cedar key is null, scope ambiguity recorded |\n\nThe companion industrial-2 scan also contains a deliberate discrepancy: 200 bolts at 0.17 independently calculate to **34.00**, while its line states **36.00**. Gold correctly preserves 36.00 and records the amount ambiguity. This check must not silently alter the supplier's stated amount.\n\n## Findings corrected during review\n\nCritical numeric and item-count values had no discrepancies. Provenance metadata did need correction:\n\n1. Gold locale fields previously asserted geographic locales (`en-SG` / `de-DE`) without literal source support. They now record explicit decimal and date-format context with header references. Decimal comma alone does not establish a country.\n2. Gold validity `raw` previously repeated normalized ISO dates. It now retains `30 September 2026` from the original while the normalized value remains `2026-09-30`.\n3. Package order increments now cite `whole packs only`, rather than a coincidental numeric `1` in the same excerpt.\n4. The fixture author also aligned tax-rate references with the totals text containing 9%, and charge-currency references with the header. These provenance repairs were generated without altering original document content.\n\nThe separate demo audit checks all **60 source spans across nine sample quotations** for exact `originalText.slice(start, end)` equality, unique IDs and document ownership. It also checks that every supplier-stated value's raw excerpt exists in its cited source. That test exposed 19 absent raw excerpts: nine format-context fields, nine validity dates, and one package increment. The demo metadata was corrected; `tests/source-invariants.test.ts` now passes both invariants. These tests establish source consistency, not model extraction accuracy or complete semantic correctness of every demo value.\n\n## Remaining limitations\n\nThe other 19 primary benchmark originals did not receive this complete 40-check review. Three of them received only the targeted companion checks described above. No independent human reviewed the gold set. This review does not establish real-model extraction accuracy, matching precision/recall, cost, or latency. The synthetic layouts and finite comparison cases remain narrower than real supplier documents. The vague alternate-specification fixture is deliberately insufficient evidence for equivalence; it does not support inferring a specific lower MERV rating.\n",
   "limitations": [
     "Small synthetic English-only dataset; authored layout and content diversity do not establish general supplier-format coverage.",
@@ -768,7 +515,9 @@
     "No human gold verification or production latency distribution is implied. Inspect the separate review record and per-file measurements."
   ],
   "selection": {
-    "kind": "complete_split"
+    "kind": "development_document_probe",
+    "documentId": "industrial-1",
+    "matching": "not applicable with one supplier"
   },
   "runtime": {
     "nodeVersion": "v24.19.0",
@@ -780,7 +529,78 @@
       "sha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
     }
   },
-  "modelUsage": null,
-  "observedUsage": null,
-  "liveSummary": null
+  "modelUsage": {
+    "successfulCheckpointedRequests": 2,
+    "inputTokens": 5242,
+    "outputTokens": 3951,
+    "reportedCostUsd": "0",
+    "elapsedMs": 9107,
+    "scope": "Successful checkpointed requests across this logical run, including resumed requests; failed request usage and provider invoice are not available."
+  },
+  "observedUsage": {
+    "completedResponses": 4,
+    "responsesWithoutUsage": 2,
+    "inputTokens": 5242,
+    "outputTokens": 3951,
+    "elapsedMs": 18899,
+    "reportedCostUsd": null,
+    "scope": "All returned model responses journaled in this logical run, including responses rejected by validation and prior resumed sessions. Token totals exclude responses explicitly marked usage unavailable (including provider-side schema rejections); those responses are counted separately. Transport failures without returned usage and the provider invoice are not measured."
+  },
+  "liveSummary": {
+    "requestedDocuments": 1,
+    "attemptedExtractions": 1,
+    "validatedExtractions": 0,
+    "rejectedOrPausedExtractions": 1,
+    "fields": {
+      "statedFieldAccuracy": {
+        "numerator": 0,
+        "denominator": 46,
+        "value": 0
+      },
+      "criticalFieldAccuracy": {
+        "numerator": 0,
+        "denominator": 43,
+        "value": 0
+      },
+      "annotatedMissingStateAccuracy": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "lineItemPrecision": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "lineItemRecall": {
+        "numerator": 0,
+        "denominator": 6,
+        "value": 0
+      },
+      "annotatedReviewSignalRecall": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "sourceReferenceResolvability": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "correctFieldLocationAgreement": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      }
+    },
+    "scope": "Micro-averaged over attempted extraction documents. Failed or paused documents count as missing output with zero field/recall credit. Unattempted documents are not silently included or excluded: their count is requested minus attempted. Source precision denominators cover returned references only."
+  },
+  "liveSession": {
+    "sessionId": "2026-09-12T22-41-01-530Z-47956",
+    "attemptedRequests": 1,
+    "completedResponses": 0,
+    "quotaWaits": 0,
+    "waitedMs": 0,
+    "halt": null
+  }
 }

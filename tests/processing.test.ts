@@ -93,7 +93,7 @@ describe("structured extraction reliability with labelled injected responses", (
   function extractionFor(request: AIRequest) {
     const input = JSON.parse(request.user) as { sources: { id: string; text: string }[] };
     const supplier = input.sources[0].id; const itemSource = input.sources[1].id;
-    const dto = (key: string, value: string, raw: string, sourceId = itemSource) => ({ key, state: "value", value, raw, sourceIds: [sourceId] });
+    const dto = (key: string, value: string, raw: string, sourceId = itemSource) => ({ key, label: key, type: "text", unit: null, state: "value", value, raw, sourceIds: [sourceId] });
     return { ...blankChunk(input.sources.map(source => source.id)), supplier: [dto("name", "Acme Supplies", "Acme Supplies", supplier)],
       items: [{ sourceIds: [itemSource], kind: "goods", fields: [dto("description", "Widget", "Widget"), dto("quantity", "2", "2"), dto("unit", "each", "each"), dto("unitPrice", "0.00", "0.00"), dto("lineAmount", "0.00", "0.00"), dto("currency", "USD", "USD")], taxBasis: "not_stated", tiers: [], discount: null, attributes: [] }],
       coverage: input.sources.map(source => ({ sourceId: source.id, disposition: "used", reason: "Extracted" })) };
@@ -113,7 +113,7 @@ describe("structured extraction reliability with labelled injected responses", (
   });
   it("rejects impossible calendar dates rather than accepting Date.parse rollover", async () => {
     const document = await parseDocument({ documentId: "bad-date", filename: "date.txt", text: "Quotation dated 2026-02-31" });
-    await expect(extractQuotation(document, { request: async () => result({ ...blankChunk([document.sources[0].id]), quotation: [{ key: "date", state: "value", value: "2026-02-31", raw: "2026-02-31", sourceIds: [document.sources[0].id] }] }) })).rejects.toMatchObject({ code: "invalid_output" });
+    await expect(extractQuotation(document, { request: async () => result({ ...blankChunk([document.sources[0].id]), quotation: [{ key: "date", label: "date", type: "text", unit: null, state: "value", value: "2026-02-31", raw: "2026-02-31", sourceIds: [document.sources[0].id] }] }) })).rejects.toMatchObject({ code: "invalid_output" });
   });
   it("does not turn a failed page manifest into a complete extraction", async () => {
     const document = await parsed(); document.manifest.complete = false; document.manifest.units.push({ id: "page:2", label: "Page 2", status: "failed", sourceCount: 0 });

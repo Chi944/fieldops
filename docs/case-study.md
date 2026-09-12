@@ -2,7 +2,7 @@
 
 FieldOps is a procurement workspace for turning differently structured supplier quotations into a comparison a buyer can defend. The difficult part is deciding what can legitimately be compared: a box and an individual unit, an hourly estimate and a fixed scope, or a low item price with unknown delivery costs.
 
-The project was built from a new repository as a focused full-stack and applied-AI portfolio project. Its first release centers on source review, item matching, deterministic calculation, and export. It supports fictional demonstration workspaces and a real processing implementation; live model integration remains disabled until the user configures their confirmed free provider account. The [public demonstration](https://fieldops-eight-blue.vercel.app) is deployed on Vercel Hobby. The [release record](release-verification.md) documents passing local and public browser checks; hosted private processing and live AI performance remain unverified.
+The project was built from a new repository as a focused full-stack and applied-AI portfolio project. Its first release centers on source review, item matching, deterministic calculation, and export. It supports fictional demonstration workspaces and a real processing implementation; the free model account and inference ZDR are configured, with small real synthetic successes and larger development failures measured separately. The [public demonstration](https://fieldops-eight-blue.vercel.app) is deployed on Vercel Hobby. The [release record](release-verification.md) documents passing local and public browser checks; the hosted pasted-text/manual workflow also passed. Broad live AI performance remains unverified.
 
 ## Product and engineering decisions
 
@@ -24,7 +24,7 @@ The initial offline run measured baseline equivalent-pair precision of **102/102
 
 The recall loss is informative: a third supplier's incompatible alternative makes the entire candidate group require review, which also withholds a valid pair within that group. This conservative behavior loses automatic coverage while preserving the review path. The report publishes the denominator and the limitation instead of converting it into an unsupported success claim.
 
-No model extraction, AI matching, live prompt-injection resistance, or provider latency has been measured. The live evaluator is implemented with explicit activation, request checkpoints, configuration/source hashes and held-out freeze behavior. Its outputs remain unavailable until actual provider configuration and execution. See the [measured report](evaluation-report.md) and the [independent gold review](../eval/gold-review.md) for current results and the exact review scope.
+Small real Groq extraction probes now provide measured latency and token usage; multi-item development probes also exposed provider-rejected structures. These limited results do not establish broad field accuracy, AI matching or live prompt-injection resistance. The live evaluator preserves rejected outputs privately, counts failed documents, records exact configuration/source hashes and keeps held-out data separate. See the [measured report](evaluation-report.md) and the [independent gold review](../eval/gold-review.md) for current results and the exact review scope.
 
 ## A substantive failure and its fix
 
@@ -35,6 +35,12 @@ The code used a precise decimal library, yet it divided demand by package size f
 The fix calculates delivered contents first: `2 × 12 = 24`, then subtracts original demand: `24 − 20 = 4`. The regression test also asserts the monetary result, explicit buyer acceptance, and rejection of fractional or insufficient pack orders. This was an observed failing test followed by a passing correction, not a hypothetical failure or a model benchmark claim. [Failure notes](failure-notes.md) record the details.
 
 Independent review found another class of problem: some gold fields had correct normalized values but unsuitable raw evidence, including an ISO date used as raw text where the source spelled out the month. The corrected fixtures retain the normalized date and the actual source wording separately. This illustrates why checking that a source ID exists is only one part of evidence reliability.
+
+## An observed hosted integration failure
+
+The first real GitHub sign-in created a valid Neon session and matched the numeric invitation, yet the browser remained a guest. Neon returned its one-time verifier to the homepage. The original proxy only matched API/auth paths, so the handoff never became an application session. The fix handles the verifier on the homepage while keeping ordinary demo visits public; tests exercise the installed SDK and actual Next matcher. Actual hosted retesting passed sign-in, the complete two-quotation manual workflow, sign-out and restored access after a fresh sign-in. [Hosted evidence](hosted-acceptance.md) records the exact boundaries.
+
+A separate review found that deleting a comparison could wait behind a long global file-cleanup queue after its database deletion had already committed. Foreground cleanup now has a three-second abort deadline and leaves failed object removals in the durable outbox, preserving successful deletion acknowledgment.
 
 ## Remaining work
 

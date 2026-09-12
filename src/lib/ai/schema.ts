@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const fieldKeys = ["name", "contact", "email", "phone", "address", "quotationNumber", "date", "revision", "currency", "locale", "statedSubtotal", "statedTotal", "validity", "availability", "leadTime", "delivery", "payment", "warranty", "exclusions", "notes", "description", "identifier", "quantity", "unit", "packageSize", "packageUnit", "minimumOrder", "orderIncrement", "unitPrice", "lineAmount", "billingBasis", "duration", "scope", "taxRate", "amount", "specification", "packageContents"] as const;
-export const extractedFieldSchema = z.object({ key: z.enum(fieldKeys), state: z.enum(["value", "not_stated", "not_applicable", "ambiguous"]), value: z.string().nullable(), raw: z.string().nullable(), sourceIds: z.array(z.string()) }).strict();
+// One wire shape avoids ambiguous core-field versus attribute object generation.
+// Application field types still come from section context after validation.
+export const extractedFieldSchema = z.object({ key: z.enum(fieldKeys), label: z.string(), type: z.enum(["text", "decimal", "date", "boolean"]), state: z.enum(["value", "not_stated", "not_applicable", "ambiguous"]), value: z.string().nullable(), raw: z.string().nullable(), unit: z.string().nullable(), sourceIds: z.array(z.string()) }).strict();
 // Keep constrained decoding and runtime integration on the same section keys.
 export const sectionFieldKeys = {
   supplier: ["name", "contact", "email", "phone", "address"],
@@ -12,7 +14,7 @@ export const sectionFieldKeys = {
 } as const;
 const sectionFields = <const T extends readonly [(typeof fieldKeys)[number], ...(typeof fieldKeys)[number][]]>(keys: T) => z.array(extractedFieldSchema.extend({ key: z.enum(keys) }));
 export const itemAttributeFieldKeys = ["specification", "packageContents"] as const;
-const attributeSchema = z.object({ key: z.string(), label: z.string(), type: z.enum(["text", "decimal", "date", "boolean"]), value: z.string().nullable(), state: z.enum(["value", "not_stated", "not_applicable", "ambiguous"]), raw: z.string().nullable(), unit: z.string().nullable(), sourceIds: z.array(z.string()) }).strict();
+const attributeSchema = extractedFieldSchema.extend({ key: z.string() });
 const tierSchema = z.object({ min: z.string(), max: z.string().nullable(), unitPrice: z.string(), unit: z.string(), basis: z.enum(["all_units", "graduated", "ambiguous"]), sourceIds: z.array(z.string()) }).strict();
 const discountSchema = z.object({ kind: z.enum(["percent", "fixed"]), value: z.string(), basis: z.enum(["unit", "line", "order", "ambiguous"]), alreadyIncluded: z.boolean(), sourceIds: z.array(z.string()) }).strict();
 export const extractionSchema = z.object({

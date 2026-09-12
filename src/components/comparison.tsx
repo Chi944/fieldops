@@ -1011,7 +1011,7 @@ export function ReportScreen({ comparison }: { comparison: Comparison }) {
             </div>
             <div>
               <dt>Review</dt>
-              <dd>{issues.length} unresolved issues</dd>
+              <dd>{issues.length} open extraction review issues</dd>
             </div>
           </dl>
         </div>
@@ -1068,8 +1068,8 @@ export function ReportScreen({ comparison }: { comparison: Comparison }) {
             ))
           ) : (
             <p>
-              No automatically flagged unresolved issues. Buyer review is still
-              required.
+              No open extraction review issues. Missing costs and comparison
+              limitations are shown above.
             </p>
           )}
         </section>

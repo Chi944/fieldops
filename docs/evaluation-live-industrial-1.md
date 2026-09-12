@@ -1,14 +1,16 @@
-# FieldOps measured evaluation
+# FieldOps selected live development probe
 
-Measured 2026-09-12T22:50:05.388Z. Mode: **baseline**. Run `baseline-all-c46b4849dea0-8dc06a6ab2cb`.
+Measured 2026-09-12T22:41:08.147Z. Mode: **live**. Run `live-dev-document-0693e948-2cde89584bf4-8dc06a6ab2cb`.
 
-This report is the complete offline baseline. The [separate live development report](live-ai-development.md) records two successful small application quotations and the failed two-page AI probe; [its archived JSON](../eval/results/live-industrial-1.json) retains the original live configuration. Offline parser and baseline results are not model-accuracy results.
+The latest full offline measurement is kept separately in the [24-document baseline report](evaluation-report.md). This live result is a failed selected-document probe; [development verification](live-ai-development.md) distinguishes it from two successful small application smokes.
 
 ## Dataset and protocol
 
-24 self-authored originals, 8 unrelated comparison scenarios, 144 logical items and 1106 selected field assertions. Development and held-out splits each have 12 documents. Formats: 8 text_pdf, 4 scan_pdf, 4 xlsx, 4 text, 2 csv, 2 png. Eight robustness cases are separate. Untuned held-out content; offline measurement only.
+1 self-authored originals, 1 unrelated comparison scenarios, 6 logical items and 46 selected field assertions. Development and held-out splits each have 12 documents. Formats: 1 text_pdf. Eight robustness cases are separate. Development set.
 
-Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `c46b4849dea02967f2e976065794107eb142a19afd427a413b102e15adc7262e`. The report stores per-document timing and errors in [JSON](../eval/results/baseline.json).
+Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `2cde89584bf4c470c14a4c5a8d312d54c987e90254d5d05ff5c28acc86413690`. The report stores per-document timing and errors in [JSON](../eval/results/live-industrial-1.json).
+
+This is a selected development-document probe (`industrial-1`), not the full split. Supplier matching is not applicable to one document.
 
 Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-256 ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468. The configuration fingerprint includes package.json, package-lock.json and this runtime/asset identity.
 
@@ -16,23 +18,43 @@ Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-2
 
 | Measurement | Result |
 |---|---|
-| Baseline equivalent-pair precision, gold rows | 100.0% (102/102) |
-| Baseline equivalent-pair recall, gold rows | 87.9% (102/116) |
-| False equivalences on annotated hard negatives | 0/28 |
-| Candidate cross-supplier item pairs | 864 |
-| Parser complete documents | 24/24 |
-| Authored item identifiers present in parsed text | 100.0% (144/144) |
-| Parsed source locations present | 100.0% (963/963) |
-| Reported boxes within page bounds | 100.0% (544/544) |
-| Parser median / minimum / maximum | 10 / 0 / 4059 ms |
+| Baseline equivalent-pair precision, gold rows | not measured (0 denominator) |
+| Baseline equivalent-pair recall, gold rows | not measured (0 denominator) |
+| False equivalences on annotated hard negatives | 0/0 |
+| Candidate cross-supplier item pairs | 0 |
+| Parser complete documents | 1/1 |
+| Authored item identifiers present in parsed text | 100.0% (6/6) |
+| Parsed source locations present | 100.0% (40/40) |
+| Reported boxes within page bounds | 100.0% (40/40) |
+| Parser median / minimum / maximum | 784 / 784 / 784 ms |
 | Robustness assertions | 8/8 |
-| Provider cost for this offline run | USD 0; no provider calls |
+| Provider cost for this live run | See returned usage; provider invoice not measured |
 
 All parser manifests completed and all authored item identifiers were present; this is not evidence of perfect extraction.
 
 ## AI status
 
-**UNVERIFIED.** No model extraction or semantic matching was run in this offline evaluation. These AI metrics are not measured here. Separate live development probes and their limitations are reported in [live development verification](live-ai-development.md); they do not establish full-dataset AI accuracy.
+**LIVE_ATTEMPTED_NO_VALIDATED_EXTRACTIONS.** Actual live outputs and denominators are in the JSON report. Failed requests and unmeasured scenarios are retained, not replaced with fixtures.
+
+### Live completion and failures
+
+Validated 0/1 documents; attempted 1. No quota/configuration pause. Micro-averaged over attempted extraction documents. Failed or paused documents count as missing output with zero field/recall credit. Unattempted documents are not silently included or excluded: their count is requested minus attempted. Source precision denominators cover returned references only.
+
+| Live extraction measurement | Result |
+|---|---|
+| statedFieldAccuracy | 0.0% (0/46) |
+| criticalFieldAccuracy | 0.0% (0/43) |
+| annotatedMissingStateAccuracy | not measured (0 denominator) |
+| lineItemPrecision | not measured (0 denominator) |
+| lineItemRecall | 0.0% (0/6) |
+| annotatedReviewSignalRecall | not measured (0 denominator) |
+| sourceReferenceResolvability | not measured (0 denominator) |
+| correctFieldLocationAgreement | not measured (0 denominator) |
+
+Actual returned response usage across resumed sessions: 4 responses (2 without token usage), 5242 input and 3951 output tokens. All returned model responses journaled in this logical run, including responses rejected by validation and prior resumed sessions. Token totals exclude responses explicitly marked usage unavailable (including provider-side schema rejections); those responses are counted separately. Transport failures without returned usage and the provider invoice are not measured.
+
+Use `--wait-quota` to wait for at most 30 short quota resets (each at most 60 seconds); longer/daily limits pause for explicit resume. `--max-new-requests 1` bounds a development probe. Completed results resume under the same configuration and source hashes. Append-only private session journals preserve failure codes and returned usage; rejected response bodies remain private.
+
 
 Arithmetic and correction invariants run separately with `npm test -- tests/domain.test.ts`; do not interpret their assertion count as AI accuracy. The actual fixed package-surplus defect is documented in [failure notes](failure-notes.md).
 

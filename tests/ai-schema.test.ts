@@ -4,6 +4,11 @@ import { emptyItem } from "@/lib/domain/types";
 import { compactExtractionRequest } from "@/lib/ai/groq";
 
 describe("section-specific structured extraction", () => {
+  it("uses the same required wire properties in every field and attribute context", () => {
+    const shape = extractionSchema.shape;
+    const schemas = [shape.supplier.element, shape.quotation.element, shape.terms.element, shape.items.element.shape.fields.element, shape.charges.element.shape.fields.element, shape.attributes.element];
+    for (const schema of schemas) expect(Object.keys(schema.shape).sort()).toEqual(["key", "label", "raw", "sourceIds", "state", "type", "unit", "value"]);
+  });
   it("round-trips transport aliases to exact parser references and rejects invented aliases", () => {
     const originalId = "document-uuid:pdf:p2:fragment-42";
     const wire = compactExtractionRequest({ purpose: "extraction", schema: {}, system: "Test", user: JSON.stringify({ sources: [{ id: originalId, text: "USD 12.50", page: 2 }] }), maxOutputTokens: 20 });

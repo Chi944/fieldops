@@ -26,6 +26,7 @@ import {
 import { demoComparisons } from "@/lib/demo";
 import type { Comparison, FieldValue, ProcessingRun } from "@/lib/domain/types";
 import { applyCorrection, StaleRevisionError } from "@/lib/domain/corrections";
+import { createComparisonPoller } from "@/lib/client/comparison-polling";
 import { AppContext, api, Capabilities, revisionOf } from "./context";
 import { Badge, Brand, EmptyState, Modal } from "./ui";
 import { WorkspaceScreen } from "./workspace";
@@ -88,6 +89,7 @@ export function FieldOps({
   const [deleteTarget, setDeleteTarget] = useState<Comparison | null>(null);
   const loaded = useRef(false),
     toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const comparisonPoller = useRef<{ id: string; poller: ReturnType<typeof createComparisonPoller> } | null>(null);
   const pathname = usePathname(),
     router = useRouter();
   const workflowNav = useRef<HTMLElement>(null);
@@ -140,6 +142,7 @@ export function FieldOps({
       }>(`/api/comparisons/${id}`);
       replaceComparison(result.comparison);
       setRuns(result.runs ?? []);
+      if (comparisonPoller.current?.id === id) comparisonPoller.current.poller.observe(result.runs ?? []);
     },
     [replaceComparison],
   );
@@ -211,8 +214,9 @@ export function FieldOps({
     if (!persistentId) return;
     const id = persistentId;
     let live = true;
-    const tick = async () => {
-      try {
+    const poller = createComparisonPoller({
+      isVisible: () => document.visibilityState !== "hidden",
+      refresh: async () => {
         const result = await api<{
           comparison: Comparison;
           runs: ProcessingRun[];
@@ -221,15 +225,20 @@ export function FieldOps({
           replaceComparison(result.comparison);
           setRuns(result.runs ?? []);
         }
-      } catch {
-        /* Keep the last successful state; user-triggered actions show errors. */
-      }
-    };
-    void tick();
-    const timer = setInterval(tick, 3000);
+        return result.runs ?? [];
+      },
+    });
+    comparisonPoller.current = { id, poller };
+    const onReturn = () => poller.visibilityChanged();
+    document.addEventListener("visibilitychange", onReturn);
+    window.addEventListener("focus", onReturn);
+    void poller.refresh();
     return () => {
       live = false;
-      clearInterval(timer);
+      poller.stop();
+      document.removeEventListener("visibilitychange", onReturn);
+      window.removeEventListener("focus", onReturn);
+      if (comparisonPoller.current?.poller === poller) comparisonPoller.current = null;
     };
   }, [persistentId, replaceComparison]);
   const save = useCallback(
