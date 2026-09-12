@@ -4,15 +4,16 @@ Install the project's development dependencies, then install the test browser on
 
 ```sh
 npx playwright install chromium
+npm run build
 npm run test:e2e
 ```
 
-By default Playwright starts an isolated local server on `127.0.0.1:3002`, writes test-owned local files to `.fieldops/e2e-storage`, and explicitly disables the Groq key and free-plan flags. Stop another Next development process in this same checkout first, because Next shares a development-build lock. The local recovery test requires `canExtract: false` and never requests model inference.
+By default Playwright starts the previously built production application as an isolated local server on `127.0.0.1:3002`, writes test-owned local files to `.fieldops/e2e-storage`, and explicitly disables the Groq key and free-plan flags. Port 3002 must be available. The test runner does not stop other servers; the personal launcher uses a separate build directory. The local recovery test requires `canExtract: false` and never requests model inference.
 
-To reuse an already running local server, set `FIELDOPS_TEST_BASE_URL`, for example in PowerShell:
+To reuse an already running isolated test server (never the personal-data server), set `FIELDOPS_TEST_BASE_URL`, for example in PowerShell:
 
 ```powershell
-$env:FIELDOPS_TEST_BASE_URL='http://127.0.0.1:3001'
+$env:FIELDOPS_TEST_BASE_URL='http://127.0.0.1:3002'
 npm run test:e2e
 ```
 
@@ -22,7 +23,7 @@ Tests cover create/rename/delete, sample upload, source highlight, correction hi
 
 Screenshots, a rendered decision PDF, axe JSON attachments and failure traces are written to ignored `test-results/` and `playwright-report/`. `tests/export.test.ts` separately reloads generated workbooks and checks preserved originals, correction history, literal formula-like text, sources, missing states, price rules and FX assumptions.
 
-These tests do not establish deployed Supabase/Trigger integration, real authentication-provider behaviour, production OCR capacity, or live AI quality. Those need configured hosted services and the separately controlled live evaluation protocol.
+These tests do not establish deployed Neon/Trigger integration, real authentication-provider behaviour, production OCR capacity, or live AI quality. Those need configured hosted services and the separately controlled live evaluation protocol.
 
 The initial release was verified on 13 September 2026 against the local Next development server with AI disabled: **6/6 browser tests passed** in 43.6 seconds; axe reported zero violations in the four tested states. Separate parser, workbook and demo-source suites passed **24/24 tests** (18 parser/adapter, four workbook, two source invariants). The browser run fixed and retested insufficient text contrast, an unfocusable source scroll area, lost dialog return focus, loopback request normalization, and the source-only quotation's incomplete state. These are scoped local test results, not deployed reliability or model-quality measurements.
 

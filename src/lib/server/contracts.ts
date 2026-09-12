@@ -45,5 +45,5 @@ export interface Repository {
   writeObject(document: DocumentRecord, bytes: Uint8Array): Promise<void>;
   readObject(document: DocumentRecord): Promise<Uint8Array>;
   deleteObject(document: DocumentRecord): Promise<void>;
-  cleanup(): Promise<void>;
+  cleanup(options?: { signal?: AbortSignal }): Promise<void>;
 }

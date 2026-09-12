@@ -1,13 +1,18 @@
 import { createHash } from "node:crypto";
-import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProgressOptions } from "../processing/errors";
+import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
 export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; }
-export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; }
+export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
-export interface AICheckpoint { get(key: string): Promise<AIResult | null>; set(key: string, value: AIResult): Promise<void>; }
+export interface AICheckpoint {
+  get(key: string): Promise<AIResult | null>;
+  set(key: string, value: AIResult): Promise<void>;
+  /** Optional private rejection journal. Never expose result.data in application logs. */
+  reject?(key: string, result: AIResult, errorCode: ProcessingErrorCode, context?: { cached: boolean }): Promise<void>;
+}
 export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
-export const PROMPT_VERSION = "fieldops-extraction-1";
+export const PROMPT_VERSION = "fieldops-extraction-2";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
 // One request at a time. Provider quota remains authoritative across deployed workers.
 let pending: Promise<unknown> = Promise.resolve();
@@ -23,17 +28,78 @@ export function liveAIConfiguration(): { ready: boolean; model: string; reason: 
 }
 export function requireLiveAI(): void { const configuration = liveAIConfiguration(); if (!configuration.ready) throw new AIUnavailableError(configuration.reason ?? undefined); }
 
-export async function requestAI(request: AIRequest, options: AIOptions = {}): Promise<AIResult> {
+class RejectedResponse extends ProcessingError {
+  constructor(message: string, readonly result: AIResult, retryable = false) { super("invalid_output", message, retryable); }
+}
+
+export async function requestAI<T = AIResult>(request: AIRequest, options: AIOptions = {}, validate?: (result: AIResult) => T | Promise<T>): Promise<T> {
   checkCancelled(options.signal);
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
   const key = createHash("sha256").update(JSON.stringify({ version: PROMPT_VERSION, model, request })).digest("hex");
-  const previous = await options.checkpoint?.get(key); if (previous) return previous;
-  const result = options.request ? await options.request(request, { signal: options.signal }) : await enqueue(() => requestGroq(request, options));
-  checkCancelled(options.signal); await options.checkpoint?.set(key, result); return result;
+  // Raw transport requests are never successful checkpoints. Domain callers must
+  // validate schema, evidence and integration before an answer becomes resumable.
+  const checkpoint = validate ? options.checkpoint : undefined;
+  const reject = async (result: AIResult, error: unknown, cached: boolean) => {
+    const errorCode = error instanceof ProcessingError ? error.code : "invalid_output";
+    await options.checkpoint?.reject?.(key, result, errorCode, { cached });
+    console.info(JSON.stringify({ event: "ai_response_rejected", requestKey: key, purpose: request.purpose, errorCode, cached }));
+  };
+  const previous = await checkpoint?.get(key);
+  checkCancelled(options.signal);
+  if (previous && validate) {
+    try { return await validate(previous); }
+    catch (error) {
+      checkCancelled(options.signal);
+      await reject(previous, error, true);
+      // An old raw-response checkpoint may be invalid. Report it and bypass it;
+      // a fresh response below still gets only one validation attempt per call.
+    }
+  }
+  let result: AIResult;
+  try { result = options.request ? await options.request(request, { signal: options.signal }) : await enqueue(() => requestGroq(request, options)); }
+  catch (error) {
+    if (error instanceof RejectedResponse) {
+      await reject(error.result, error, false);
+      // Keep private response contents inside the rejection hook, not the public error.
+      throw new ProcessingError(error.code, error.message, error.retryable);
+    }
+    throw error;
+  }
+  checkCancelled(options.signal);
+  let value: T;
+  try { value = validate ? await validate(result) : result as T; }
+  catch (error) { await reject(result, error, false); throw error; }
+  checkCancelled(options.signal);
+  await checkpoint?.set(key, result);
+  return value;
 }
 
 async function enqueue<T>(operation: () => Promise<T>): Promise<T> {
   const result = pending.then(operation, operation); pending = result.catch(() => {}); return result;
+}
+
+/** Short transport aliases reduce repeated citation tokens; stored IDs stay parser-owned. */
+export function compactExtractionRequest(request: AIRequest): { request: AIRequest; restore(data: unknown): unknown } {
+  if (request.purpose !== "extraction") return { request, restore: data => data };
+  let body: { sources?: { id: string; [key: string]: unknown }[] };
+  try { body = JSON.parse(request.user); } catch { return { request, restore: data => data }; }
+  if (!Array.isArray(body.sources)) return { request, restore: data => data };
+  const original = new Map(body.sources.map((source, index) => [`s${index}`, source.id]));
+  const user = JSON.stringify({ ...body, sources: body.sources.map((source, index) => ({ ...source, id: `s${index}` })) });
+  function identifier(value: unknown): string {
+    if (typeof value !== "string" || !original.has(value)) throw new Error("Unknown evidence alias");
+    return original.get(value)!;
+  }
+  function restore(data: unknown): unknown {
+    if (Array.isArray(data)) return data.map(restore);
+    if (!data || typeof data !== "object") return data;
+    return Object.fromEntries(Object.entries(data).map(([key, value]) => {
+      if (key === "sourceIds") return [key, Array.isArray(value) ? value.map(identifier) : value];
+      if (key === "sourceId" || key === "itemSourceId") return [key, value === null ? null : identifier(value)];
+      return [key, restore(value)];
+    }));
+  }
+  return { request: { ...request, user }, restore };
 }
 
 function reserveQuota(tokens: number): void {
@@ -51,22 +117,31 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
   const configuration = liveAIConfiguration();
   const Groq = (await import("groq-sdk")).default;
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY, maxRetries: 0, timeout: 45000 });
-  const estimatedInput = Math.ceil((request.system.length + request.user.length + JSON.stringify(request.schema).length) / 3);
+  const wire = compactExtractionRequest(request);
+  const estimatedInput = Math.ceil((wire.request.system.length + wire.request.user.length + JSON.stringify(request.schema).length) / 3);
   reserveQuota(estimatedInput + request.maxOutputTokens);
   const started = Date.now();
   for (let attempt = 0; attempt < 2; attempt++) {
     checkCancelled(options.signal);
     try {
-      const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: request.system }, { role: "user", content: request.user }], reasoning_effort: "low", temperature: 0,
+      const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: wire.request.system }, { role: "user", content: wire.request.user }], reasoning_effort: "low", temperature: 0,
         max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}`, strict: true, schema: request.schema } } }, { signal: options.signal }), 45000, options.signal);
       const choice = response.choices[0];
-      if (!choice || choice.finish_reason !== "stop" || !choice.message.content) throw new ProcessingError("invalid_output", "The model returned an incomplete extraction. Split this section into fewer rows and retry; no partial model output was accepted.");
-      let data: unknown; try { data = JSON.parse(choice.message.content); } catch { throw new ProcessingError("invalid_output", "The model did not return valid structured data. Retry the failed section.", true); }
-      return { data, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, costUsd: "0", elapsedMs: Date.now() - started };
+      const result: AIResult = { data: choice?.message.content ?? null, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, costUsd: "0", elapsedMs: Date.now() - started, finishReason: choice?.finish_reason ?? "missing" };
+      if (!choice || choice.finish_reason !== "stop" || !choice.message.content) throw new RejectedResponse("The model returned an incomplete extraction. Split this section into fewer rows and retry; no partial model output was accepted.", result);
+      let data: unknown; try { data = JSON.parse(choice.message.content); } catch { throw new RejectedResponse("The model did not return valid structured data. Retry the failed section.", result, true); }
+      try { data = wire.restore(data); }
+      catch { throw new RejectedResponse("The model returned evidence outside its supplied source records. The interpretation was rejected.", { ...result, data }); }
+      return { ...result, data };
     } catch (error) {
       if (options.signal?.aborted) throw new ProcessingError("cancelled", "Extraction cancelled. Saved parser and extraction chunks remain available.");
       if (error instanceof ProcessingError) throw error;
       const status = (error as { status?: number }).status;
+      const payload = (error as { error?: { error?: { code?: string; failed_generation?: unknown }; code?: string; failed_generation?: unknown } }).error;
+      const validation = payload?.error ?? payload;
+      if (status === 400 && validation?.code === "json_validate_failed" && typeof validation.failed_generation === "string") {
+        throw new RejectedResponse("The provider rejected its generated structured output. No interpretation was accepted; retry this quotation section or use manual review.", { data: validation.failed_generation, model: configuration.model, inputTokens: 0, outputTokens: 0, elapsedMs: Date.now() - started, costUsd: null, finishReason: "provider_schema_rejected", usageAvailable: false });
+      }
       if (status === 429) {
         const headers = (error as { headers?: { get?(key: string): string | null; [key: string]: unknown } }).headers;
         const raw = headers?.get?.("retry-after") ?? headers?.["retry-after"];

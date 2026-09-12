@@ -86,6 +86,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
         method = "POST",
         body: FormData | File;
       let cloudDocumentId: string | undefined;
+      let uploadHeaders: Record<string, string> = {};
       if (capabilities.mode === "cloud") {
         const hash = await crypto.subtle.digest(
           "SHA-256",
@@ -98,6 +99,8 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
           documentId: string;
           uploadUrl: string;
           contentType: string;
+          method: "PUT";
+          headers: Record<string, string>;
         }>(`/api/comparisons/${comparison.id}/uploads/initiate`, {
           method: "POST",
           body: JSON.stringify({
@@ -111,7 +114,8 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
         });
         cloudDocumentId = ticket.documentId;
         target = ticket.uploadUrl;
-        method = "PUT";
+        method = ticket.method;
+        uploadHeaders = ticket.headers;
         body = file;
       } else {
         body = new FormData();
@@ -123,11 +127,8 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
       const xhr = new XMLHttpRequest();
       requests.current.set(id, xhr);
       xhr.open(method, target);
-      if (body instanceof File)
-        xhr.setRequestHeader(
-          "Content-Type",
-          file.type || "application/octet-stream",
-        );
+      for (const [header, value] of Object.entries(uploadHeaders))
+        xhr.setRequestHeader(header, value);
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable)
           update(id, { progress: Math.round((e.loaded / e.total) * 100) });

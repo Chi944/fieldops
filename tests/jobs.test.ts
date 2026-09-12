@@ -8,10 +8,11 @@ import { parseDocument, ProcessingError } from "@/lib/processing";
 import type { DocumentRecord, RunRecord, State } from "@/lib/server/contracts";
 import { LocalRepository } from "@/lib/server/local-repository";
 import { executeRun, hydrateComparison } from "@/lib/server/jobs";
+import type { AICheckpoint, AIOptions, AIResult } from "@/lib/ai/groq";
 
 // Fail loudly if parser-only work ever reaches extraction. This is an injected
 // test transport; no real provider module, key, or model call is used.
-const ai = vi.hoisted(() => ({ extractQuotation: vi.fn(async () => { throw new Error("Parser-only work called AI"); }) }));
+const ai = vi.hoisted(() => ({ extractQuotation: vi.fn<(parsed: unknown, options?: AIOptions) => Promise<never>>(async () => { throw new Error("Parser-only work called AI"); }) }));
 vi.mock("@/lib/ai", () => ai);
 
 let directory: string;
@@ -39,6 +40,31 @@ async function seed(processingMode: ProcessingMode = "parse_only") {
 }
 
 describe("persisted parser-only processing", () => {
+  it("journals rejected injected AI responses privately without replaying them, and fences stale diagnostic writes", async () => {
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "synthetic-test-key-never-sent");
+    vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "true"); vi.stubEnv("GROQ_MODEL", "openai/gpt-oss-120b");
+    const log = vi.spyOn(console, "info").mockImplementation(() => {});
+    const { document, run } = await seed("ai");
+    const result: AIResult = { data: { privateSyntheticMarker: "synthetic-rejected-quotation-response" }, model: "synthetic-transport", inputTokens: 10, outputTokens: 5, elapsedMs: 2, costUsd: "0" };
+    let reject!: NonNullable<AICheckpoint["reject"]>;
+    ai.extractQuotation.mockImplementationOnce(async (_parsed, options) => {
+      reject = options!.checkpoint!.reject!;
+      await reject("synthetic-request-key", result, "invalid_output", { cached: false });
+      throw new ProcessingError("invalid_output", "The injected quotation fields were invalid.");
+    });
+    await executeRun(repository, run.id);
+    expect(await repository.run("local-user", run.id)).toMatchObject({ stage: "failed", errorCode: "invalid_output" });
+    expect(await repository.getCheckpoint(document.id, "synthetic-request-key")).toBeNull();
+    const saved = JSON.parse(await readFile(join(directory, "state.json"), "utf8")) as State;
+    const keys = Object.keys(saved.checkpoints ?? {});
+    expect(keys).toHaveLength(1); expect(keys[0]).toMatch(new RegExp(`^${document.id}:rejected:synthetic-request-key:`));
+    expect(saved.checkpoints![keys[0]]).toMatchObject({ requestKey: "synthetic-request-key", code: "invalid_output", cached: false, result, runId: run.id, extractionVersion: 1 });
+    expect(JSON.stringify(log.mock.calls)).not.toContain("synthetic-rejected-quotation-response");
+    await repository.retryRun("local-user", run.id);
+    await reject("late-synthetic-key", result, "invalid_output", { cached: true });
+    const after = JSON.parse(await readFile(join(directory, "state.json"), "utf8")) as State;
+    expect(after.checkpoints).toEqual(saved.checkpoints);
+  });
   it("keeps a previously selected AI run disabled while parser-only configuration is active", async () => {
     vi.stubEnv("FIELDOPS_PROCESSING_MODE", "parse_only");
     const { document, run } = await seed("ai"); await executeRun(repository, run.id);

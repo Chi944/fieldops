@@ -2,6 +2,8 @@
 
 Status: agreed first-release specification. Captured 2026-09-13. Changes require an explicit entry in `docs/progress.md`.
 
+**Accepted amendment:** The owner subsequently instructed “Do not use supabase use neon only.” The active cloud implementation uses Neon PostgreSQL, Neon managed Auth and Neon private Object Storage. Supabase references in the original plan describe the superseded choice. Free-only operation, private invited access, evidence preservation and all reliability requirements remain binding. The owner also requested AI configuration; activation still requires verified Groq Free/ZDR settings and a configured key. Account access is a deployment gate, not permission for paid fallback.
+
 ## Purpose and audience
 
 FieldOps helps buyers compare supplier quotations across unrelated industries and layouts. It is a flagship portfolio project demonstrating full-stack engineering, applied AI, a polished user experience, and honestly measured reliability. Target a focused first release in roughly ten working days. Build a new independent repository; do not reuse or modify existing projects.

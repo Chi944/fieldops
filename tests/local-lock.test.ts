@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { LocalRepository } from "@/lib/server/local-repository";
 import type { Comparison } from "@/lib/domain/types";
 
-const failures = vi.hoisted(() => ({ codes: [] as string[], attempts: 0, prematureDeletes: 0, acquired: false }));
+const failures = vi.hoisted(() => ({ codes: [] as string[], attempts: 0, prematureDeletes: 0, acquired: false, onAttempt: undefined as (() => void) | undefined }));
 vi.mock("node:fs/promises", async (original) => {
   const fs = await original<typeof import("node:fs/promises")>();
   return {
@@ -14,6 +14,7 @@ vi.mock("node:fs/promises", async (original) => {
     open: async (...args: Parameters<typeof fs.open>) => {
       if (String(args[0]).endsWith("state.lock") && args[1] === "wx") {
         failures.attempts++;
+        failures.onAttempt?.();
         const code = failures.codes.shift();
         if (code) throw Object.assign(new Error(`Injected Windows ${code} lock acquisition failure`), { code });
         const handle = await fs.open(...args); failures.acquired = true; return handle;
@@ -30,9 +31,10 @@ vi.mock("node:fs/promises", async (original) => {
 let directory: string;
 beforeEach(async () => {
   directory = await mkdtemp(join(tmpdir(), "fieldops-lock-"));
-  failures.codes = []; failures.attempts = 0; failures.prematureDeletes = 0; failures.acquired = false;
+  failures.codes = []; failures.attempts = 0; failures.prematureDeletes = 0; failures.acquired = false; failures.onAttempt = undefined;
 });
 afterEach(async () => {
+  vi.useRealTimers();
   const target = resolve(directory);
   if (dirname(target) !== resolve(tmpdir()) || !basename(target).startsWith("fieldops-lock-")) throw new Error("Unexpected lock-test cleanup target");
   await rm(target, { recursive: true, force: true });
@@ -53,8 +55,13 @@ describe("Windows local lock acquisition", () => {
   });
   it("stops after the bounded acquisition budget without removing a lock it never acquired", async () => {
     failures.codes = Array.from({ length: 250 }, () => "EPERM");
-    await expect(new LocalRepository(directory).create("local-user", comparison())).rejects.toMatchObject({ status: 503, code: "storage_busy" });
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const firstAttempt = new Promise<void>(done => { failures.onAttempt = done; });
+    const rejected = expect(new LocalRepository(directory).create("local-user", comparison())).rejects.toMatchObject({ status: 503, code: "storage_busy" });
+    // Wait for real mkdir/open I/O to reach the first injected failure, then advance
+    // the actual 200 backoffs without depending on OS scheduling under suite load.
+    await firstAttempt; await vi.runAllTimersAsync(); await rejected;
     expect(failures.attempts).toBe(200); expect(failures.acquired).toBe(false); expect(failures.prematureDeletes).toBe(0);
     await expect(readFile(join(directory, "state.json"))).rejects.toMatchObject({ code: "ENOENT" });
-  }, 10000);
+  });
 });

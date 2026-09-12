@@ -9,10 +9,11 @@ flowchart LR
   Buyer[Buyer browser] --> UI[Next.js and React workspace]
   UI --> Demo[Labeled fixtures and browser-local edits]
   UI --> API[Validated server API]
-  API --> Auth[GitHub OAuth and invitation check]
+  API --> Auth[Neon managed Auth / GitHub invitation]
   API --> Local[Local atomic repository]
-  API --> PG[Supabase PostgreSQL and RLS]
-  API --> Storage[Private original storage]
+  API --> PG[Neon PostgreSQL / restricted server role]
+  Buyer -->|Short-lived upload ticket| Storage[Neon private object storage]
+  API --> Storage
   Local --> Pump[Local bounded runner]
   PG --> Dispatch[Persistent processing run]
   Dispatch --> Trigger[Trigger document task]
@@ -48,7 +49,7 @@ erDiagram
   COMPARISON ||--o{ COMPARISON_VERSION : snapshots
 ```
 
-PostgreSQL stores a validated comparison snapshot for efficient UI reads and relational projections for ownership, jobs, source spans, extraction versions, corrections and item/group records. Five migrations define those relations and service-only transactions. The local repository stores the equivalent current snapshot and immutable extraction/correction records in a private atomic JSON file; it does not offer a full local comparison-version browser.
+PostgreSQL stores a validated comparison snapshot for efficient UI reads and relational projections for ownership, jobs, source spans, extraction versions, corrections and item/group records. The consolidated [Neon migration](../neon/migrations/202609180001_fieldops.sql) defines those relations and server-only transactions. Its restricted runtime role can read the necessary fields and execute approved mutation functions; it cannot directly write comparison tables or read managed OAuth/session secrets. Every API request rechecks session expiry/revocation, GitHub identity and invitation. The local repository stores the equivalent current snapshot and immutable extraction/correction records in a private atomic JSON file; it does not offer a full local comparison-version browser.
 
 Each extracted field keeps `state`, `value`, original `raw` text, `sourceIds` and `origin`. States distinguish a stated value (including zero), not stated, not applicable and ambiguous. Origins distinguish supplier interpretation, deterministic calculation and user correction. Typed optional attributes preserve specifications and sector-specific information without guessing a universal category.
 
@@ -57,7 +58,7 @@ Sources identify a document and actual parser location: PDF page/box, OCR page/l
 ## Processing and recovery
 
 1. Validate extension, size and comparison limits. Compute SHA-256 and detect duplicates within the comparison. An intentional duplicate/revision remains possible.
-2. Save the original and a durable upload/run record. Cloud uploads go directly to private storage; finalize verifies the byte count and hash before dispatch.
+2. Save a durable upload intent. Cloud bytes go directly to a temporary private object; finalize checks exact size and SHA-256 before writing the canonical original and dispatching. An upload ticket never authorizes overwriting a canonical original. Deletion outbox records remain for six minutes so cleanup can remove any temporary object recreated before a ticket expires.
 3. Claim a 30-second lease with a new execution fence. Process one document at a time; heartbeat renewal cannot overwrite the processing stage.
 4. Parse each supported page/sheet/text unit. Save source spans and the coverage manifest before model extraction. Unsupported or skipped units remain visible.
 5. If AI is configured, interpret bounded chunks through a validated schema with source-ID checks and persistent request checkpoints. Otherwise retain the real parse and present explicit manual recovery.
@@ -101,4 +102,4 @@ Exports are built from the current reviewed comparison. They include source refe
 
 ## Verification boundaries
 
-Tests cover domain invariants, local persistence, actual SQL migration execution under PGlite, parser fixtures and adapter validation. Hosted Supabase Auth/Storage and Trigger behavior require separate deployment checks. The measured benchmark distinguishes parser location coverage, baseline matching and live semantic accuracy. With AI disabled, the last category remains unverified.
+Tests cover domain invariants, local persistence, actual SQL migration execution under PGlite, parser fixtures and adapter validation. The dedicated Neon database migration and restricted runtime permissions have also been checked through its live connection. Hosted Neon Auth/Object Storage and Trigger behavior require separate deployment checks. The measured benchmark distinguishes parser location coverage, baseline matching and live semantic accuracy. With AI disabled, the last category remains unverified.

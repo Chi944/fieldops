@@ -35,6 +35,7 @@ test("public demo creates a comparison, reviews evidence, invalidates and reappr
   await expect(chairs.getByRole("button", { name: "Approved", exact: true })).toBeDisabled();
 
   await workflow(page, "Extraction review").click();
+  await page.getByLabel("Reviewing", { exact: true }).selectOption({ label: "Northstar Studio Supply" });
   const chair = page.locator(".review-item").first();
   await chair.getByRole("button", { name: "185", exact: true }).click();
   await expect(page.locator(".source-line.highlighted")).toHaveCount(1);

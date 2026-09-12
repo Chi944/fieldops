@@ -6,7 +6,7 @@ import { join, resolve, sep } from "node:path";
 import { LocalRepository } from "../src/lib/server/local-repository";
 import { emptyQuotation, field, type Comparison } from "../src/lib/domain/types";
 import type { DocumentRecord, RunRecord } from "../src/lib/server/contracts";
-import { acquireSession, availablePort, createBackup, incompleteMarker, personalDirectory, privateChildEnvironment, projectRoot, restoreBackup, verifyBackup } from "../scripts/personal-tools";
+import { acquireSession, availablePort, createBackup, incompleteMarker, personalAIEnvironment, personalDirectory, privateChildEnvironment, projectRoot, restoreBackup, verifyBackup } from "../scripts/personal-tools";
 
 let temporary: string;
 beforeEach(async () => { temporary = await mkdtemp(join(tmpdir(), "fieldops-personal-test-")); });
@@ -92,10 +92,24 @@ describe("personal backup and restore", () => {
 });
 
 describe("personal launcher boundaries", () => {
+  it("imports only explicit AI settings while retaining local storage and cleared cloud credentials", () => {
+    const base = privateChildEnvironment(join(temporary, "personal"), { NODE_ENV: "test" });
+    const env = personalAIEnvironment(base, 'GROQ_API_KEY="synthetic-only"\nGROQ_FREE_TIER_CONFIRMED=true\nGROQ_ZDR_CONFIRMED=true\nFIELDOPS_DATABASE_URL=must-not-import\nFIELDOPS_LOCAL_MODE=false\nTRIGGER_SECRET_KEY=must-not-import');
+    expect(env).toMatchObject({ GROQ_API_KEY: "synthetic-only", FIELDOPS_PROCESSING_MODE: "ai", FIELDOPS_LOCAL_MODE: "true", FIELDOPS_DATABASE_URL: "", TRIGGER_SECRET_KEY: "", GROQ_MODEL: "openai/gpt-oss-120b" });
+    expect(env.FIELDOPS_DATA_DIR).toBe(base.FIELDOPS_DATA_DIR);
+  });
+  it("refuses incomplete AI confirmation and unsupported models without exposing the key", () => {
+    const base = privateChildEnvironment(join(temporary, "personal"), { NODE_ENV: "test" });
+    for (const settings of ['GROQ_API_KEY=synthetic-only', 'GROQ_API_KEY=synthetic-only\nGROQ_FREE_TIER_CONFIRMED=true\nGROQ_ZDR_CONFIRMED=false', 'GROQ_API_KEY=synthetic-only\nGROQ_FREE_TIER_CONFIRMED=true\nGROQ_ZDR_CONFIRMED=true\nGROQ_MODEL=unsupported']) {
+      expect(() => personalAIEnvironment(base, settings)).toThrow();
+      try { personalAIEnvironment(base, settings); } catch (error) { expect(String(error)).not.toContain("synthetic-only"); }
+    }
+  });
   it("forces local storage and disabled AI despite inherited model/cloud settings", () => {
-    const env = privateChildEnvironment(join(temporary, "personal"), { NODE_ENV: "production", GROQ_API_KEY: "synthetic-key", GROQ_FREE_TIER_CONFIRMED: "true", GROQ_ZDR_CONFIRMED: "true", SUPABASE_SERVICE_ROLE_KEY: "synthetic-service-key", VERCEL: "1", FIELDOPS_DATA_DIR: ".fieldops/e2e-storage" });
+    const env = privateChildEnvironment(join(temporary, "personal"), { NODE_ENV: "production", GROQ_API_KEY: "synthetic-key", GROQ_FREE_TIER_CONFIRMED: "true", GROQ_ZDR_CONFIRMED: "true", SUPABASE_SERVICE_ROLE_KEY: "synthetic-service-key", DATABASE_URL: "synthetic-admin", FIELDOPS_DATABASE_URL: "synthetic-runtime", NEON_AUTH_COOKIE_SECRET: "synthetic-cookie", NEON_STORAGE_SECRET_ACCESS_KEY: "synthetic-storage", VERCEL: "1", FIELDOPS_DATA_DIR: ".fieldops/e2e-storage" });
     expect(env.FIELDOPS_LOCAL_MODE).toBe("true"); expect(env.FIELDOPS_DATA_DIR).toBe(join(temporary, "personal"));
     expect(env.GROQ_API_KEY).toBe(""); expect(env.GROQ_FREE_TIER_CONFIRMED).toBe("false"); expect(env.GROQ_ZDR_CONFIRMED).toBe("false"); expect(env.SUPABASE_SERVICE_ROLE_KEY).toBe(""); expect(env.VERCEL).toBe("");
+    expect(env.DATABASE_URL).toBe(""); expect(env.FIELDOPS_DATABASE_URL).toBe(""); expect(env.NEON_AUTH_COOKIE_SECRET).toBe(""); expect(env.NEON_STORAGE_SECRET_ACCESS_KEY).toBe("");
     expect(personalDirectory).toBe(join(projectRoot, ".fieldops", "personal"));
   });
   it("refuses port 3000 and ports outside the dedicated loopback range without probing them", async () => {

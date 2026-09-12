@@ -1,12 +1,26 @@
 # First-release verification
 
-Verified on 13 September 2026. This release delivers the public fixture demonstration and a real local upload, source review, manual recovery, matching, comparison and export workflow. The configured cloud pilot and live AI evaluation remain separate, unverified gates.
+Verified on 13 September 2026. This release delivers the public fixture demonstration and a real local upload, source review, manual recovery, matching, comparison and export workflow. Cloud-provider setup and genuine synthetic AI measurements are now underway; hosted end-to-end and held-out acceptance remain separate gates.
 
 ## Delivered
 
 - [Public application](https://fieldops-eight-blue.vercel.app) and [reliability page](https://fieldops-eight-blue.vercel.app/reliability).
 - [Independent source repository](https://github.com/Chi944/fieldops), complete [requirements](spec.md), [implementation plan](implementation-plan.md) and [acceptance status](acceptance-status.md).
-- [Local setup](setup.md), six Supabase migrations, [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md).
+- [Local setup](setup.md), [active Neon migration and restricted role](../neon/README.md), [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md). Earlier migration files remain as regression history.
+
+## Current milestone: cloud integration and measured AI recovery
+
+Current source publication and clean Linux CI are pending. Earlier deployment IDs below refer to historical revisions. The rebuilt local production app passed **9/9 browser workflows in30.8seconds**, and **204/204 unit/integration tests** passed across24files at06:15Singapore time. TypeScript, ESLint and production build passed. The production-only schedule regression is included. Subsequent AI changes will require another run.
+
+Vercel is now actually Git-connected to `Chi944/fieldops`, production branch `main`, with automatic deployments enabled. The active direct-account Neon Free project is `jolly-queen-28409793`; its migration, restricted roles, managed Auth and private storage are configured. Real signed storage, CORS, hash, replay and cleanup checks passed. See [database evidence](neon-replacement-verification.md) and [Auth/storage evidence](neon-direct-setup.md). Production settings are saved server-side, initially parser-only. Hosted OAuth and quotation-worker acceptance are still in progress.
+
+Groq Free and inference ZDR are verified on a dedicated project, and real tiny synthetic extractions succeeded. Larger development cases have exposed rejected structured outputs; their failures remain part of the measurement. The held-out split remains unused. The existing personal workspace stays isolated and parser-only; the opt-in AI smoke uses synthetic data on a separate port. See [AI configuration](ai-setup-verification.md).
+
+Trigger Development run `run_06g9f02hnt6o8ef655fuqn0r01` completed the fixed synthetic check with18cells, USD251.30 and no model/database/private-file calls. Production deployment is a separate check. [Free-service boundaries](free-services.md) record included-credit limits and the temporary nature of Neon's free storage beta.
+
+The six current design captures use fictional samples from the local production build. They demonstrate the workspace review queue, source review and matrix at desktop/mobile sizes; [design provenance](design/README.md) distinguishes the generated reference from actual implementation captures.
+
+The entries below preserve earlier revision-specific results. Their provider-configuration, AI-disabled and deployment statements describe those historical checks.
 
 ## Personal-use milestone verification
 
@@ -42,7 +56,7 @@ The dependency-update source revision is **`165415c`**. [Clean Linux CI](https:/
 
 ## Reproducible measurement
 
-The current offline run is `baseline-all-f2a9c86ad905-8dc06a6ab2cb`. [The report](evaluation-report.md) includes the full configuration and dataset hashes, Node runtime, OCR language-asset digest, per-file latency and all denominators. Historical offline reports remain under `eval/runs/baseline`. The fingerprint includes the dependency manifest and lockfile so parser upgrades cannot reuse a live evaluation checkpoint under the old identity.
+The original dependency-update offline run was `baseline-all-f2a9c86ad905-8dc06a6ab2cb`. Consult [the current report](evaluation-report.md) for the latest run ID, configuration and dataset hashes, Node runtime, OCR language-asset digest, per-file latency and denominators. Historical offline reports remain under `eval/runs/baseline`. The fingerprint includes the dependency manifest and lockfile so parser upgrades cannot reuse a live evaluation checkpoint under the old identity. The current milestone's test results do not constitute a fresh AI benchmark.
 
 All 144 authored identifiers were present in parsed text, 963/963 parser locators were present and 544/544 reported boxes were in bounds. Those are structural parser measurements, not AI field accuracy or proof of semantic citation correctness. Baseline matching uses gold-normalized rows, not model-extracted rows. The independent agent review covered five primary originals and selected match pairs; no human gold verification is claimed.
 
@@ -50,9 +64,9 @@ All 144 authored identifiers were present in parsed text, 963/963 parser locator
 
 | Gate | Required configuration or verification |
 | --- | --- |
-| Live extraction and semantic matching | The user explicitly requested integration stay disabled. `GROQ_API_KEY`, `GROQ_FREE_TIER_CONFIRMED=true` and `GROQ_ZDR_CONFIRMED=true` remain unconfigured. No key belongs in chat or Git. Actual free-plan and retention settings must be confirmed by the operator before enabling the adapter |
-| Private cloud persistence/authentication | A new Supabase Free project, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, server-only `SUPABASE_SERVICE_ROLE_KEY`, migrations, dedicated GitHub OAuth setup and numeric-ID invitation records |
-| Hosted durable processing | A new Trigger Free production project, `TRIGGER_PROJECT_ID`, `TRIGGER_SECRET_KEY`, worker environment and OCR asset deployment; synthetic hosted dispatch, cancellation, retry, quota and deletion checks |
+| Live extraction and semantic matching | Groq browser access now works, but the actual Free Plan, ZDR setting and dedicated API key remain unverified. Explicit AI mode and both account confirmations are required in web/worker configuration before synthetic live acceptance. No key belongs in chat or Git |
+| Private cloud persistence/authentication | The dedicated Neon Free database, migration, restricted runtime and numeric invitation exist. Resolve access to that exact project, configure its GitHub provider/callback/trusted origin, private bucket, storage credential and CORS, then verify hosted ownership/session/source behavior |
+| Hosted durable processing | The existing Trigger Free project and Development smoke are verified. Production still needs its own key/environment, OCR asset and Linux task deployment; then synthetic dispatch, cancellation, retry, quota and deletion checks |
 | Live reliability claims | Development model run, frozen configuration and held-out live evaluation with measured field/line/matching/source/ambiguity/latency/usage denominators. Current AI metrics are explicitly UNVERIFIED |
 
 No automatic paid fallback, purchases, existing-project reuse, supplier contact or private-document publication occurred. The deployed fixture demo and local parser/manual workflow remain usable independently of these gates.

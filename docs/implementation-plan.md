@@ -2,15 +2,17 @@
 
 Agreed 2026-09-13. The complete requirements and acceptance source of truth are in [spec.md](spec.md).
 
+**Accepted architecture change:** The owner explicitly chose Neon only after this plan was agreed. PostgreSQL, authentication and private files are now implemented through Neon; no Supabase project was created. The migration preserves the shared contracts and tested job/revision behavior. Current setup and outstanding account gates are recorded in [deployment.md](deployment.md); earlier Supabase milestones below are retained as plan history.
+
 ## Architecture
 
-One fresh TypeScript/Next.js repository. Next.js App Router/React/Tailwind/Radix for the buyer UI. Supabase Free provides PostgreSQL, GitHub OAuth and private object storage; allowlist controls live access. Trigger.dev Free handles cloud jobs. Shared processing functions also run locally for development/evaluation. Groq Free `openai/gpt-oss-120b` consumes parser/OCR text with strict validated outputs, source IDs and no tools. Decimal.js owns calculations. Vercel Hobby hosts the noncommercial public application. Public synthetic demo works independently of backend availability.
+One fresh TypeScript/Next.js repository. Next.js App Router/React/Tailwind/Radix for the buyer UI. Neon Free provides PostgreSQL, managed Auth with GitHub OAuth and private object storage; allowlist controls live access. Trigger.dev Free handles cloud jobs. Shared processing functions also run locally for development/evaluation. Groq Free `openai/gpt-oss-120b` consumes parser/OCR text with strict validated outputs, source IDs and no tools. Decimal.js owns calculations. Vercel Hobby hosts the noncommercial public application. Public synthetic demo works independently of backend availability.
 
 ```mermaid
 flowchart LR
  B[Buyer browser] --> W[Next.js application]
  B -->|Scoped upload| S[Private storage]
- W --> A[Supabase Auth]
+ W --> A[Neon managed Auth]
  W --> D[(PostgreSQL)]
  W --> T[Trigger.dev tasks]
  T --> S

@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { createServer } from "node:net";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseEnv } from "node:util";
 import type { State, DocumentRecord } from "../src/lib/server/contracts";
 import { LIMITS } from "../src/lib/domain/types";
 
@@ -24,7 +25,20 @@ const exists = async (path: string) => { try { await lstat(path); return true; }
 
 export function privateChildEnvironment(directory: string, inherited: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
   return { ...inherited, NODE_ENV: "development", FIELDOPS_LOCAL_MODE: "true", FIELDOPS_PERSONAL_MODE: "true", FIELDOPS_PROCESSING_MODE: "parse_only", FIELDOPS_DATA_DIR: resolve(directory), FIELDOPS_OCR_DATA_DIR: join(projectRoot, ".fieldops", "tessdata"),
-    GROQ_API_KEY: "", GROQ_FREE_TIER_CONFIRMED: "false", GROQ_ZDR_CONFIRMED: "false", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_ANON_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "", TRIGGER_PROJECT_ID: "", TRIGGER_SECRET_KEY: "", FIELDOPS_SITE_URL: "", NEXT_TELEMETRY_DISABLED: "1", VERCEL: "", RENDER: "", AWS_LAMBDA_FUNCTION_NAME: "" };
+    GROQ_API_KEY: "", GROQ_FREE_TIER_CONFIRMED: "false", GROQ_ZDR_CONFIRMED: "false", NEXT_PUBLIC_SUPABASE_URL: "", NEXT_PUBLIC_SUPABASE_ANON_KEY: "", SUPABASE_SERVICE_ROLE_KEY: "",
+    DATABASE_URL: "", DATABASE_URL_UNPOOLED: "", FIELDOPS_DATABASE_URL: "", NEON_AUTH_BASE_URL: "", NEON_AUTH_COOKIE_SECRET: "", VITE_NEON_AUTH_URL: "", NEON_PROJECT_ID: "",
+    NEON_STORAGE_ENDPOINT: "", NEON_STORAGE_ACCESS_KEY_ID: "", NEON_STORAGE_SECRET_ACCESS_KEY: "", NEON_STORAGE_REGION: "", NEON_STORAGE_BUCKET: "",
+    PGHOST: "", PGUSER: "", PGPASSWORD: "", POSTGRES_URL: "", POSTGRES_URL_NON_POOLING: "", POSTGRES_PRISMA_URL: "", POSTGRES_PASSWORD: "",
+    TRIGGER_PROJECT_ID: "", TRIGGER_SECRET_KEY: "", FIELDOPS_SITE_URL: "", NEXT_TELEMETRY_DISABLED: "1", VERCEL: "", RENDER: "", AWS_LAMBDA_FUNCTION_NAME: "" };
+}
+
+/** AI is opt-in; import only model settings from a dedicated ignored file. */
+export function personalAIEnvironment(base: NodeJS.ProcessEnv, contents: string): NodeJS.ProcessEnv {
+  const settings = parseEnv(contents);
+  if (!settings.GROQ_API_KEY || settings.GROQ_FREE_TIER_CONFIRMED !== "true" || settings.GROQ_ZDR_CONFIRMED !== "true") fail("AI setup is incomplete. Configure GROQ_API_KEY and verify Free Plan and inference Zero Data Retention in .env.ai.local.");
+  const model = settings.GROQ_MODEL || "openai/gpt-oss-120b";
+  if (!["openai/gpt-oss-120b", "openai/gpt-oss-20b"].includes(model)) fail("Choose a supported Groq Free structured-output model in .env.ai.local.");
+  return { ...base, FIELDOPS_PROCESSING_MODE: "ai", GROQ_API_KEY: settings.GROQ_API_KEY, GROQ_MODEL: model, GROQ_FREE_TIER_CONFIRMED: "true", GROQ_ZDR_CONFIRMED: "true" };
 }
 
 export function parseFlags(args: string[], allowed: readonly string[]): Record<string, string | true> {

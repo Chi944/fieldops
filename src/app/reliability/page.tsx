@@ -15,9 +15,10 @@ export default function ReliabilityPage() {
       </h1>
       <p className="reliability-intro">
         We test quotation parsing, conservative item matching and deterministic
-        calculations separately. The figures below are real offline measurements
-        on self-authored synthetic documents. Live AI extraction remains
-        disabled and unverified.
+        calculations separately. The figures below are measured on self-authored
+        synthetic documents. The matching cards show a simple identifier/text
+        baseline. Actual model results and failures are recorded separately in
+        the downloadable report.
       </p>
       <div className="reliability-metrics">
         <article>
@@ -44,14 +45,15 @@ export default function ReliabilityPage() {
       <section>
         <h2>What was tested</h2>
         <p>
-          The dataset contains 144 line items across text PDFs, printed scans,
+          This run contains {result.dataset.logicalItems} line items in the {result.split} split.
+          The full benchmark spans 24 documents: text PDFs, printed scans,
           images, XLSX, CSV and pasted text. Four scenarios form the development
           set and four are held out. Separate robustness assertions cover
           duplicates, revisions, protected or malformed files, unreadable
           images, size limits and malicious document instructions.
         </p>
         <p>
-          All 24 documents produced complete parser manifests in this run. That
+          {result.parser.completeDocuments}/{result.parser.attemptedDocuments} attempted documents produced complete parser manifests in this run. That
           means the parser accounted for its pages or sheets; it does not
           establish complete or accurate AI extraction.
         </p>
@@ -59,21 +61,21 @@ export default function ReliabilityPage() {
       <section>
         <h2>Where the baseline falls short</h2><p>Matching ran on gold-normalized line items. The identifier-heavy dataset favours this baseline and does not measure matching on AI-extracted items.</p>
         <p>
-          The identifier/text baseline found 102 of 116 expected equivalent
-          pairs. It missed 14 pairs because a conflicting third offer made an
-          entire candidate group conservative. No false equivalences were
-          observed among 102 suggested pairs, including none on 28 specifically
-          annotated incompatible pairs. This small synthetic sample is not a
+          The identifier/text baseline found {result.matching.truePositive} of {result.matching.truePositive + result.matching.falseNegative} expected equivalent
+          pairs. It missed {result.matching.falseNegative} pairs and suggested {result.matching.falsePositive} false equivalences.
+          On specifically annotated incompatible pairs, false equivalences were {result.matching.hardNegativeFalseEquivalences.numerator}/{result.matching.hardNegativeFalseEquivalences.denominator}.
+          This small synthetic sample is not a
           general accuracy guarantee.
         </p>
       </section>
       <section>
-        <h2>What remains unverified</h2>
+        <h2>Read the limits alongside the results</h2>
         <p>
-          Live field extraction accuracy, AI-assisted matching, factual support
-          of model interpretations, end-to-end inference latency and token cost
-          have not been measured. Model responses injected into tests verify
-          safeguards only. They are not evidence of model performance.
+          Report mode: {result.mode}. AI status: {result.ai.status}.
+          Read document coverage, failed requests and unmeasured cases alongside
+          any field accuracy or matching result. A successful smoke test does
+          not establish general reliability. Model responses injected into tests
+          verify safeguards only; they are not model performance measurements.
         </p>
         <p>
           A separate agent checked five originals, 30 rows and 200 core expected
@@ -104,7 +106,7 @@ export default function ReliabilityPage() {
             Explore the comparison →
           </Link>
         </div>
-        <small>Run: {result.measuredAt} · baseline only</small>
+        <small>Run: {result.measuredAt} · {result.mode} · {result.split}</small>
       </section>
     </main>
   );

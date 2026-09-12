@@ -18,7 +18,7 @@ export default defineConfig({
     viewport: { width: 1440, height: 1000 },
   },
   webServer: external ? undefined : {
-    command: "npm run dev -- --port 3002",
+    command: "npm run start -- --port 3002",
     url: "http://127.0.0.1:3002/api/status",
     timeout: 120_000,
     reuseExistingServer: false,

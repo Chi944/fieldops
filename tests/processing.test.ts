@@ -7,7 +7,7 @@ import path from "node:path";
 import { parseDocument, ProcessingError } from "../src/lib/processing";
 import { ocrDataDirectory } from "../src/lib/processing/ocr";
 import { emptyItem, emptyQuotation, field, type ParsedDocument } from "../src/lib/domain/types";
-import { extractQuotation, proposeAIMatches, type AIRequest, type AIResult, requireLiveAI } from "../src/lib/ai";
+import { extractQuotation, proposeAIMatches, type AIRequest, type AIResult, requireLiveAI, compactExtractionRequest } from "../src/lib/ai";
 import { extractionSchema, strictSchema } from "../src/lib/ai/schema";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -137,7 +137,7 @@ describe("structured extraction reliability with labelled injected responses", (
     const document = await parseDocument({ documentId: "resume-a", filename: "text.txt", text: Array.from({ length: 30 }, (_, index) => `Heading ${index} ${"supplier terms ".repeat(15)}`).join("\n") });
     const cache = new Map<string, AIResult>(); const checkpoint = { get: async (key: string) => cache.get(key) ?? null, set: async (key: string, value: AIResult) => { cache.set(key, value); } };
     let calls = 0;
-    const request = async (req: AIRequest) => { calls++; expect(Math.ceil((req.system.length + req.user.length + JSON.stringify(req.schema).length) / 3) + req.maxOutputTokens).toBeLessThanOrEqual(7500); if (calls === 2) throw new ProcessingError("quota", "test quota", true); const input = JSON.parse(req.user); return result(blankChunk(input.sources.map((source: { id: string }) => source.id))); };
+    const request = async (req: AIRequest) => { calls++; const wire = compactExtractionRequest(req).request; expect(Math.ceil((wire.system.length + wire.user.length + JSON.stringify(wire.schema).length) / 3) + wire.maxOutputTokens).toBeLessThanOrEqual(7500); if (calls === 2) throw new ProcessingError("quota", "test quota", true); const input = JSON.parse(req.user); return result(blankChunk(input.sources.map((source: { id: string }) => source.id))); };
     await expect(extractQuotation(document, { request, checkpoint })).rejects.toMatchObject({ code: "quota" });
     expect(cache.size).toBe(1);
     const quote = await extractQuotation(document, { request, checkpoint });

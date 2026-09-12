@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { authoredDataset, FORMAT_ORDER } from "../eval/specifications";
-import { scoreExtraction, scoreMatches } from "../eval/metrics";
+import { scoreExtraction, scoreFailedExtraction, aggregateExtractionMetrics, scoreMatches } from "../eval/metrics";
 import { DatasetManifest } from "../scripts/generate-fixtures";
 import { evaluate, parseOptions } from "../scripts/evaluate";
 import { proposeMatches } from "../src/lib/domain/matching";
@@ -65,9 +65,30 @@ describe("reproducible benchmark integrity", () => {
     expect(score.statedFieldAccuracy.numerator).toBeLessThan(score.statedFieldAccuracy.denominator);
   });
   it("requires explicit live split and fails closed before provider calls when configuration is absent", async () => {
-    expect(parseOptions([])).toEqual({ live: false, split: "all", allowPosthoc: false });
+    expect(parseOptions([])).toEqual({ live: false, split: "all", allowPosthoc: false, waitQuota: false });
     expect(() => parseOptions(["--live"])).toThrow("explicit --split");
+    expect(parseOptions(["--live", "--split", "dev", "--wait-quota", "--max-new-requests", "1"])).toMatchObject({ waitQuota: true, maxNewRequests: 1 });
+    expect(() => parseOptions(["--live", "--split", "dev", "--max-new-requests", "0"])).toThrow("integer");
     vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "");
     await expect(evaluate({ live: true, split: "dev" })).rejects.toThrow("GROQ_API_KEY");
+  });
+  it("failed extraction earns no missing-state credit and remains in aggregate recall denominators", async () => {
+    const gold = (await manifest()).documents[0], failed = scoreFailedExtraction(gold);
+    expect(failed.statedFieldAccuracy.numerator).toBe(0);
+    expect(failed.annotatedMissingStateAccuracy.numerator).toBe(0);
+    expect(failed.lineItemRecall).toEqual({ numerator: 0, denominator: 6, value: 0 });
+    const actual = structuredClone(gold.quotation), parsed = { documentId: gold.id, filename: gold.path, format: gold.format, contentHash: gold.sha256, sources: actual.sources, manifest: actual.manifest };
+    const summary = aggregateExtractionMetrics([scoreExtraction(gold, actual, parsed), failed]);
+    expect(summary.lineItemRecall).toEqual({ numerator: 6, denominator: 12, value: 0.5 });
+  });
+  it("scores annotated item ambiguity after mapping model IDs to gold IDs", async () => {
+    const gold = (await manifest()).documents[0], actual = structuredClone(gold.quotation);
+    const goldId = gold.quotation.items[0].id;
+    gold.ambiguities = [`items.${goldId}.quantity`];
+    gold.fields = [{ path: `items.${goldId}.quantity`, value: null, state: "ambiguous", critical: true, sourceKey: "line-1" }];
+    actual.items[0].id = "model-generated-item-id";
+    actual.items[0].quantity = { ...actual.items[0].quantity, state: "ambiguous", value: null };
+    const parsed = { documentId: gold.id, filename: gold.path, format: gold.format, contentHash: gold.sha256, sources: actual.sources, manifest: actual.manifest };
+    expect(scoreExtraction(gold, actual, parsed).annotatedReviewSignalRecall).toEqual({ numerator: 1, denominator: 1, value: 1 });
   });
 });

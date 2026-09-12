@@ -41,12 +41,15 @@ export function ReviewScreen({
   initialQuotationId?: string;
 }) {
   const { correct, save, refresh, toast } = useWorkspace();
+  const initialQuotation = comparison.quotations.find(q => q.id === initialQuotationId)
+    ?? comparison.quotations.find(q => q.issues.some(issue => !issue.resolved))
+    ?? comparison.quotations[0];
   const [quotationId, setQuotationId] = useState(
-    initialQuotationId ?? comparison.quotations[0]?.id ?? "",
+    initialQuotation?.id ?? "",
   );
   const quotation =
     comparison.quotations.find((q) => q.id === quotationId) ??
-    comparison.quotations[0];
+    initialQuotation;
   const [selectedSources, setSelectedSources] = useState<string[]>([]),
     [selectedPath, setSelectedPath] = useState(""),
     [selectedLabel, setSelectedLabel] = useState(""),

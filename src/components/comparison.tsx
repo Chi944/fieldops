@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -199,7 +199,8 @@ export function ComparisonScreen({
           )}
         </div>
       )}
-      <div className="matrix-scroll" tabIndex={printable ? undefined : 0} aria-label="Supplier matrix. Scroll to compare items and suppliers.">
+      {!printable && <p className="matrix-scroll-hint">Scroll across the matrix to compare supplier offers.<ArrowRight size={14} /></p>}
+      <div className="matrix-scroll" style={{ "--matrix-min-width": `${240 + comparison.quotations.length * 230}px` } as CSSProperties} tabIndex={printable ? undefined : 0} aria-label="Supplier matrix. Scroll to compare items and suppliers.">
         <table className="comparison-matrix">
           <caption className="sr-only">
             {comparison.name} —{" "}

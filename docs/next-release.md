@@ -1,8 +1,8 @@
 # Next release: a private live pilot
 
-The provider comparison below retains the official-documentation research dated 13 September 2026. Implementation status has been updated for the personal-use milestone. This is not a record of hosted provisioning or hosted acceptance. AI remains disabled under the user's existing instruction.
+**Current decision:** The owner chose Neon only and requested hosted AI configuration. The dedicated Neon Free database is initialized and its restricted runtime connection is configured on Vercel. Managed Auth, Object Storage and Trigger are implemented but still require account setup and hosted acceptance. Groq activation awaits actual Free/ZDR confirmation and a key; it is no longer deferred by preference. The provider comparison below is retained as historical research, not current deployment guidance. See [current deployment instructions](deployment.md).
 
-Keep **Supabase Free + Trigger.dev Free + the existing Vercel Hobby deployment** for the future hosted pilot. Personal use is now available locally without any cloud account: run `npm run personal`, upload real quotations, review their sources and enter the comparison details manually. Hosted acceptance and measured AI reliability remain separate milestones.
+Use **Neon Free + Trigger.dev Free + the existing Vercel Hobby deployment** for the hosted pilot. Personal use is available locally without any cloud account: run `npm run personal`, upload real quotations, review their sources and enter the comparison details manually. Hosted acceptance and measured AI reliability remain separate milestones.
 
 ## What works, and what still blocks live operation
 

@@ -7,7 +7,7 @@ import { configuration } from "./config";
 import { ApiError } from "./errors";
 
 const leases = () => new Date(Date.now() + 30000).toISOString();
-interface Pump { running: boolean; timer?: ReturnType<typeof setInterval>; }
+interface Pump { running: boolean; stopping?: boolean; idle?: Promise<void>; timer?: ReturnType<typeof setInterval>; }
 const runtime = globalThis as typeof globalThis & { __fieldopsPumps?: Map<string, Pump> };
 runtime.__fieldopsPumps ??= new Map();
 export function hasCompleteSourceCoverage(document: Pick<ParsedDocument, "manifest" | "sources">): boolean {
@@ -25,14 +25,16 @@ export async function executeRun(repository: Repository, id: string): Promise<vo
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(new Error("timeout")), 10 * 60 * 1000);
   let lastProgress = 0;
-  let heartbeatBusy = false;
-  const heartbeat = setInterval(async () => {
-    if (heartbeatBusy || !run) return; heartbeatBusy = true;
-    try {
-      const current = await repository.run(run.ownerId, run.id);
-      if (current.cancelRequested || current.fence !== run.fence) { controller.abort(); return; }
-      if (!await repository.renewLease(run.id, run.fence, leases())) controller.abort();
-    } catch { controller.abort(); } finally { heartbeatBusy = false; }
+  let heartbeatWork: Promise<void> | undefined;
+  const heartbeat = setInterval(() => {
+    if (heartbeatWork || !run) return;
+    heartbeatWork = (async () => {
+      try {
+        const current = await repository.run(run.ownerId, run.id);
+        if (current.cancelRequested || current.fence !== run.fence) { controller.abort(); return; }
+        if (!await repository.renewLease(run.id, run.fence, leases())) controller.abort();
+      } catch { controller.abort(); }
+    })().finally(() => { heartbeatWork = undefined; });
   }, 1000);
   // Parser callbacks do not await progress persistence. Serialize their writes so a
   // slow callback cannot overwrite a later extraction stage or terminal failure.
@@ -73,6 +75,11 @@ export async function executeRun(repository: Repository, id: string): Promise<vo
     const quotation = await extractQuotation(parsed, { signal: controller.signal, extractionVersion: run.extractionVersion, checkpoint: {
       get: async (key) => await repository.getCheckpoint(document.id, key) as import("@/lib/ai").AIResult | null,
       set: async (key, value) => { if (run) await repository.saveCheckpoint(run, key, value); },
+      reject: async (key, result, code, context) => {
+        if (run && !controller.signal.aborted) await repository.saveCheckpoint(run, `rejected:${key}:${Date.now()}:${randomUUID()}`, {
+          requestKey: key, code, cached: context?.cached ?? false, result, runId: run.id, extractionVersion: run.extractionVersion, createdAt: new Date().toISOString(),
+        });
+      },
     } });
     await update("reconciling", 90, "Checking quantities, amounts, totals and extraction coverage.");
     const { reconcileQuotation } = await import("@/lib/domain/validation");
@@ -96,33 +103,46 @@ export async function executeRun(repository: Repository, id: string): Promise<vo
       message: cancelled ? "Processing cancelled. The original file remains available." : code === "timeout" ? "Processing exceeded its time limit. Split the document and retry." : waitingQuota ? retryAfter ? `Waiting for the free model quota. Processing will resume from saved chunks after ${retryAfter}.` : "The free model quota has repeatedly blocked this file. Split it into smaller sections, or retry after the provider quota resets." : safeMessage,
       retryable: detail.retryable ?? false, retryAfter, quotaWaits, leaseUntil: retry ? new Date(Date.now() + 5000).toISOString() : undefined }, current.fence);
     console.info(JSON.stringify({ event: "processing_result", runId: current.id, code, attempt: current.attempt }));
-  } finally { clearTimeout(timeout); clearInterval(heartbeat); }
+  } finally {
+    clearTimeout(timeout); clearInterval(heartbeat);
+    // Clearing an interval does not finish a renewal already writing to the repository.
+    await heartbeatWork;
+  }
 }
 
 export function startLocalRunner(repository = new LocalRepository()) {
   const key = repository.directory;
   let pump = runtime.__fieldopsPumps!.get(key);
   if (!pump) { pump = { running: false }; runtime.__fieldopsPumps!.set(key, pump); }
-  const drain = async () => {
-    if (pump.running) return; pump.running = true;
-    try {
-      await repository.cleanup();
-      // Uploads can arrive while a file is processing. Drain those newly admitted
-      // records as well instead of leaving them idle until the next timer tick.
-      for (;;) {
-        const pending = await repository.pendingRuns(); if (!pending.length) break;
-        for (const run of pending) await executeRun(repository, run.id);
+  if (pump.stopping) return;
+  const drain = () => {
+    if (pump.running || pump.stopping) return; pump.running = true;
+    pump.idle = (async () => {
+      try {
+        await repository.cleanup();
+        // Drain uploads admitted during processing, but stop claiming new work during shutdown.
+        while (!pump.stopping) {
+          const pending = await repository.pendingRuns(); if (!pending.length) break;
+          for (const run of pending) {
+            if (pump.stopping) break;
+            await executeRun(repository, run.id);
+          }
+        }
       }
-    }
-    catch { console.error(JSON.stringify({ event: "local_worker_unavailable", code: "storage_or_worker_error" })); }
-    finally { pump.running = false; }
+      catch { console.error(JSON.stringify({ event: "local_worker_unavailable", code: "storage_or_worker_error" })); }
+      finally { pump.running = false; }
+    })();
   };
   if (!pump.timer) { pump.timer = setInterval(() => void drain(), 5000); pump.timer.unref?.(); }
   void drain();
 }
-/** Used by local shutdown hooks and tests; running work is checkpointed independently. */
-export function stopLocalRunner(directory: string) {
-  const pump = runtime.__fieldopsPumps!.get(directory); if (pump?.timer) clearInterval(pump.timer); runtime.__fieldopsPumps!.delete(directory);
+/** Finish the active file and its writes; queued files remain durable for the next start. */
+export async function stopLocalRunner(directory: string): Promise<void> {
+  const pump = runtime.__fieldopsPumps!.get(directory); if (!pump) return;
+  pump.stopping = true;
+  if (pump.timer) clearInterval(pump.timer); pump.timer = undefined;
+  await pump.idle;
+  if (runtime.__fieldopsPumps!.get(directory) === pump) runtime.__fieldopsPumps!.delete(directory);
 }
 export async function dispatchRun(repository: Repository, run: RunRecord) {
   if (repository.mode === "local") { startLocalRunner(repository as LocalRepository); return; }
@@ -140,11 +160,17 @@ export async function dispatchRun(repository: Repository, run: RunRecord) {
   }
 }
 export async function reconcileCloudJobs() {
-  const repository = new CloudRepository(); await repository.cleanup();
+  const repository = new CloudRepository();
+  const deadline = Date.now() + 15000;
+  // Dispatch saved work before optional object maintenance. A slow deletion must
+  // not consume the scheduler's entire 20-second task and strand every upload.
   for (const run of await repository.pendingRuns()) {
+    if (Date.now() >= deadline - 5000) break;
     if (run.dispatchedAt && Date.now() - Date.parse(run.dispatchedAt) < 12 * 60 * 1000) continue;
     await dispatchRun(repository, run);
   }
+  const remaining = Math.min(5000, deadline - Date.now());
+  if (remaining > 0) await repository.cleanup({ signal: AbortSignal.timeout(remaining) });
 }
 export async function hydrateComparison(repository: Repository, comparison: import("@/lib/domain/types").Comparison) {
   const runs = await repository.runs(comparison.workspaceId === "local-workspace" ? "local-user" : comparison.workspaceId, comparison.id);

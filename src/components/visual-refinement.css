@@ -1,0 +1,249 @@
+/* FieldOps reference v2: clear evidence, quiet surfaces, readable working data.
+   Screen-only rules keep the separately tested print pagination intact. */
+@media screen {
+  :root {
+    --paper: #f6f7f3;
+    --ink: #172e2a;
+    --muted: #536760;
+    --line: #dce4de;
+    --sidebar: #143e39;
+    --teal: #17665d;
+  }
+
+  /* Navigation stays a stable frame around the quotation work. */
+  .sidebar { padding-top: 30px; }
+  .sidebar .workspace-switch { background: transparent; border-color: #477069; margin-top: 29px; border-radius: 7px; }
+  .sidebar .workspace-switch strong { font-size: 13px; }
+  .sidebar .workspace-switch small { font-size: 11px; line-height: 1.6; }
+  .sidebar .nav-item { font-size: 13px; }
+  .sidebar .comparison-nav { align-items: flex-start; min-height: 48px; line-height: 1.5; }
+  .sidebar .comparison-nav > span { white-space: normal; overflow: visible; }
+  .sidebar .comparison-nav > svg { flex-shrink: 0; margin-top: 3px; }
+  .sidebar .nav-item.active { background: #2b5b53; box-shadow: inset 3px 0 #bad7c7; }
+  .sidebar .sidebar-create { background: #e5efea; border-color: #c9ded4; min-height: 42px; }
+  .topbar { background: var(--paper); border-bottom-color: transparent; }
+  .step-nav { scrollbar-width: thin; scroll-padding-inline: 2px; }
+  .step-nav .step-number { display: inline-flex; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .step-nav .step-count { padding: 2px 5px; line-height: 1.3; font-weight: 500; }
+  .topbar .breadcrumb { font-size: 12px; }
+  .button { font-weight: 600; letter-spacing: 0; }
+  .button.primary { box-shadow: none; }
+  .button.primary:hover { background: #12564f; }
+  .button.secondary { box-shadow: none; }
+
+  /* Latest comparison: real unresolved records replace decorative artwork. */
+  .workspace-v2 .workspace-heading { margin-top: 1px; margin-bottom: 24px; }
+  .workspace-v2 .workspace-heading h1 { font-size: clamp(27px, 2.5vw, 34px); font-weight: 650; letter-spacing: -1.1px; }
+  .workspace-v2 .workspace-heading p { font-size: 14px; margin-top: 8px; }
+  .workspace-welcome { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr); border-radius: 8px; background: #edf2ee; min-height: 245px; overflow: hidden; }
+  .workspace-welcome .welcome-copy { width: auto; padding: 27px 29px; }
+  .welcome-context { color: #34554c; font-size: 12px; font-weight: 600; }
+  .welcome-copy h2 { font-size: clamp(25px, 2.25vw, 32px); line-height: 1.2; font-weight: 650; letter-spacing: -.8px; color: var(--ink); margin-top: 13px; max-width: 22ch; }
+  .welcome-copy > p { font-size: 13px; line-height: 1.65; max-width: 53ch; margin-top: 12px; color: var(--muted); }
+  .welcome-actions { margin-top: 21px; gap: 12px; }
+  .welcome-actions .button { min-height: 40px; padding: 9px 14px; }
+  .welcome-detail { color: #466158; font-size: 11px; }
+  .welcome-review { min-width: 0; display: flex; flex-direction: column; padding: 24px 24px 18px; background: #fff; border-left: 1px solid var(--line); }
+  .welcome-review-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }
+  .welcome-review-heading h3 { color: var(--ink); font-size: 15px; letter-spacing: -.15px; }
+  .welcome-review-heading > span { color: #865b21; font-size: 11px; white-space: nowrap; }
+  .welcome-review-heading > svg { color: var(--teal); }
+  .welcome-review-list { flex: 1; }
+  .welcome-review-list > a { display: flex; align-items: flex-start; gap: 11px; padding: 12px 0; border-bottom: 1px solid #e8ede9; border-radius: 2px; }
+  .welcome-review-list > a > svg:first-child { color: #916421; flex-shrink: 0; margin-top: 2px; }
+  .welcome-review-list > a > svg:last-child { color: #6c8178; margin: 4px 0 0 auto; flex-shrink: 0; }
+  .welcome-review-list > a > span { min-width: 0; }
+  .welcome-review-list strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 500; line-height: 1.55; }
+  .welcome-review-list small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .welcome-review-list > a:hover strong { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+  .welcome-review-footer { display: flex; align-items: center; gap: 7px; color: var(--teal); font-size: 12px; font-weight: 600; margin-top: 15px; width: fit-content; min-height: 22px; }
+  .welcome-review-footer:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .welcome-review-description { margin: 18px 0 auto; color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 48ch; }
+  .welcome-start-steps { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 16px; }
+  .welcome-start-steps > li { display: flex; gap: 11px; align-items: flex-start; }
+  .welcome-start-steps > li > span { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; color: var(--teal); background: #edf3ef; border-radius: 4px; font-size: 11px; }
+  .welcome-start-steps strong { display: block; font-size: 12px; font-weight: 600; color: var(--ink); }
+  .welcome-start-steps small { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .workspace-storage-note { padding: 12px 1px; margin: 0; background: transparent; border: 0; border-radius: 0; gap: 9px; }
+  .workspace-storage-note p { font-size: 11px; }
+  .workspace-storage-note > .text-button { font-size: 11px; }
+
+  /* Work counts and supplier records share aligned, readable columns. */
+  .workspace-pulse { margin: 6px 0 24px; padding: 14px 0; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+  .workspace-pulse > div, .workspace-pulse > button { flex: 1; padding: 4px 22px; gap: 10px; font-size: 12px; }
+  .workspace-pulse > :first-child { padding-left: 22px; }
+  .workspace-pulse strong { font-size: 21px; font-weight: 500; }
+  .workspace-pulse > button > svg:last-child { margin-left: auto; }
+  .workspace-v2 .section-heading h2 { font-size: 22px; letter-spacing: -.5px; }
+  .workspace-v2 .section-heading p { display: none; }
+  .workspace-v2 .search-control { width: 258px; min-height: 40px; }
+  .workspace-v2 .search-control input { font-size: 12px; }
+  .workspace-v2 .list-controls { margin: 13px 0 0; min-height: 43px; }
+  .workspace-v2 .segmented { background: none; border: 0; border-radius: 0; padding: 0; gap: 14px; }
+  .workspace-v2 .segmented > button { border-radius: 0; background: none; box-shadow: none; border-bottom: 3px solid transparent; min-height: 42px; padding: 9px 5px; font-size: 12px; }
+  .workspace-v2 .segmented > button.active { border-bottom-color: var(--teal); color: var(--teal); }
+  .workspace-v2 .comparison-list { border-radius: 0 7px 7px; box-shadow: none; }
+  .workspace-v2 .comparison-list-head { height: 40px; background: #f6f8f5; font-size: 11px; font-weight: 600; color: #54655e; }
+  .workspace-v2 .comparison-list-row { min-height: 91px; }
+  .workspace-v2 .comparison-list-row.featured-comparison-row { background: #f0f6f2; box-shadow: inset 3px 0 var(--teal); }
+  .workspace-v2 .comparison-list-row:hover { background: #f0f5f1; }
+  .workspace-v2 .comparison-name { gap: 13px; }
+  .workspace-v2 .comparison-name strong { color: var(--ink); font-size: 14px; font-weight: 600; letter-spacing: -.1px; }
+  .workspace-v2 .comparison-name small { font-size: 12px; margin-top: 4px; }
+  .workspace-v2 .comparison-folder, .workspace-v2 .comparison-list-row:nth-child(n) .comparison-folder { width: 29px; height: 32px; background: transparent; border: 0; color: #37554b; border-radius: 0; }
+  .workspace-v2 .comparison-meta { font-size: 10px; gap: 5px; margin-top: 4px; }
+  .workspace-v2 .supplier-avatar { width: 29px; height: 30px; margin-left: 0; margin-right: 4px; border: 0; border-radius: 6px; font-size: 10px; }
+  .workspace-v2 .updated-date { font-size: 12px; font-variant-numeric: tabular-nums; }
+  .workspace-v2 .badge { font-size: 11px; border-color: transparent; background: transparent; padding: 4px 0; white-space: normal; }
+  .workspace-v2 .next-step-link { padding: 0 3px; }
+  .workspace-assurance { margin-top: 19px; font-size: 11px; }
+
+  /* Review: stronger field/value hierarchy with a contained source surface. */
+  .review-toolbar { margin: 17px 0; }
+  .supplier-select > label, .supplier-select > select { font-size: 12px; }
+  .supplier-select > select { min-height: 39px; padding: 9px 30px 9px 12px; border-color: var(--line); }
+  .review-queue { padding: 16px 20px; gap: 20px; margin-bottom: 19px; background: #fff; }
+  .review-queue-copy > p { margin: 5px 0; font-size: 12px; }
+  .review-queue-copy > span { font-size: 11px; }
+  .review-data { container-type: inline-size; border-color: var(--line); }
+  .review-section-header { padding: 17px 19px; background: #fbfcf9; border-bottom-color: var(--line); }
+  .review-section-header h2 { color: var(--ink); font-size: 16px; }
+  .review-section-header h3 { color: var(--ink); font-size: 14px; }
+  .review-fields { padding: 13px 12px; gap: 4px; }
+  .review-field { padding: 9px; }
+  .review-field > label { font-size: 12px; color: #63736c; }
+  .review-field > div { min-height: 30px; gap: 6px; }
+  .field-value { font-size: 13px; line-height: 1.55; color: var(--ink); }
+  .field-value.missing { color: #865b21; }
+  .field-value.corrected { color: #285e8f; }
+  .review-field.selected { box-shadow: inset 2px 0 var(--teal); }
+  .review-item { padding: 18px 14px; }
+  .review-item-title .field-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .review-issue { font-size: 12px; line-height: 1.65; padding: 11px 10px; }
+  .review-source { max-height: calc(100dvh - 42px); overflow-y: auto; scrollbar-gutter: stable; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px 13px; }
+  .review-evidence-context { position: sticky; z-index: 5; top: 0; background: #fff; padding: 16px 1px 13px; margin-bottom: 13px; }
+  .review-evidence-context > strong { font-size: 14px; }
+  .review-evidence-context > p { font-size: 12px; }
+  .review-source .source-document { border-color: var(--line); background: #edf1ec; }
+  .review-source .source-toolbar { background: #f3f6f1; border-bottom-color: var(--line); }
+  .review-source .source-paper { max-height: none; overflow: visible; margin: 15px; box-shadow: 0 2px 9px #172e2a0a; }
+  .review-source .source-line pre { font-size: 12px; line-height: 1.65; }
+  .review-source .source-line.highlighted { border-left: 3px solid #a97429; }
+  .review-source .source-integrity { padding: 12px 0 0; font-size: 11px; }
+
+  /* Matrix: each supplier gets usable width; amounts, qualifications and sources stay together. */
+  .comparison-summary-strip { background: #eef3ef; padding: 12px 15px; }
+  .comparison-alert { background: #fcf8ef; padding: 12px 15px; }
+  .matrix-heading { margin: 23px 0 14px; }
+  .matrix-heading h2 { font-size: 22px; }
+  .matrix-heading p { font-size: 12px; margin-top: 5px; }
+  .matrix-scroll { box-shadow: none; border-radius: 8px; border-color: #d7e1da; }
+  .matrix-scroll-hint { display: none; }
+  .comparison-matrix { min-width: var(--matrix-min-width, 930px); font-size: 12px; }
+  .comparison-matrix th, .comparison-matrix td { width: auto; padding: 20px 18px; border-color: #e0e7e1; }
+  .comparison-matrix .item-column { width: 240px; background: #fbfcf9; }
+  .comparison-matrix thead th { background: #edf3ef; padding: 21px 18px 17px; }
+  .comparison-matrix thead .item-column { background: #edf3ef; }
+  .matrix-col-label { color: var(--ink); font-size: 12px; font-weight: 600; }
+  .supplier-heading { align-items: flex-start; gap: 9px; min-height: 43px; }
+  .supplier-heading .supplier-avatar { width: 31px; height: 32px; border-radius: 6px; flex-shrink: 0; }
+  .supplier-heading strong { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.4; }
+  .supplier-heading small { font-size: 11px; margin-top: 5px; }
+  .supplier-heading-footer { margin-top: 13px; }
+  .matrix-item-title strong { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .matrix-item-details { font-size: 12px; margin-top: 9px; line-height: 1.5; }
+  .matrix-price { min-height: 27px; gap: 7px; }
+  .matrix-price > .money { color: var(--ink); font-size: 20px; letter-spacing: -.8px; }
+  .unit-price, .order-detail { font-size: 12px; line-height: 1.6; font-variant-numeric: tabular-nums; color: #52695e; }
+  .quoted-description { font-size: 12px; max-width: none; line-height: 1.65; margin-top: 10px; }
+  .cell-evidence { font-size: 11px; min-height: 23px; margin-top: 10px; color: #17665d; }
+  .matrix-value-button { border-radius: 3px; }
+  .matrix-value-button:hover .cell-evidence, .matrix-value-button:focus-visible .cell-evidence { text-decoration: underline; text-underline-offset: 3px; }
+  .matrix-value-button:focus-visible { background: #f3f7f4; }
+  .lowest-cell { background: #edf7f0; }
+  .lowest-cell .matrix-price > .money { color: #215e42; }
+  .lowest-label { color: #255b3c; background: #dceede; }
+  .missing-cell { background: #f7f8f4; }
+  .cell-review-note { font-size: 12px; margin-top: 11px; line-height: 1.6; }
+  .matrix-total-row .money { font-size: 21px; }
+  .decision-card { box-shadow: none; border-radius: 8px; }
+
+  @container (max-width: 480px) {
+    .item-fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1600px) {
+    .workspace-v2 { max-width: 1280px; }
+  }
+  @media (max-width: 1100px) {
+    .workspace-welcome { grid-template-columns: minmax(0, 1fr) minmax(280px, .95fr); }
+    .workspace-welcome .welcome-copy { padding: 24px; }
+    .welcome-copy h2 { font-size: 27px; }
+    .welcome-review { padding: 22px 20px 18px; }
+    .welcome-detail { font-size: 10px; }
+    .workspace-pulse > div, .workspace-pulse > button { padding-left: 16px; padding-right: 16px; gap: 7px; }
+  }
+  @media (max-width: 900px) {
+    .review-source { max-height: none; overflow: visible; padding: 0 13px 12px; }
+    .review-evidence-context { position: static; }
+    .workspace-welcome { grid-template-columns: 1fr; }
+    .welcome-review { border-left: 0; border-top: 1px solid var(--line); padding: 20px 24px; }
+    .welcome-review-list > a { padding: 10px 0; }
+    .welcome-copy h2 { max-width: 30ch; }
+    .welcome-start-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .welcome-start-steps > li { flex-direction: column; gap: 9px; }
+  }
+  @media (max-width: 760px) {
+    .workspace-v2 .workspace-heading h1 { font-size: 28px; line-height: 1.2; }
+    .workspace-v2 .workspace-heading p { font-size: 13px; }
+    .workspace-welcome .welcome-copy { padding: 23px; }
+    .welcome-copy h2 { font-size: 27px; }
+    .welcome-copy > p { font-size: 13px; }
+    .welcome-detail { font-size: 11px; }
+    .workspace-storage-note { padding: 14px 0; }
+    .workspace-pulse { margin-top: 0; margin-bottom: 23px; padding: 13px 0; gap: 0; }
+    .workspace-pulse > div, .workspace-pulse > button, .workspace-pulse > :first-child { padding: 0 12px; border-right: 1px solid var(--line); font-size: 11px; }
+    .workspace-pulse > :last-child { border-right: 0; }
+    .workspace-pulse strong { font-size: 20px; }
+    .workspace-v2 .search-control { width: 100%; }
+    .workspace-v2 .list-controls { margin-top: 12px; }
+    .workspace-v2 .comparison-list-row { min-height: 107px; }
+    .workspace-v2 .comparison-folder { width: 29px; height: 32px; }
+    .workspace-v2 .comparison-name { gap: 10px; }
+    .workspace-v2 .comparison-name strong { font-size: 14px; }
+    .workspace-v2 .next-step-link { margin-left: 41px; padding: 0; }
+    .workspace-v2 .comparison-name small { font-size: 12px; }
+    .workspace-assurance { margin-top: 18px; }
+    .review-source .source-paper { margin: 10px; }
+    .review-toolbar .supplier-select { min-width: 0; }
+    .supplier-select > select { max-width: 100%; }
+    .matrix-tools { flex-wrap: wrap; }
+    .matrix-scroll-hint { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; margin: 0 0 10px; }
+    .comparison-matrix .item-column { width: 210px; }
+    /* Keep the first offer near the working context, with every warning retained. */
+    .comparison-page { padding-top: 16px; }
+    .comparison-page .comparison-heading { margin-bottom: 10px; }
+    .comparison-page .back-link { margin-bottom: 8px; }
+    .comparison-page .comparison-heading h1 { font-size: 23px; line-height: 1.2; }
+    .comparison-page .comparison-heading p { font-size: 12px; line-height: 1.5; margin-top: 6px; }
+    .comparison-page .demo-note { margin-top: 8px; padding: 6px 9px; }
+    .comparison-page .step-nav { margin: 8px 0 12px; gap: 19px; }
+    .comparison-page .step-nav > a { padding-top: 11px; padding-bottom: 11px; }
+    .comparison-page .comparison-summary-strip { padding: 9px 12px; gap: 8px; margin-bottom: 10px; }
+    .comparison-page .comparison-summary-strip > div { max-width: none; flex: 1; }
+    .comparison-page .summary-separator { display: none; }
+    .comparison-page .comparison-alert { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: start; gap: 5px 8px; padding: 10px 12px; margin-bottom: 14px; }
+    .comparison-page .comparison-alert > svg { margin-top: 2px; }
+    .comparison-page .comparison-alert a { grid-column: 2; justify-self: start; min-height: 24px; }
+    .comparison-page .matrix-heading { align-items: flex-start; margin: 14px 0 10px; gap: 10px; }
+    .comparison-page .matrix-heading h2 { font-size: 21px; }
+    .comparison-page .matrix-heading p { margin-top: 3px; }
+    .comparison-page .matrix-scroll-hint { margin-bottom: 8px; }
+    .comparison-page .comparison-matrix thead th { padding: 14px 14px 12px; }
+    .comparison-page .supplier-heading { min-height: 39px; }
+    .comparison-page .supplier-heading-footer { margin-top: 9px; }
+    .comparison-page .comparison-matrix td, .comparison-page .comparison-matrix tbody th { padding: 16px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-review-list > a, .matrix-value-button { transition: none; }
+  }
+}

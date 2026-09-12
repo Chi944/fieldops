@@ -90,10 +90,27 @@ export function FieldOps({
     toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pathname = usePathname(),
     router = useRouter();
+  const workflowNav = useRef<HTMLElement>(null);
   const path = pathname.split("/").filter(Boolean),
     comparisonId = path[0] === "comparisons" ? path[1] : null;
   const current = comparisons.find((c) => c.id === comparisonId),
     view = path[2] ?? "compare";
+  useEffect(() => {
+    const nav = workflowNav.current;
+    if (!nav) return;
+    const revealActiveStep = () => {
+      const active = nav.querySelector<HTMLElement>('[aria-current="step"]');
+      if (!active || nav.scrollWidth <= nav.clientWidth) return;
+      const viewport = nav.getBoundingClientRect(), item = active.getBoundingClientRect();
+      const offset = item.left < viewport.left ? item.left - viewport.left : item.right > viewport.right ? item.right - viewport.right : 0;
+      // Move only the horizontal strip. scrollIntoView would also move the page.
+      if (offset) nav.scrollTo({ left: nav.scrollLeft + offset, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    };
+    const frame = requestAnimationFrame(revealActiveStep);
+    const resize = new ResizeObserver(revealActiveStep);
+    resize.observe(nav);
+    return () => { cancelAnimationFrame(frame); resize.disconnect(); };
+  }, [pathname, current?.id]);
   const workspaceScope = current ? current.isDemo ? "samples" : "personal" : capabilities.canPersist ? overviewScope : "samples";
   const workspaceComparisons = useMemo(() => comparisons.filter(comparison => comparison.isDemo === (workspaceScope === "samples")), [comparisons, workspaceScope]);
   const switchWorkspace = useCallback((scope: "personal" | "samples") => {
@@ -561,7 +578,7 @@ export function FieldOps({
             className={
               view === "export" && current
                 ? "main-content report-page"
-                : "main-content"
+                : view === "compare" && current ? "main-content comparison-page" : "main-content"
             }
           >
             {!comparisonId && initializing ? <EmptyState title="Opening your workspace" description="Checking personal storage and loading saved comparisons." /> : !comparisonId ? (
@@ -614,20 +631,18 @@ export function FieldOps({
                     this browser.
                   </div>
                 )}
-                <nav className="step-nav" aria-label="Comparison workflow">
+                <nav className="step-nav" aria-label="Comparison workflow" ref={workflowNav}>
                   {steps.map((step, index) => (
                     <Link
                       key={step.id}
                       href={`/comparisons/${current.id}/${step.id}`}
                       className={view === step.id ? "active" : ""}
+                      aria-current={view === step.id ? "step" : undefined}
                     >
+                      <span className="step-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                       <step.icon size={17} />
                       {step.name}
-                      {step.id === "review" && issues > 0 ? (
-                        <span className="step-count">{issues}</span>
-                      ) : (
-                        <span className="step-number">{index + 1}</span>
-                      )}
+                      {step.id === "review" && issues > 0 && <span className="step-count">{issues} {issues === 1 ? "issue" : "issues"}</span>}
                     </Link>
                   ))}
                 </nav>

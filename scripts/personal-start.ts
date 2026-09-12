@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { acquireSession, parseFlags, personalDirectory, PersonalToolError, preflight, privateChildEnvironment, projectRoot, reportFailure, stringFlag } from "./personal-tools";
+import { acquireSession, parseFlags, personalAIEnvironment, personalDirectory, PersonalToolError, preflight, privateChildEnvironment, projectRoot, reportFailure, stringFlag } from "./personal-tools";
 
 async function command(args: string[], env: NodeJS.ProcessEnv): Promise<void> {
   const child = spawn(process.execPath, args, { cwd: projectRoot, env, stdio: "inherit", windowsHide: true, shell: false });
@@ -18,18 +18,28 @@ async function stopChild(child: ChildProcess) {
 }
 
 async function main() {
-  const flags = parseFlags(process.argv.slice(2), ["check", "data", "port", "help"]);
-  if (flags.help) { console.log("npm run personal -- [--check] [--port=3001] [--data=.fieldops/personal]\nRuns FieldOps on 127.0.0.1 using a free port from 3001–3009. AI stays disabled. --check reports readiness without starting the app or changing saved data. Ctrl+C stops only this session."); return; }
+  const flags = parseFlags(process.argv.slice(2), ["check", "data", "port", "help", "ai"]);
+  if (flags.help) { console.log("npm run personal -- [--check] [--ai] [--port=3001] [--data=.fieldops/personal]\nRuns FieldOps on 127.0.0.1 using a free port from 3001–3009. AI is off by default. --ai reads .env.ai.local and sends parsed quotation text to Groq for interpretation. --check reports readiness without starting the app, calling AI or changing saved data. Ctrl+C stops only this session."); return; }
+  if (flags.ai !== undefined && flags.ai !== true) throw new PersonalToolError("Use --ai without a value to explicitly enable automatic interpretation.");
+  const aiEnabled = flags.ai === true;
   const directory = resolve(stringFlag(flags, "data", personalDirectory));
   const requested = flags.port === undefined ? undefined : Number(stringFlag(flags, "port"));
+  let env = privateChildEnvironment(directory);
+  if (aiEnabled) {
+    let contents: string;
+    try { contents = await readFile(join(projectRoot, ".env.ai.local"), "utf8"); }
+    catch { throw new PersonalToolError("Create .env.ai.local with the dedicated Groq key and verified Free Plan/ZDR settings before using --ai."); }
+    env = personalAIEnvironment(env, contents);
+  }
   const status = await preflight(directory, requested);
-  console.log("FieldOps personal workspace — private local mode, live AI disabled\n");
+  if (aiEnabled) status.checks = status.checks.map(check => check.name === "Live AI" ? { ...check, detail: "Enabled explicitly. Parsed quotation text is processed by Groq with inference ZDR; originals stay in this local workspace. This check makes no model request." } : check);
+  console.log(`FieldOps personal workspace — private local mode, live AI ${aiEnabled ? "enabled" : "disabled"}\n`);
   for (const check of status.checks) console.log(`${check.ok ? "OK" : check.required ? "BLOCKED" : "OPTIONAL"}  ${check.name}: ${check.detail}`);
   if (!status.ready || status.port === undefined) { process.exitCode = 1; return; }
   if (flags.check) return;
+  env.FIELDOPS_PERSONAL_PORT = String(status.port);
   await mkdir(directory, { recursive: true, mode: 0o700 });
   const releaseSession = await acquireSession(directory, status.port);
-  const env = privateChildEnvironment(directory);
   try {
     await command([join(projectRoot, "scripts", "prepare-assets.mjs")], env);
     console.log(`\nStarting http://127.0.0.1:${status.port}\nPersonal data: ${directory}\nFirst page load compiles the local app. Keep this terminal open; Ctrl+C stops the session.\n`);
@@ -44,8 +54,8 @@ async function main() {
           const response = await fetch(`http://127.0.0.1:${status.port}/api/status`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(3000)]) });
           if (response.ok) {
             const capability = await response.json() as { mode?: string; canPersist?: boolean; canUpload?: boolean; canExtract?: boolean };
-            if (capability.mode !== "local" || !capability.canPersist || !capability.canUpload || capability.canExtract) { console.error("The server did not confirm private local mode with AI disabled. Stopping this launch."); process.exitCode = 1; stop(); return; }
-            console.log(`\nPersonal workspace ready: http://127.0.0.1:${status.port}\nReal local uploads and manual comparison are available. Live AI is disabled.\n`); return;
+            if (capability.mode !== "local" || !capability.canPersist || !capability.canUpload || capability.canExtract !== aiEnabled) { console.error("The server did not confirm the requested local storage and AI mode. Stopping this launch."); process.exitCode = 1; stop(); return; }
+            console.log(`\nPersonal workspace ready: http://127.0.0.1:${status.port}\nReal local uploads and comparison are available. Live AI is ${aiEnabled ? "enabled; parsed text is sent to Groq" : "disabled"}.\n`); return;
           }
         } catch { /* Initial compilation and startup can take a few seconds. */ }
         await new Promise<void>(done => {

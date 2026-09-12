@@ -8,7 +8,7 @@ import { ApiError, json } from "./errors";
 import { capabilities, checkRequestBoundary, configuration } from "./config";
 import { dispatchRun, hydrateComparison, startLocalRunner, hasCompleteSourceCoverage } from "./jobs";
 import { LocalRepository } from "./local-repository";
-import { adminClient } from "./supabase";
+import { storageUploadIntent, storageFinalizeUpload, storageDiscardUpload, storageSourceUrl } from "./neon-storage";
 import type { DocumentRecord, RunRecord } from "./contracts";
 
 const id = z.string().uuid();
@@ -193,7 +193,35 @@ export async function upload(request: Request, comparisonId: string) {
     processingMode = uploadMode(input.processingMode);
     filename = input.filename?.endsWith(".txt") ? input.filename : `${input.filename || "Pasted quotation"}.txt`; bytes = new TextEncoder().encode(input.text); allowDuplicate = input.allowDuplicate ?? false; supersedesId = input.supersedesId;
   }
-  const metadata = fileMetadata(filename, bytes.byteLength); const hash = createHash("sha256").update(bytes).digest("hex"); await checkUpload(context, comparison, hash, allowDuplicate, supersedesId);
+  const metadata = fileMetadata(filename, bytes.byteLength); const hash = createHash("sha256").update(bytes).digest("hex");
+  if (context.repository.mode === "cloud") {
+    const unfinished = !allowDuplicate ? await context.repository.findDuplicate(context.ownerId, comparisonId, hash) : null;
+    const resumable = unfinished?.status === "uploading" && unfinished.filename === metadata.filename && unfinished.size === bytes.byteLength
+      && unfinished.contentType === metadata.contentType && (unfinished.processingMode ?? "parse_only") === processingMode && unfinished.supersedesId === supersedesId;
+    const document: DocumentRecord = resumable ? unfinished : { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: hash, size: bytes.byteLength,
+      storagePath: "", createdAt: new Date().toISOString(), status: "uploading", supersedesId, processingMode };
+    if (!resumable) {
+      document.storagePath = `${context.ownerId}/${document.id}`;
+      // Persist the private source intent before writing any bytes. If storage
+      // fails, its existing record remains available for retry or deletion.
+      await admitUpload(context, document, null, { ...emptyQuotation(document.id, metadata.filename), contentHash: hash, supersedesId }, allowDuplicate);
+    }
+    const candidate = newRun(context, comparison, document);
+    try {
+      await context.repository.writeObject(document, bytes);
+      await context.repository.finalizeUpload(context.ownerId, document.id, hash, candidate);
+    } catch (error) {
+      // A concurrent deletion already owns a durable outbox entry. Best-effort
+      // removal closes the race quickly; failed removal remains retryable there.
+      if (error instanceof ApiError && error.code === "not_found") await context.repository.deleteObject(document).catch(() => console.info(JSON.stringify({ event: "late_upload_cleanup_failed", documentId: document.id })));
+      throw error;
+    }
+    const run = (await context.repository.runs(context.ownerId, comparisonId)).find(entry => entry.documentId === document.id);
+    if (!run) throw new ApiError(503, "dispatch_pending", "The source is saved but its processing record could not be read. Open this comparison to retry processing.");
+    await dispatchRun(context.repository, run);
+    return json({ run, documentId: document.id, comparison: await context.repository.get(context.ownerId, comparisonId) }, 202);
+  }
+  await checkUpload(context, comparison, hash, allowDuplicate, supersedesId);
   const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: hash, size: bytes.byteLength, storagePath: "", createdAt: new Date().toISOString(), status: "uploaded", supersedesId, processingMode };
   document.storagePath = `${context.ownerId}/${document.id}`; const run = newRun(context, comparison, document); const quotation = { ...emptyQuotation(document.id, metadata.filename), contentHash: hash, supersedesId };
   await context.repository.writeObject(document, bytes);
@@ -203,26 +231,45 @@ export async function upload(request: Request, comparisonId: string) {
   return json({ run, documentId: document.id, comparison: await context.repository.get(context.ownerId, comparisonId) }, 202);
 }
 export async function initiateUpload(request: Request, comparisonId: string) {
+  // Anchor URL expiry before the ownership lookup so a signer delayed across
+  // deletion cannot outlive the deletion outbox's six-minute replay window.
+  const requestedAt = new Date();
   const context = await authorize(request); assertUploads(context); if (context.repository.mode !== "cloud") throw new ApiError(400, "local_multipart", "Local uploads use the multipart upload endpoint.");
   const input = z.object({ filename: z.string(), size: z.number().int().positive(), sha256: z.string().regex(/^[a-f0-9]{64}$/), allowDuplicate: z.boolean().optional(), supersedesId: z.string().optional(), processingMode: z.enum(["parse_only", "ai"]).optional() }).parse(await body(request));
   const processingMode = uploadMode(input.processingMode);
-  const comparison = await loaded(context, comparisonId); const metadata = fileMetadata(input.filename, input.size); await checkUpload(context, comparison, input.sha256, input.allowDuplicate ?? false, input.supersedesId);
+  const comparison = await loaded(context, comparisonId); const metadata = fileMetadata(input.filename, input.size);
+  const unfinished = !input.allowDuplicate ? await context.repository.findDuplicate(context.ownerId, comparisonId, input.sha256) : null;
+  if (unfinished?.status === "uploading" && unfinished.filename === metadata.filename && unfinished.size === input.size && unfinished.contentType === metadata.contentType
+    && (unfinished.processingMode ?? "parse_only") === processingMode && unfinished.supersedesId === input.supersedesId) {
+    // Retry the existing intent rather than losing another slot or asking the buyer
+    // to delete the work preserved after an interrupted PUT/finalize response.
+    const ticket = await storageUploadIntent(unfinished, requestedAt);
+    return json({ documentId: unfinished.id, ...ticket, contentType: unfinished.contentType, resumed: true }, 200);
+  }
+  await checkUpload(context, comparison, input.sha256, input.allowDuplicate ?? false, input.supersedesId);
   const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: input.sha256, size: input.size, storagePath: "", createdAt: new Date().toISOString(), status: "uploading", supersedesId: input.supersedesId, processingMode }; document.storagePath = `${context.ownerId}/${document.id}`;
   await admitUpload(context, document, null, { ...emptyQuotation(document.id, metadata.filename), contentHash: input.sha256, supersedesId: input.supersedesId }, input.allowDuplicate ?? false);
-  const { data, error } = await adminClient().storage.from("quotations").createSignedUploadUrl(document.storagePath, { upsert: false });
-  if (error || !data) throw new ApiError(503, "upload_unavailable", "Private storage could not issue an upload token. Retry the file.");
-  return json({ documentId: document.id, uploadUrl: data.signedUrl, token: data.token, path: data.path, contentType: metadata.contentType }, 201);
+  const ticket = await storageUploadIntent(document, requestedAt);
+  return json({ documentId: document.id, ...ticket, contentType: metadata.contentType }, 201);
 }
 export async function finalizeUpload(request: Request, documentId: string) {
   const context = await authorize(request); assertUploads(context); id.parse(documentId); const document = await context.repository.document(context.ownerId, documentId); const comparison = await loaded(context, document.comparisonId);
   if (document.status === "uploaded") { const runs = await context.repository.runs(context.ownerId, document.comparisonId); return json({ run: runs.find((r) => r.documentId === documentId), documentId, comparison }, 202); }
-  const bytes = await context.repository.readObject(document); const hash = createHash("sha256").update(bytes).digest("hex");
+  const bytes = context.repository.mode === "cloud" ? await storageFinalizeUpload(document) : await context.repository.readObject(document); const hash = createHash("sha256").update(bytes).digest("hex");
   if (bytes.byteLength !== document.size || hash !== document.contentHash) throw new ApiError(422, "integrity_check", "Uploaded bytes do not match the selected file. Delete this upload and try again.");
-  const candidate = newRun(context, comparison, document); await context.repository.finalizeUpload(context.ownerId, documentId, hash, candidate);
+  const candidate = newRun(context, comparison, document);
+  try { await context.repository.finalizeUpload(context.ownerId, documentId, hash, candidate); }
+  catch (error) {
+    // Deletion can race the object promotion. Remove bytes created after the
+    // deletion outbox ran; preserve bytes for ordinary retryable DB failures.
+    if (error instanceof ApiError && error.code === "not_found") await context.repository.deleteObject(document).catch(() => console.info(JSON.stringify({ event: "late_upload_cleanup_failed", documentId })));
+    throw error;
+  }
   // Another finalize may have won the transaction. Dispatch and return the actual
   // persisted job, never the losing caller's freshly generated candidate ID.
   const run = (await context.repository.runs(context.ownerId, document.comparisonId)).find((entry) => entry.documentId === documentId);
   if (!run) throw new ApiError(503, "dispatch_pending", "The upload is saved but its processing record could not be read. Retry finalization.");
+  if (context.repository.mode === "cloud") await storageDiscardUpload(document).catch(() => console.info(JSON.stringify({ event: "staged_upload_cleanup_failed", documentId })));
   await dispatchRun(context.repository, run); return json({ run, documentId, comparison: await context.repository.get(context.ownerId, document.comparisonId) }, 202);
 }
 export async function getRun(request: Request, runId: string) { const context = await authorize(request); id.parse(runId); runLocal(context); return json({ run: await context.repository.run(context.ownerId, runId) }); }
@@ -239,9 +286,8 @@ export async function source(request: Request, documentId: string) {
   const context = await authorize(request); id.parse(documentId); const document = await context.repository.document(context.ownerId, documentId);
   if (document.status !== "uploaded") throw new ApiError(409, "source_uploading", "This source has not finished uploading.");
   if (context.repository.mode === "cloud") {
-    const { data, error } = await adminClient().storage.from("quotations").createSignedUrl(document.storagePath, 60);
-    if (error || !data) throw new ApiError(503, "source_unavailable", "Private storage could not open this source. Retry shortly.");
-    return new Response(null, { status: 302, headers: { Location: data.signedUrl, "Cache-Control": "private, no-store" } });
+    const signedUrl = await storageSourceUrl(document);
+    return new Response(null, { status: 302, headers: { Location: signedUrl, "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" } });
   }
   const bytes = await context.repository.readObject(document); const inline = ["application/pdf", "image/png", "image/jpeg", "text/plain"].includes(document.contentType);
   return new Response(Buffer.from(bytes), { headers: { "Content-Type": document.contentType, "Content-Disposition": `${inline ? "inline" : "attachment"}; filename*=UTF-8''${encodeURIComponent(document.filename)}`, "Content-Length": String(bytes.byteLength), "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox; default-src 'none'" } });

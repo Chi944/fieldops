@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtemp, rm, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { LocalRepository } from "@/lib/server/local-repository";
 import { configuration, checkRequestBoundary } from "@/lib/server/config";
 import { createComparison, upload, addItem, correctField, proposeGroups, source, acknowledgeIssue } from "@/lib/server/service";
-import { stopLocalRunner, hydrateComparison, executeRun } from "@/lib/server/jobs";
+import { startLocalRunner, stopLocalRunner, hydrateComparison, executeRun } from "@/lib/server/jobs";
 import { emptyQuotation, field, type Comparison, type ProcessingMode } from "@/lib/domain/types";
 import { parseDocument } from "@/lib/processing";
 import type { DocumentRecord, RunRecord } from "@/lib/server/contracts";
@@ -21,9 +21,54 @@ async function seeded(owner = "local-user", processingMode: ProcessingMode = "ai
   await repository.writeObject(d, bytes); await repository.createUpload(owner, d, run, emptyQuotation(d.id, d.filename), 0); return { c, d, run };
 }
 beforeEach(async () => { directory = await mkdtemp(join(tmpdir(), "fieldops-server-")); repository = new LocalRepository(directory); vi.stubEnv("FIELDOPS_LOCAL_MODE", "true"); vi.stubEnv("FIELDOPS_DATA_DIR", directory); vi.stubEnv("GROQ_API_KEY", ""); vi.stubEnv("VERCEL", ""); vi.stubEnv("RENDER", ""); });
-afterEach(async () => { stopLocalRunner(directory); vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
+afterEach(async () => {
+  await stopLocalRunner(directory);
+  vi.restoreAllMocks(); vi.unstubAllEnvs();
+  const target = resolve(directory);
+  if (dirname(target) !== resolve(tmpdir()) || !basename(target).startsWith("fieldops-server-")) throw new Error("Unexpected server-test cleanup target");
+  await rm(target, { recursive: true, force: true });
+});
 
 describe("private local persistence and durable processing", () => {
+  it("awaits the active file at shutdown and leaves subsequent files durably queued", async () => {
+    const first = await seeded("local-user", "parse_only"), second = await seeded("local-user", "parse_only");
+    let release!: () => void, entered!: () => void;
+    const gate = new Promise<void>(done => { release = done; }), reading = new Promise<void>(done => { entered = done; });
+    const read = repository.readObject.bind(repository);
+    vi.spyOn(repository, "readObject").mockImplementationOnce(async document => { entered(); await gate; return read(document); });
+    startLocalRunner(repository); await reading;
+    let stopped = false;
+    const stopping = stopLocalRunner(directory).then(() => { stopped = true; });
+    try {
+      await Promise.resolve(); expect(stopped).toBe(false);
+      // A second start while shutdown is waiting must not create another pump.
+      startLocalRunner(repository);
+    } finally { release(); await stopping; }
+    expect(stopped).toBe(true);
+    expect(await repository.run("local-user", first.run.id)).toMatchObject({ stage: "source_ready" });
+    expect(await repository.run("local-user", second.run.id)).toMatchObject({ stage: "queued", attempt: 0 });
+  });
+  it("finishes an in-flight heartbeat write before resolving a completed run", async () => {
+    const { run } = await seeded("local-user", "parse_only");
+    let releaseRead!: () => void, releaseRenewal!: () => void, renewalStarted!: () => void;
+    const readGate = new Promise<void>(done => { releaseRead = done; });
+    const renewalGate = new Promise<void>(done => { releaseRenewal = done; });
+    const renewing = new Promise<void>(done => { renewalStarted = done; });
+    const read = repository.readObject.bind(repository), renew = repository.renewLease.bind(repository);
+    vi.spyOn(repository, "readObject").mockImplementationOnce(async document => { await readGate; return read(document); });
+    vi.spyOn(repository, "renewLease").mockImplementationOnce(async (...args) => { renewalStarted(); await renewalGate; return renew(...args); });
+    let finished = false;
+    const execution = executeRun(repository, run.id).then(() => { finished = true; });
+    try {
+      // The real heartbeat starts while source reading is held. Its write remains
+      // held until after the terminal source_ready state has been committed.
+      await renewing; releaseRead();
+      await vi.waitFor(async () => { expect((await repository.run("local-user", run.id)).stage).toBe("source_ready"); }, { timeout: 5000, interval: 20 });
+      expect(finished).toBe(false);
+    } finally { releaseRead(); releaseRenewal(); await execution; }
+    expect(finished).toBe(true);
+    expect((await repository.run("local-user", run.id)).stage).toBe("source_ready");
+  });
   it("enforces atomic optimistic concurrency and survives a new repository instance", async () => {
     const c = comparison(); await repository.create("local-user", c);
     const results = await Promise.allSettled([repository.save("local-user", { ...c, name: "First" }, 0), repository.save("local-user", { ...c, name: "Second" }, 0)]);

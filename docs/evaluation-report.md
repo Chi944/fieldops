@@ -1,12 +1,12 @@
 # FieldOps measured evaluation
 
-Measured 2026-09-12T20:16:04.624Z. Mode: **baseline**. Run `baseline-all-ff504a533a5a-8dc06a6ab2cb`.
+Measured 2026-09-12T22:09:21.205Z. Mode: **live**. Run `live-dev-a82134f4f391-8dc06a6ab2cb`.
 
 ## Dataset and protocol
 
-24 self-authored originals, 8 unrelated comparison scenarios, 144 logical items and 1106 selected field assertions. Development and held-out splits each have 12 documents. Formats: 8 text_pdf, 4 scan_pdf, 4 xlsx, 4 text, 2 csv, 2 png. Eight robustness cases are separate. Untuned held-out content; offline measurement only.
+12 self-authored originals, 4 unrelated comparison scenarios, 72 logical items and 557 selected field assertions. Development and held-out splits each have 12 documents. Formats: 4 text_pdf, 2 scan_pdf, 2 xlsx, 2 text, 1 csv, 1 png. Eight robustness cases are separate. Development set.
 
-Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `ff504a533a5a84d12f5d68db1a764c9084c96bf04b2ee670ba5235eb781bc1a6`. The report stores per-document timing and errors in [JSON](../eval/results/latest.json).
+Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `a82134f4f3911c1c3433bcfda09023a7a8ede42ccf86c1e0a6e1ec42fa9cfaab`. The report stores per-document timing and errors in [JSON](../eval/results/latest.json).
 
 Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-256 ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468. The configuration fingerprint includes package.json, package-lock.json and this runtime/asset identity.
 
@@ -14,23 +14,43 @@ Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-2
 
 | Measurement | Result |
 |---|---|
-| Baseline equivalent-pair precision, gold rows | 100.0% (102/102) |
-| Baseline equivalent-pair recall, gold rows | 87.9% (102/116) |
-| False equivalences on annotated hard negatives | 0/28 |
-| Candidate cross-supplier item pairs | 864 |
-| Parser complete documents | 24/24 |
-| Authored item identifiers present in parsed text | 100.0% (144/144) |
-| Parsed source locations present | 100.0% (963/963) |
-| Reported boxes within page bounds | 100.0% (544/544) |
-| Parser median / minimum / maximum | 9 / 0 / 3867 ms |
+| Baseline equivalent-pair precision, gold rows | 100.0% (51/51) |
+| Baseline equivalent-pair recall, gold rows | 87.9% (51/58) |
+| False equivalences on annotated hard negatives | 0/14 |
+| Candidate cross-supplier item pairs | 432 |
+| Parser complete documents | 2/2 |
+| Authored item identifiers present in parsed text | 100.0% (12/12) |
+| Parsed source locations present | 100.0% (79/79) |
+| Reported boxes within page bounds | 100.0% (79/79) |
+| Parser median / minimum / maximum | 4576 / 1936 / 4576 ms |
 | Robustness assertions | 8/8 |
-| Paid model/provider cost for this offline run | USD 0; no provider calls |
+| Paid model/provider cost for this offline run | See returned usage; provider invoice not measured |
 
 All parser manifests completed and all authored item identifiers were present; this is not evidence of perfect extraction.
 
 ## AI status
 
-**UNVERIFIED.** The user has not configured the Groq Free Plan key. No model extraction or semantic matching has run. Field accuracy, AI line-item detection, AI matching precision/recall, missed ambiguities, semantic source correctness, live prompt-injection resistance, model latency, and model token cost are UNVERIFIED.
+**LIVE_ATTEMPTED_NO_VALIDATED_EXTRACTIONS.** Actual live outputs and denominators are in the JSON report. Failed requests and unmeasured scenarios are retained, not replaced with fixtures.
+
+### Live completion and failures
+
+Validated 0/12 documents; attempted 2. Session paused: evaluation_budget; retry delay not specified ms. Micro-averaged over attempted extraction documents. Failed or paused documents count as missing output with zero field/recall credit. Unattempted documents are not silently included or excluded: their count is requested minus attempted. Source precision denominators cover returned references only.
+
+| Live extraction measurement | Result |
+|---|---|
+| statedFieldAccuracy | 0.0% (0/90) |
+| criticalFieldAccuracy | 0.0% (0/84) |
+| annotatedMissingStateAccuracy | 0.0% (0/1) |
+| lineItemPrecision | not measured (0 denominator) |
+| lineItemRecall | 0.0% (0/12) |
+| annotatedReviewSignalRecall | 0.0% (0/2) |
+| sourceReferenceResolvability | not measured (0 denominator) |
+| correctFieldLocationAgreement | not measured (0 denominator) |
+
+Actual returned response usage across resumed sessions: 1 responses (1 without token usage), 0 input and 0 output tokens. All returned model responses journaled in this logical run, including responses rejected by validation and prior resumed sessions. Token totals exclude responses explicitly marked usage unavailable (including provider-side schema rejections); those responses are counted separately. Transport failures without returned usage and the provider invoice are not measured.
+
+Use `--wait-quota` to wait for at most 30 short quota resets (each at most 60 seconds); longer/daily limits pause for explicit resume. `--max-new-requests 1` bounds a development probe. Completed results resume under the same configuration and source hashes. Append-only private session journals preserve failure codes and returned usage; rejected response bodies remain private.
+
 
 Arithmetic and correction invariants run separately with `npm test -- tests/domain.test.ts`; do not interpret their assertion count as AI accuracy. The actual fixed package-surplus defect is documented in [failure notes](failure-notes.md).
 

@@ -1,6 +1,6 @@
 # Personal FieldOps on this computer
 
-Run `npm run personal` from this FieldOps repository. It starts a private local workspace with real file parsing and manual comparison. AI is deliberately disabled. No Supabase, Trigger, model key, paid subscription or cloud upload is needed.
+Run `npm run personal` from this FieldOps repository. It starts a private local workspace with real file parsing and manual comparison. AI is off by default; `--ai` explicitly enables the configured Groq Free integration. Local storage needs no Neon or Trigger account.
 
 ## First launch
 
@@ -18,11 +18,31 @@ Open the **Personal workspace ready** URL printed in the terminal. The launcher 
 npm run personal -- --port=3001
 ```
 
-Keep the terminal open while working; use **Ctrl+C** to stop that session. First page visits compile the app because the launcher uses Next.js development mode. Its build output is isolated in `.fieldops/personal-next`, so it does not reuse a stale production bundle or compete with the ordinary development build. Two personal sessions share that build directory; run one at a time.
+Keep the terminal open while working; use **Ctrl+C** to stop that session. First page visits compile the app because the launcher uses Next.js development mode. Its build output is isolated by port in `.fieldops/personal-next-PORT`. The workspace lock prevents two sessions from opening the same data directory.
 
 Your comparisons, correction history, processing records and original files are stored in **`.fieldops/personal`**, separate from `.fieldops/e2e-storage` and other test data. The directory is gitignored. A custom restored workspace can be selected with `--data=PATH`; the launcher does not automatically import the earlier `.fieldops/state.json` workspace.
 
-`personal:check` reports runtime/dependency readiness, local data readability, an available loopback port and whether the English OCR asset is installed. It does not start a server, print credentials or hash private documents. The launcher then checks the running `/api/status` endpoint and requires local persistence/uploads with extraction disabled before printing its ready message.
+`personal:check` reports runtime/dependency readiness, local data readability, an available loopback port and whether the English OCR asset is installed. It does not start a server, print credentials, call AI or hash private documents. The launcher checks the running `/api/status` endpoint and requires local persistence/uploads and the requested AI mode before printing its ready message.
+
+## Enable automatic interpretation
+
+Create the gitignored `.env.ai.local` in the repository with these server-only settings. The FieldOps computer has a dedicated key configured; do not replace or print it.
+
+```dotenv
+GROQ_API_KEY=YOUR_DEDICATED_FREE_KEY
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_FREE_TIER_CONFIRMED=true
+GROQ_ZDR_CONFIRMED=true
+```
+
+Set the confirmation flags only after checking Free Plan and **Inference APIs ZDR** in Groq. The current dedicated FieldOps key expires on 12 December 2026. Configuration evidence and limitations are in [AI setup](ai-setup-verification.md).
+
+```powershell
+npm run personal:check -- --ai
+npm run personal -- --ai
+```
+
+Stop the existing session for the same data directory before relaunching with AI. The option changes future upload processing; it does not reprocess your saved quotations automatically. Pinned parser-only jobs remain parser-only on retry. AI receives parsed text and source identifiers; PDFs, spreadsheets and OCR images remain local. Review every extraction and proposed match. Free quotas can pause work, and incomplete results require recovery rather than acceptance as complete.
 
 ## Use real quotations without AI
 
@@ -38,7 +58,7 @@ npx tsx scripts/process.ts --prepare-ocr
 
 This setup command downloads language data; it does not upload a quotation. Subsequent OCR runs locally using `.fieldops/tessdata/eng.traineddata.gz`. It is optional for text PDFs, spreadsheets and pasted text. Limits remain 20 MiB/file, five quotations/comparison, ten PDF pages, five worksheets, 20,000 populated spreadsheet cells, 100 items, 100,000 text characters and 20 megapixels/image. Handwriting and universal layout support are not claimed.
 
-The launcher explicitly sets local/parser-only mode and clears model/Supabase/Trigger credentials in its child environment. A key in your shell or `.env.local` cannot silently enable AI through this command. Credentials in the original environment file are not changed. Keep this single-user mode on the loopback interface; do not put a tunnel or public proxy in front of it.
+The launcher clears inherited model, database, storage, Auth and Trigger credentials. A key in your shell or `.env.local` cannot silently enable AI. With `--ai`, it imports only the dedicated model settings from `.env.ai.local`; database and storage remain local. Credentials in other environment files are not changed. Keep this single-user mode on the loopback interface; do not put a tunnel or public proxy in front of it.
 
 ## Back up the workspace
 
@@ -75,7 +95,7 @@ npm run personal:restore -- --input="BACKUP-DIRECTORY" --destination=".fieldops/
 npm run personal -- --data=".fieldops/personal-restored"
 ```
 
-Omit `--destination` to generate a new timestamped restore directory. Restore never replaces, merges or deletes your current workspace. It checks manifest paths, rejects symbolic-link traversal, verifies every file before copying, and verifies copied bytes again. A `restored-backup.json` receipt records when restoration occurred. Saved unfinished jobs can be resumed by the ordinary local worker after launch; the personal launcher keeps AI disabled.
+Omit `--destination` to generate a new timestamped restore directory. Restore never replaces, merges or deletes your current workspace. It checks manifest paths, rejects symbolic-link traversal, verifies every file before copying, and verifies copied bytes again. A `restored-backup.json` receipt records when restoration occurred. Saved unfinished jobs can be resumed by the ordinary local worker after launch; AI jobs require an explicitly enabled AI session.
 
 If backup or restore fails after creating its new directory, `.fieldops-incomplete` remains there. That directory cannot be launched or restored using these tools. Preserve it for inspection, correct the reported problem, and retry with a new destination. A missing/corrupted original must be recovered before a complete backup can be created. Do not remove an incomplete marker to bypass verification.
 

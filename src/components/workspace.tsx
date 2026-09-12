@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -43,6 +42,8 @@ export function WorkspaceScreen({
   const visible = useMemo(() => comparisons.filter(c => c.name.toLowerCase().includes(query.toLowerCase()) && (filter !== "review" || needsReview(c))), [comparisons, query, filter]);
   const featured = [...comparisons].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).find(c => !c.isDemo && c.quotations.length) ?? comparisons.find(c => c.id === "demo-studio") ?? comparisons.find(c => c.quotations.length);
   const featuredReview = featured?.quotations.find(q => q.issues.some(i => !i.resolved) || q.status === "partial");
+  const featuredIssues = featured?.quotations.flatMap(quotation => quotation.issues.filter(issue => !issue.resolved).map(issue => ({ quotation, issue }))) ?? [];
+  const featuredMatches = featured?.groups.filter(group => group.status === "proposed" || group.status === "stale") ?? [];
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenu(null);
@@ -55,12 +56,12 @@ export function WorkspaceScreen({
   return (
     <div className="workspace-v2">
       <div className="workspace-heading">
-        <div><h1>Your quotation workspace</h1><p>Compare supplier offers. Keep the evidence behind every decision.</p></div>
+        <div><h1>Your quotation workspace</h1><p>Keep the evidence behind every decision.</p></div>
         <button className="button primary" onClick={onCreate}><Plus size={17} />New comparison</button>
       </div>
       <section className="workspace-welcome" aria-label="Continue your work">
         <div className="welcome-copy">
-          <span className="welcome-context"><span className="status-dot" />{featured?.isDemo ? "Fictional sample workspace" : featured ? "Continue your latest comparison" : personal ? "Your personal workspace is ready" : "Fictional sample workspace"}</span>
+          <span className="welcome-context">{featured ? "Continue your latest comparison" : personal ? "Your personal workspace is ready" : "Fictional sample workspace"}</span>
           <h2>{featured?.name ?? (personal ? "Start with your own quotations." : "Explore a sample comparison.")}</h2>
           <p>{featured?.description || (personal ? "Create a comparison, add complete supplier quotations, then review the original sources and enter the items you want to compare. No AI key is needed." : "Saved fictional quotations let you explore review, matching and reports. Your own documents belong in a personal workspace.")}</p>
           <div className="welcome-actions">
@@ -70,7 +71,26 @@ export function WorkspaceScreen({
             {!featured && personal && <button className="text-button" onClick={() => switchWorkspace("samples")}>Explore fictional samples</button>}
           </div>
         </div>
-        <div className="welcome-art" aria-hidden="true"><Image src="/images/quotation-still-life-v1.webp" alt="" fill sizes="(max-width: 760px) 1px, 420px" loading="eager" unoptimized /></div>
+        <aside className="welcome-review" aria-label="Next review actions">
+          {featured && (featuredIssues.length > 0 || featuredMatches.length > 0) ? <>
+            <div className="welcome-review-heading"><h3>Needs your review</h3><span>{featuredIssues.length ? `${featuredIssues.length} open ${featuredIssues.length === 1 ? "issue" : "issues"}` : `${featuredMatches.length} ${featuredMatches.length === 1 ? "match" : "matches"}`}</span></div>
+            <div className="welcome-review-list">
+              {featuredIssues.length ? featuredIssues.slice(0, 3).map(({ quotation, issue }) => <Link key={issue.id} href={`/comparisons/${featured.id}/review?q=${encodeURIComponent(quotation.id)}`} title={issue.message}>
+                <FileText size={18} /><span><strong>{issue.message}</strong><small>{valueOf(quotation.supplier.name) ?? quotation.filename}</small></span><ChevronRight size={15} />
+              </Link>) : featuredMatches.slice(0, 3).map(group => <Link key={group.id} href={`/comparisons/${featured.id}/matching`}>
+                <ClipboardCheck size={18} /><span><strong>{group.label}</strong><small>{group.status === "stale" ? "Quotation changed. Review equivalence again." : "Confirm which supplier offers are comparable."}</small></span><ChevronRight size={15} />
+              </Link>)}
+            </div>
+            <Link className="welcome-review-footer" href={`/comparisons/${featured.id}/${featuredIssues.length ? `review?q=${encodeURIComponent(featuredIssues[0].quotation.id)}` : "matching"}`}>Review {featuredIssues.length ? "source evidence" : "item matches"}<ArrowRight size={15} /></Link>
+          </> : featured ? <>
+            <div className="welcome-review-heading"><h3>{featured.groups.length ? "Ready to revisit" : "Build your comparison"}</h3><Check size={18} /></div>
+            <p className="welcome-review-description">{featured.groups.length ? "Open the supplier matrix to check costs, quantities and commercial terms. Your original quotations and review history stay close at hand." : "Review the source items, then group comparable offers from different suppliers."}</p>
+            <Link className="welcome-review-footer" href={`/comparisons/${featured.id}/${featured.groups.length ? "compare" : "matching"}`}>{featured.groups.length ? "Open supplier matrix" : "Review item matches"}<ArrowRight size={15} /></Link>
+          </> : <>
+            <div className="welcome-review-heading"><h3>From quotations to a decision</h3></div>
+            <ol className="welcome-start-steps"><li><span>1</span><div><strong>Add complete quotations</strong><small>Keep each supplier&apos;s original file.</small></div></li><li><span>2</span><div><strong>Review the source together</strong><small>Check items, prices and missing terms.</small></div></li><li><span>3</span><div><strong>Compare and export</strong><small>Take the evidence into your decision.</small></div></li></ol>
+          </>}
+        </aside>
       </section>
       <div className="workspace-storage-note"><ShieldCheck size={16} /><p>{personal ? capabilities.mode === "local" ? "Saved on this computer. Original files and review history persist after a restart and remain until you delete them." : "Private account storage. Your original files and review history stay in your workspace." : "Fictional examples only. Sample edits stay in this browser; private quotations cannot be uploaded here."}</p>{!personal && <button className="text-button" onClick={() => switchWorkspace("personal")}>Use my own quotations<ArrowRight size={14} /></button>}</div>
       <div className="workspace-pulse" aria-label="Workspace summary">
@@ -140,7 +160,7 @@ export function WorkspaceScreen({
                 const nextRoute = processing || needsRetry || !c.quotations.length ? "upload" : unresolved || incomplete ? "review" : c.quotations.length < 2 ? "upload" : pendingMatches || !c.groups.length ? "matching" : "compare";
                 const reviewQuotation = c.quotations.find(q => q.issues.some(i => !i.resolved) || q.status === "partial");
                 return (
-                  <div className="comparison-list-row" key={c.id}>
+                  <div className={`comparison-list-row${c.id === featured?.id ? " featured-comparison-row" : ""}`} key={c.id}>
                     <Link
                       className="comparison-name"
                       href={`/comparisons/${c.id}/compare`}

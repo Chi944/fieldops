@@ -8,6 +8,7 @@ import "./globals.css";
 import "./refinements.css";
 import "@/components/review-polish.css";
 import "@/components/personal-workspace.css";
+import "@/components/visual-refinement.css";
 
 export const metadata: Metadata = {
   title: "FieldOps — Every quote, a clearer decision",

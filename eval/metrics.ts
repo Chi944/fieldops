@@ -1,4 +1,4 @@
-import { MatchGroup, ParsedDocument, Quotation, SourceSpan } from "../src/lib/domain/types";
+import { emptyQuotation, MatchGroup, ParsedDocument, Quotation, SourceSpan } from "../src/lib/domain/types";
 import { resolveField } from "../src/lib/domain/corrections";
 import { decimal } from "../src/lib/domain/calculate";
 import { FixtureRecord } from "../scripts/generate-fixtures";
@@ -71,9 +71,26 @@ export function scoreExtraction(expected: FixtureRecord, actual: Quotation, pars
   const extractionAmbiguities = expected.ambiguities.filter(path => !path.endsWith(".scope") && !path.endsWith(".attributes"));
   const detectedAmbiguities = extractionAmbiguities.filter(path => {
     const field = expected.fields.find(f => f.path === path);
-    if (field && field.state !== "value") { try { return resolveField(actual, path).state === field.state; } catch { return false; } }
+    if (field && field.state !== "value") {
+      const pieces = path.split(".");
+      if (pieces[0] === "items" && mapped.has(pieces[1])) pieces[1] = mapped.get(pieces[1])!;
+      try { return resolveField(actual, pieces.join(".")).state === field.state; } catch { return false; }
+    }
     const itemId = path.startsWith("items.") ? mapped.get(path.split(".")[1]) : undefined;
     return actual.issues.some(issue => !issue.resolved && issue.itemId === itemId && issue.code === "amount_mismatch");
   });
   return { statedFieldAccuracy: fraction(correctStated, stated), criticalFieldAccuracy: fraction(correctCritical, critical), annotatedMissingStateAccuracy: fraction(correctStates, states), lineItemPrecision: fraction(used.size, actual.items.length), lineItemRecall: fraction(used.size, expected.quotation.items.length), annotatedReviewSignalRecall: fraction(detectedAmbiguities.length, extractionAmbiguities.length), sourceReferenceResolvability: fraction(validReferences, totalReferences), correctFieldLocationAgreement: fraction(locatedFields, fieldsWithSources), failures, mappedItems: Object.fromEntries(mapped) };
+}
+
+export const EXTRACTION_METRICS = ["statedFieldAccuracy", "criticalFieldAccuracy", "annotatedMissingStateAccuracy", "lineItemPrecision", "lineItemRecall", "annotatedReviewSignalRecall", "sourceReferenceResolvability", "correctFieldLocationAgreement"] as const;
+export function scoreFailedExtraction(expected: FixtureRecord): ReturnType<typeof scoreExtraction> {
+  const empty = emptyQuotation(expected.id, expected.path);
+  const result = scoreExtraction(expected, empty, { documentId: expected.id, filename: expected.path, contentHash: expected.sha256, format: expected.format, sources: [], manifest: empty.manifest });
+  // A rejected/missing response earns no credit for default not-stated fields.
+  for (const key of EXTRACTION_METRICS) result[key] = fraction(0, result[key].denominator);
+  result.failures = expected.fields.map(field => ({ path: field.path, expected: field.value, actual: null, state: "no_accepted_output" }));
+  return result;
+}
+export function aggregateExtractionMetrics(results: ReturnType<typeof scoreExtraction>[]) {
+  return Object.fromEntries(EXTRACTION_METRICS.map(key => [key, fraction(results.reduce((n, result) => n + result[key].numerator, 0), results.reduce((n, result) => n + result[key].denominator, 0))])) as Record<typeof EXTRACTION_METRICS[number], Fraction>;
 }
