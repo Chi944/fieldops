@@ -69,6 +69,27 @@ export default function ReliabilityPage() {
         </p>
       </section>
       <section>
+        <h2>What happened with real AI</h2>
+        <p>
+          Two small, one-item synthetic quotations eventually completed local AI
+          extraction, followed by an evidence-linked match and buyer approval.
+          A separate two-page, six-item development quotation did not complete:
+          its final chunk failed twice while the two validated chunks were
+          preserved. No partial quotation was accepted as complete.
+        </p>
+        <p>
+          Hosted AI remains disabled. The held-out set has received no model
+          requests, and these small probes do not establish general accuracy.
+          Missing usage from rejected responses is recorded as unknown.
+        </p>
+        <a
+          className="text-button"
+          href="https://github.com/Chi944/fieldops/blob/main/docs/live-ai-development.md"
+        >
+          Inspect the real AI results and failures →
+        </a>
+      </section>
+      <section>
         <h2>Read the limits alongside the results</h2>
         <p>
           Report mode: {result.mode}. AI status: {result.ai.status}.
