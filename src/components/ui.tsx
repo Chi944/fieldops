@@ -160,10 +160,7 @@ export function initials(name: string) {
 export function supplierName(q: Quotation) {
   return valueOf(q.supplier.name) ?? q.filename;
 }
-export function formatMoney(
-  amount: string | null | undefined,
-  currency = "USD",
-) {
+export function formatMoney(amount: string | null | undefined, currency = "") {
   if (amount == null) return "—";
   const parts = amount.split(".");
   const whole = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");

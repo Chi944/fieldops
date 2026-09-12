@@ -276,7 +276,7 @@ export function MatchingScreen({ comparison }: { comparison: Comparison }) {
                         <span className="money">
                           {formatMoney(
                             valueOf(item.unitPrice),
-                            valueOf(item.currency) ?? "USD",
+                            valueOf(item.currency) ?? "",
                           )}
                         </span>
                         <small>/{valueOf(item.unit) ?? "unit"}</small>

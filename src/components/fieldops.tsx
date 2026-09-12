@@ -496,7 +496,10 @@ export function FieldOps({
                   onClick={async () => {
                     try {
                       await api("/auth/logout", { method: "POST" });
-                      setComparisons(all => all.filter(c => c.isDemo)); setCapabilities(initialCapabilities); router.push("/"); router.refresh();
+                      setComparisons((all) => all.filter((c) => c.isDemo));
+                      setCapabilities(initialCapabilities);
+                      router.push("/");
+                      router.refresh();
                     } catch (error) {
                       toast((error as Error).message, true);
                     }

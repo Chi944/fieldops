@@ -1,5 +1,9 @@
 # FieldOps
 
+[Open the live demo](https://fieldops-eight-blue.vercel.app) ? [Reliability evidence](https://fieldops-eight-blue.vercel.app/reliability) ? [Build checks](https://github.com/Chi944/fieldops/actions)
+
+![FieldOps workspace](docs/images/workspace.png)
+
 An evidence-first workspace for comparing supplier quotations across goods and services. Review each supplier's original document, correct uncertain fields, approve comparable items, and export a comparison whose assumptions remain visible.
 
 FieldOps is a new, independent portfolio project. Its first release favors defensible comparisons over a universal-format claim.
@@ -32,6 +36,8 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 ## Reliability evidence
 
+Verified locally: **94 unit/integration tests and six browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Linux CI repeats the checks from a clean checkout.
+
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 
 ```powershell
@@ -57,3 +63,12 @@ TypeScript, Next.js and React provide the interface and server API. Decimal.js o
 - [Portfolio case study](docs/case-study.md) and [short demonstration script](docs/demo-script.md)
 
 Supported inputs are bounded English printed quotations: text/scanned PDF, PNG/JPEG, XLSX, CSV and pasted text. DOCX, handwriting, universal document interpretation, automatic exchange rates, supplier outreach and autonomous purchasing are outside this release. Hosted AI behavior remains unverified until an explicitly configured free provider is evaluated.
+
+## Portfolio walkthrough
+
+- [Three-minute demonstration script](docs/demo-script.md)
+- [Case study and observed failure](docs/case-study.md)
+- [Acceptance status and verification limits](docs/acceptance-status.md)
+- [Browser test instructions](tests/e2e/README.md)
+
+![Supplier comparison with original prices and visible review issues](docs/images/comparison.png)

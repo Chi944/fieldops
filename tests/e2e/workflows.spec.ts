@@ -226,7 +226,7 @@ test("real PDF and image uploads render original canvases and selected source re
   const id = await createComparison(page, "E2E original source previews");
   const fixtures = [
     { path: resolve("eval/originals/dev/industrial-1.pdf"), filename: "industrial-1.pdf", description: "M8 bolt", quantity: "200", unit: "each", price: "0.18", term: /M8.*bolt/i },
-    { path: resolve("eval/originals/dev/event-1.png"), filename: "event-1.png", description: "Reusable cable ties", quantity: "40", unit: "each", price: "0.50", term: /cable ties/i },
+    { path: resolve("eval/originals/dev/event-1.png"), filename: "event-1.png", description: "Reusable cable tie", quantity: "40", unit: "each", price: "0.50", term: /cable tie/i },
   ];
   try {
     await page.getByLabel("Choose quotation files", { exact: true }).setInputFiles(fixtures.map(f => f.path));
@@ -276,7 +276,7 @@ test("real PDF and image uploads render original canvases and selected source re
       await modal.getByRole("combobox", { name: "Tax basis", exact: true }).selectOption("exclusive");
       await modal.getByLabel("Explicit tax rate (%)", { exact: true }).fill("9");
       await modal.getByLabel(/Source evidence \(optional\)/).selectOption([source.id]);
-      await modal.getByLabel("Review note", { exact: true }).fill("Reviewed synthetic original; explicitly linked its actual parser region and stated tax basis.");
+      await modal.getByRole("textbox", { name: "Review note", exact: true }).fill("Reviewed synthetic original; explicitly linked its actual parser region and stated tax basis.");
       await modal.getByRole("button", { name: "Add item", exact: true }).click();
       const item = page.locator(".review-item").filter({ hasText: fixture.description });
       await expect(item).toHaveCount(1);
@@ -287,12 +287,18 @@ test("real PDF and image uploads render original canvases and selected source re
       const region = await preview.locator(".source-region").boundingBox();
       expect(region!.width).toBeGreaterThan(0);
       expect(region!.height).toBeGreaterThan(0);
+      const surface = await canvas.boundingBox();
+      expect(region!.x).toBeGreaterThanOrEqual(surface!.x - 1);
+      expect(region!.y).toBeGreaterThanOrEqual(surface!.y - 1);
+      expect(region!.x + region!.width).toBeLessThanOrEqual(surface!.x + surface!.width + 1);
+      expect(region!.y + region!.height).toBeLessThanOrEqual(surface!.y + surface!.height + 1);
       const updated = (await (await request.get(`/api/comparisons/${id}`)).json()).comparison.quotations.find((q: { id: string }) => q.id === quotation.id);
       expect(updated.items[0].sourceIds).toEqual([source.id]);
       expect(updated.items[0].description.sourceIds).toEqual([source.id]);
       expect(updated.items[0].description.origin).toBe("user");
       expect(updated.items[0].taxBasis).toBe("exclusive");
       expect(updated.items[0].taxRate.value).toBe("9");
+      await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({ path: testInfo.outputPath(`${fixture.filename}-source-region.png`), fullPage: true });
     }
   } finally {

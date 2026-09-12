@@ -432,30 +432,20 @@ export function ReviewScreen({
                         </>
                       )}
                     </div>
-                    {item.attributes.map((a) => (
-                      <div className="review-field" key={a.key}>
-                        <label>
-                          {a.label}
-                          {a.unit ? ` (${a.unit})` : ""}
-                        </label>
-                        <FieldDisplay
-                          field={a.value}
-                          onClick={() =>
-                            select(
-                              `items.${item.id}.attributes.${a.key}`,
-                              a.value,
-                            )
-                          }
-                        />
-                      </div>
-                    ))}
+                    {item.attributes.map((a, attributeIndex) =>
+                      renderField(
+                        `items.${item.id}.attributes.${attributeIndex}.value`,
+                        `${a.label}${a.unit ? ` (${a.unit})` : ""}`,
+                        a.value,
+                      ),
+                    )}
                     {item.tiers.length > 0 && (
                       <p className="small">
                         Price tiers:{" "}
                         {item.tiers
                           .map(
                             (t) =>
-                              `${t.min}?${t.max ?? "above"} ${t.unit}: ${t.unitPrice} (${t.basis})`,
+                              `${t.min}–${t.max ?? "above"} ${t.unit}: ${t.unitPrice} (${t.basis})`,
                           )
                           .join("; ")}
                       </p>
@@ -475,8 +465,8 @@ export function ReviewScreen({
                 <div key={charge.id} className="review-fields">
                   <strong>{charge.label}</strong>
                   <span className="small muted">
-                    {charge.kind} ? {charge.appliesTo}
-                    {charge.billingPeriod ? ` ? ${charge.billingPeriod}` : ""}
+                    {charge.kind} · {charge.appliesTo}
+                    {charge.billingPeriod ? ` · ${charge.billingPeriod}` : ""}
                   </span>
                   {renderField(
                     `charges.${charge.id}.amount`,
@@ -956,7 +946,7 @@ export function ReviewScreen({
                       : s.page
                         ? `Page ${s.page}`
                         : `Text ${s.start ?? 0}`}{" "}
-                    ? {s.text.slice(0, 100)}
+                    — {s.text.slice(0, 100)}
                   </option>
                 ))}
               </select>

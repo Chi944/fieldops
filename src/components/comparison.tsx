@@ -1072,7 +1072,31 @@ export function ReportScreen({ comparison }: { comparison: Comparison }) {
             </p>
           )}
         </section>
-        {snapshot.corrections.length > 0 && <section className="report-assumptions"><h2>Correction audit</h2><p>Reviewed changes are separate from supplier interpretations.</p>{snapshot.corrections.map(c => <article className="report-correction" key={c.id}><strong>{snapshot.quotations.find(q => q.id === c.quotationId)?.filename} ? {c.path}</strong><p>{c.before.value ?? c.before.state} ? {c.after.value ?? c.after.state}</p><p>{c.reason}</p><small>{c.author} ? {c.createdAt}</small></article>)}</section>}
+        {snapshot.corrections.length > 0 && (
+          <section className="report-assumptions">
+            <h2>Correction audit</h2>
+            <p>Reviewed changes are separate from supplier interpretations.</p>
+            {snapshot.corrections.map((c) => (
+              <article className="report-correction" key={c.id}>
+                <strong>
+                  {
+                    snapshot.quotations.find((q) => q.id === c.quotationId)
+                      ?.filename
+                  }{" "}
+                  · {c.path}
+                </strong>
+                <p>
+                  {c.before.value ?? c.before.state} →{" "}
+                  {c.after.value ?? c.after.state}
+                </p>
+                <p>{c.reason}</p>
+                <small>
+                  {c.author} · {c.createdAt}
+                </small>
+              </article>
+            ))}
+          </section>
+        )}
         <section className="report-sources">
           <h2>Original quotations & source references</h2>
           {snapshot.quotations.map((q) => (
