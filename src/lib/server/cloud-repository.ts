@@ -23,8 +23,14 @@ export class CloudRepository implements Repository {
   }
   async create(ownerId: string, comparison: Comparison) { await rpc("create_comparison", [ownerId, comparison]); }
   async save(ownerId: string, comparison: Comparison, expectedRevision: number) { await rpc("save_comparison", [ownerId, comparison, expectedRevision]); }
-  async remove(ownerId: string, comparisonId: string) { await rpc("delete_comparison", [ownerId, comparisonId]); await this.cleanup(); }
-  async removeDocument(ownerId: string, documentId: string, expectedRevision: number) { await rpc("delete_document", [ownerId, documentId, expectedRevision]); await this.cleanup(); }
+  async remove(ownerId: string, comparisonId: string) { await rpc("delete_comparison", [ownerId, comparisonId]); await this.cleanupAfterDeletion(); }
+  async removeDocument(ownerId: string, documentId: string, expectedRevision: number) { await rpc("delete_document", [ownerId, documentId, expectedRevision]); await this.cleanupAfterDeletion(); }
+  private async cleanupAfterDeletion() {
+    // The transaction already removed private access and saved a durable outbox.
+    // Bound this convenience sweep; maintenance failure must not undo its response.
+    try { await this.cleanup({ signal: AbortSignal.timeout(3000) }); }
+    catch { console.info(JSON.stringify({ event: "deletion_cleanup_pending" })); }
+  }
   async createUpload(ownerId: string, document: DocumentRecord, run: RunRecord | null, quotation: Quotation, expectedRevision: number) { await rpc("create_upload", [ownerId, document, run, quotation, expectedRevision]); }
   async finalizeUpload(ownerId: string, documentId: string, hash: string, run: RunRecord) { await rpc("finalize_upload", [ownerId, documentId, hash, run]); }
   async document(ownerId: string, id: string) {

@@ -489,7 +489,7 @@ export function FieldOps({
                 <strong>
                   {capabilities.mode === "local"
                     ? "Local reviewer"
-                    : "Guest reviewer"}
+                    : capabilities.authenticated ? "Signed-in reviewer" : "Guest reviewer"}
                 </strong>
                 <small>
                   {capabilities.canPersist

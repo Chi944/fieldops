@@ -126,7 +126,7 @@ describe("Neon auth routes with the installed SDK proxy core", () => {
 });
 
 describe("installed Neon SDK managed callback contract", () => {
-  it("exchanges the verifier with the challenge, removes it from the redirect and signs the returned session cache", async () => {
+  it.each(["/auth/callback", "/"])("exchanges the verifier at %s with the challenge, removes it from the redirect and signs the returned session cache", async (pathname) => {
     const now = new Date().toISOString();
     const session = { user: { id: "synthetic-user", createdAt: now, updatedAt: now }, session: { id: "synthetic-session", userId: "synthetic-user", createdAt: now, updatedAt: now, expiresAt: new Date(Date.now() + 3_600_000).toISOString() } };
     vi.mocked(fetch).mockResolvedValueOnce(provider(session, [
@@ -134,12 +134,12 @@ describe("installed Neon SDK managed callback contract", () => {
       "__Secure-neon-auth.session_challenge=; Path=/; Max-Age=0; HttpOnly; Secure",
     ])).mockResolvedValueOnce(provider(session));
     const result = await processAuthMiddleware({
-      request: new Request(`${site}/auth/callback?neon_auth_session_verifier=synthetic-one-time-verifier`, { headers: { Cookie: "__Secure-neon-auth.session_challenge=synthetic-challenge; unrelated_private_cookie=must-not-forward" } }),
-      pathname: "/auth/callback", skipRoutes: DEFAULT_AUTH_SKIP_ROUTES, loginUrl: "/auth/login", baseUrl, cookieSecret: secret, sessionDataTtl: 60, sameSite: "lax", log,
+      request: new Request(`${site}${pathname}?neon_auth_session_verifier=synthetic-one-time-verifier`, { headers: { Cookie: "__Secure-neon-auth.session_challenge=synthetic-challenge; unrelated_private_cookie=must-not-forward" } }),
+      pathname, skipRoutes: DEFAULT_AUTH_SKIP_ROUTES, loginUrl: "/auth/login", baseUrl, cookieSecret: secret, sessionDataTtl: 60, sameSite: "lax", log,
     });
     expect(result.action).toBe("redirect_oauth");
     if (result.action !== "redirect_oauth") throw new Error("Expected managed callback exchange");
-    expect(result.redirectUrl.href).toBe(`${site}/auth/callback`);
+    expect(result.redirectUrl.href).toBe(`${site}${pathname}`);
     expect(vi.mocked(fetch).mock.calls[0][0]).toBe(`${baseUrl}/get-session?neon_auth_session_verifier=synthetic-one-time-verifier`);
     expect(new Headers(vi.mocked(fetch).mock.calls[0][1]?.headers).get("cookie")).toBe("__Secure-neon-auth.session_challenge=synthetic-challenge");
     expect(new Headers(vi.mocked(fetch).mock.calls[1][1]?.headers).get("cookie")).toBe("__Secure-neon-auth.session_token=synthetic-issued-session");

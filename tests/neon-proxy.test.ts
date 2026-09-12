@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
+import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
 
 const sdk = vi.hoisted(() => ({ middleware: vi.fn(), handle: vi.fn(), auth: vi.fn() }));
 vi.mock("@/lib/server/neon-auth", () => ({ neonAuth: sdk.auth }));
-import { proxy } from "@/proxy";
+import { proxy, config } from "@/proxy";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -21,10 +22,11 @@ function cloud() {
 }
 
 describe("managed OAuth proxy boundary", () => {
-  it("preserves the SDK verifier redirect and every session/challenge cookie", async () => {
+  it.each(["/auth/callback", "/"])("matches %s and preserves the SDK verifier redirect and every session/challenge cookie", async (path) => {
     cloud();
-    const request = new NextRequest("https://fieldops.example.test/auth/callback?neon_auth_session_verifier=synthetic-one-time-verifier", { headers: { cookie: "__Secure-neon-auth.session_challenge=synthetic-challenge" } });
-    const exchange = NextResponse.redirect("https://fieldops.example.test/auth/callback");
+    const request = new NextRequest(`https://fieldops.example.test${path}?neon_auth_session_verifier=synthetic-one-time-verifier`, { headers: { cookie: "__Secure-neon-auth.session_challenge=synthetic-challenge" } });
+    expect(unstable_doesMiddlewareMatch({ config, url: request.url })).toBe(true);
+    const exchange = NextResponse.redirect(`https://fieldops.example.test${path}`);
     exchange.headers.append("Set-Cookie", "__Secure-neon-auth.session_token=synthetic-session; Path=/; HttpOnly; Secure; SameSite=Lax");
     exchange.headers.append("Set-Cookie", "__Secure-neon-auth.local.session_data=synthetic-signed-cache; Path=/; HttpOnly; Secure; SameSite=Lax");
     exchange.headers.append("Set-Cookie", "__Secure-neon-auth.session_challenge=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax");
@@ -34,7 +36,7 @@ describe("managed OAuth proxy boundary", () => {
     expect(sdk.middleware).toHaveBeenCalledWith({ loginUrl: "/auth/login" });
     expect(sdk.handle).toHaveBeenCalledWith(request);
     expect(response).toBe(exchange);
-    expect(response.headers.get("location")).toBe("https://fieldops.example.test/auth/callback");
+    expect(response.headers.get("location")).toBe(`https://fieldops.example.test${path}`);
     expect(response.headers.getSetCookie()).toEqual(exchange.headers.getSetCookie());
     expect(response.headers.getSetCookie()).toHaveLength(3);
     expect(fetch).not.toHaveBeenCalled();
@@ -52,6 +54,8 @@ describe("managed OAuth proxy boundary", () => {
     vi.stubEnv("NEON_AUTH_COOKIE_SECRET", "");
     const demoCallback = await proxy(new NextRequest("https://fieldops.example.test/auth/callback?neon_auth_session_verifier=synthetic"));
     expect(demoCallback.headers.get("x-middleware-next")).toBe("1");
+    const demoRoot = await proxy(new NextRequest("https://fieldops.example.test/?neon_auth_session_verifier=synthetic"));
+    expect(demoRoot.headers.get("x-middleware-next")).toBe("1");
     expect(sdk.auth).not.toHaveBeenCalled();
   });
 
