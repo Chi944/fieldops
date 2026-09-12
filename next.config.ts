@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  distDir: process.env.FIELDOPS_PERSONAL_MODE === "true" && !process.env.VERCEL ? ".fieldops/personal-next" : ".next",
   serverExternalPackages: ["pdfjs-dist", "@napi-rs/canvas", "tesseract.js", "sharp", "exceljs"],
   poweredByHeader: false,
   async headers() { return [{ source: "/:path*", headers: [

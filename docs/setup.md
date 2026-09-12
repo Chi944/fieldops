@@ -14,6 +14,8 @@ Local mode takes precedence on a local machine, even if cloud variables happen t
 
 ## Local startup
 
+For personal use, prefer `npm run personal:check` followed by `npm run personal`. The [personal guide](personal-use.md) covers its separate data directory, source-review workflow and verified backup/restore commands. The commands below are for ordinary development.
+
 ```powershell
 npm ci
 Copy-Item .env.example .env.local
@@ -38,15 +40,16 @@ The OCR setup command downloads printed-English Tesseract data from `https://tes
 4. Generate labeled identifier/text proposals or group rows manually. Review specifications, scope, units and billing basis before approving groups.
 5. Enter required quantities and preferences, inspect missing charges and discrepancies, then export Excel or print the report.
 
-Retrying while AI is disabled preserves the parsed document and reports the same unavailable state. It does not secretly use fixtures or another provider. Acknowledging a review issue records a reason and retains the issue; it does not correct supplier arithmetic.
+Parsing-only uploads finish in `source_ready` when all supported source sections are readable. Add the supplier name and source-linked lines, inspect terms, then use **Confirm manual review** with a reason after reviewing every source section. The resulting quotation remains version zero with user-origin values; it is never labeled AI extraction. Corrections or new lines reset this confirmation. Failed-file retries preserve their original processing mode and saved parsing. Acknowledging a discrepancy does not correct supplier arithmetic.
 
-Parser coverage and extraction completion are separate: a source can have a complete parser manifest while its quotation remains partial because interpretation is unavailable. Review the quotation status and unresolved issues, not only the count of readable pages. Text and CSV uploads must be UTF-8; unsupported encoding fails explicitly while retaining the exact original bytes.
+Parser coverage and interpretation completion are separate: a source can have a complete parser manifest while its quotation awaits manual review. Missing or unsupported source sections block manual completion and remain visible. Review the quotation status and unresolved issues, not only the count of readable pages. Text and CSV uploads must be UTF-8; unsupported encoding fails explicitly while retaining the exact original bytes.
 
 ## Environment reference
 
 | Variable | Purpose and handling |
 | --- | --- |
 | `FIELDOPS_LOCAL_MODE` | Defaults false. Explicit local-only persistence; never enable on a public deployment |
+| `FIELDOPS_PROCESSING_MODE` | Defaults `parse_only`. Explicit `ai` is additionally required to enable any real model request |
 | `FIELDOPS_DATA_DIR` | Optional absolute private data directory; default `.fieldops` within the repository |
 | `FIELDOPS_OCR_DATA_DIR` | Optional local OCR language directory; default `.fieldops/tessdata` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Public project URL; needed for hosted auth/data configuration |
@@ -60,7 +63,7 @@ Parser coverage and extraction completion are separate: a source can have a comp
 | `GROQ_FREE_TIER_CONFIRMED` | Defaults false; operator confirmation of a free account, not a provider verification mechanism |
 | `GROQ_ZDR_CONFIRMED` | Defaults false; operator confirmation of the provider's configured data-retention setting |
 
-The three AI gates—key, free-tier confirmation and retention confirmation—must all be present, and the model must be allowed. They remain disabled for the current release. Desktop Claude, Codex or Cursor subscriptions are not application API credentials. There is no paid fallback.
+The AI activation mode, key, free-tier confirmation and retention confirmation must all be present, and the model must be allowed. They remain disabled for personal use. Desktop Claude, Codex or Cursor subscriptions are not application API credentials. There is no paid fallback.
 
 ## Limits and recovery
 

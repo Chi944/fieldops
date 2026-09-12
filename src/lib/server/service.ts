@@ -1,12 +1,12 @@
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
-import { emptyQuotation, emptyItem, absent, LIMITS, type Comparison, type FieldValue, type MatchGroup } from "@/lib/domain/types";
+import { emptyQuotation, emptyItem, absent, LIMITS, type Comparison, type FieldValue, type MatchGroup, type ProcessingMode } from "@/lib/domain/types";
 import { applyCorrection } from "@/lib/domain/corrections";
 import { reconcileQuotation } from "@/lib/domain/validation";
 import { authorize, type RequestContext } from "./context";
 import { ApiError, json } from "./errors";
 import { capabilities, checkRequestBoundary, configuration } from "./config";
-import { dispatchRun, hydrateComparison, startLocalRunner } from "./jobs";
+import { dispatchRun, hydrateComparison, startLocalRunner, hasCompleteSourceCoverage } from "./jobs";
 import { LocalRepository } from "./local-repository";
 import { adminClient } from "./supabase";
 import type { DocumentRecord, RunRecord } from "./contracts";
@@ -92,7 +92,7 @@ export async function correctField(request: Request, comparisonId: string) {
   let result: Comparison;
   try { result = applyCorrection(comparison, { quotationId: input.quotationId, path: input.path, value: input.after.value, state: input.after.state, reason: input.reason, author: context.user.id, baseVersion: input.baseRevision }); }
   catch (error) { throw new ApiError(400, "invalid_correction", error instanceof Error ? error.message : "Invalid correction."); }
-  result.quotations = result.quotations.map((q) => q.id === input.quotationId ? reconcileQuotation(q) : q);
+  result.quotations = result.quotations.map((q) => q.id === input.quotationId ? reconcileQuotation(invalidateManualReview(q)) : q);
   await context.repository.save(context.ownerId, result, input.baseRevision); return json({ comparison: await context.repository.get(context.ownerId, comparisonId) });
 }
 export async function addItem(request: Request, comparisonId: string) {
@@ -112,7 +112,7 @@ export async function addItem(request: Request, comparisonId: string) {
     const value = input.item[key]; if (value === undefined) continue;
     comparison.corrections.push({ id: randomUUID(), operation: "add_item", quotationId: quotation.id, path: `items.${item.id}.${key}`, before: absent(), after: { state: "value", value, raw: null, sourceIds: [...sourceIds], origin: "user" }, author: context.user.id, createdAt: now, reason: `Added source line manually: ${input.reason}`, baseVersion: input.baseRevision });
   }
-  quotation.items.push(item); quotation.status = "partial";
+  quotation.items.push(item); invalidateManualReview(quotation); quotation.status = "partial";
   comparison.quotations = comparison.quotations.map((q) => q.id === quotation.id ? reconcileQuotation(q) : q);
   for (const g of comparison.groups) if (g.status === "approved") { g.status = "stale"; g.approvedRevision = null; }
   await context.repository.save(context.ownerId, comparison, input.baseRevision); return json({ comparison: await context.repository.get(context.ownerId, comparisonId) });
@@ -120,10 +120,32 @@ export async function addItem(request: Request, comparisonId: string) {
 export async function acknowledgeIssue(request: Request, comparisonId: string) {
   const context = await authorize(request); const input = z.object({ baseRevision: z.number().int().nonnegative(), quotationId: z.string(), issueId: z.string(), reason: z.string().trim().min(1).max(1000) }).parse(await body(request));
   const comparison = await loaded(context, comparisonId); expectRevision(comparison, input.baseRevision);
-  const issue = comparison.quotations.find((q) => q.id === input.quotationId)?.issues.find((i) => i.id === input.issueId);
+  const quotation = comparison.quotations.find((q) => q.id === input.quotationId);
+  const issue = quotation?.issues.find((i) => i.id === input.issueId);
   if (!issue) throw new ApiError(404, "not_found", "This review issue is unavailable.");
+  if (quotation && issue.id === `${quotation.id}:manual-review` && (!hasCompleteSourceCoverage(quotation) || !quotation.items.length || quotation.supplier.name.state !== "value" || !quotation.supplier.name.value?.trim())) {
+    throw new ApiError(422, "manual_review_incomplete", "Before confirming review, enter the supplier name and at least one line item, and recover any unreadable source sections.");
+  }
   issue.resolved = true; issue.resolution = `Acknowledged by ${context.user.id} at ${new Date().toISOString()}: ${input.reason}`;
-  await context.repository.save(context.ownerId, comparison, input.baseRevision); return json({ comparison: await context.repository.get(context.ownerId, comparisonId) });
+  await context.repository.save(context.ownerId, comparison, input.baseRevision); return json({ comparison: await loaded(context, comparisonId) });
+}
+function invalidateManualReview(quotation: ReturnType<typeof emptyQuotation>) {
+  const review = quotation.issues.find(issue => issue.id === `${quotation.id}:manual-review`);
+  if (review) { review.resolved = false; delete review.resolution; quotation.status = "source_ready"; }
+  // Close only deterministic missing-data notices whose specific condition was fixed.
+  // Original model uncertainties and parser coverage issues still need buyer review.
+  for (const issue of quotation.issues) {
+    const rowsEntered = quotation.items.length > 0 && issue.code === "incomplete_extraction" && issue.message === "No line items were extracted. Supply clearer text or review the source manually.";
+    const supplierEntered = quotation.supplier.name.state === "value" && Boolean(quotation.supplier.name.value?.trim()) && issue.code === "missing_field" && issue.fieldPath === "supplier.name" && (issue.message === "Supplier name needs review." || issue.id === `${quotation.id}:manual-supplier`);
+    if (rowsEntered || supplierEntered) { issue.resolved = true; issue.resolution = "Addressed by a recorded manual entry or correction."; }
+  }
+  return quotation;
+}
+function uploadMode(value?: unknown): ProcessingMode {
+  const state = capabilities(true);
+  const mode = z.enum(["parse_only", "ai"]).parse(value ?? state.processingMode);
+  if (mode === "ai" && !state.canExtract) throw new ApiError(503, "ai_unavailable", "AI interpretation is disabled. Choose source parsing and manual review.");
+  return mode;
 }
 function fileMetadata(filename: string, size: number) {
   if (!filename || filename.length > 240 || /[\x00-\x1f]/.test(filename)) throw new ApiError(400, "filename", "Choose a file with a valid name.");
@@ -133,7 +155,7 @@ function fileMetadata(filename: string, size: number) {
   return { filename: sanitized, contentType };
 }
 function newRun(context: RequestContext, comparison: Comparison, document: DocumentRecord): RunRecord {
-  const now = new Date().toISOString(); return { id: randomUUID(), comparisonId: comparison.id, documentId: document.id, ownerId: context.ownerId, stage: "queued", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: comparison.revision, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: document.contentHash };
+  const now = new Date().toISOString(); return { id: randomUUID(), comparisonId: comparison.id, documentId: document.id, ownerId: context.ownerId, processingMode: document.processingMode ?? "parse_only", stage: "queued", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: comparison.revision, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: document.contentHash };
 }
 function assertUploads(context: RequestContext) {
   const state = capabilities(true); if (!state.canUpload) throw new ApiError(503, "processing_unavailable", state.reasons.join(" "));
@@ -158,19 +180,21 @@ async function admitUpload(context: RequestContext, document: DocumentRecord, ru
 }
 export async function upload(request: Request, comparisonId: string) {
   const context = await authorize(request); assertUploads(context); const comparison = await loaded(context, comparisonId);
-  let filename: string; let bytes: Uint8Array; let allowDuplicate = false; let supersedesId: string | undefined;
+  let filename: string; let bytes: Uint8Array; let allowDuplicate = false; let supersedesId: string | undefined; let processingMode: ProcessingMode;
   if (request.headers.get("content-type")?.includes("multipart/form-data")) {
     if (context.repository.mode !== "local") throw new ApiError(400, "direct_upload_required", "Use the private direct-upload flow for files on the hosted application.");
     if (Number(request.headers.get("content-length") ?? 0) > LIMITS.fileBytes + 65536) throw new ApiError(413, "file_size", "This file exceeds 20 MB.");
     const form = await request.formData(); const file = form.get("file");
     if (!(file instanceof File)) throw new ApiError(400, "missing_file", "Choose one quotation file.");
+    processingMode = uploadMode(form.get("processingMode") ?? undefined);
     fileMetadata(file.name, file.size); filename = file.name; bytes = new Uint8Array(await file.arrayBuffer()); allowDuplicate = form.get("allowDuplicate") === "true"; supersedesId = typeof form.get("supersedesId") === "string" ? String(form.get("supersedesId")) || undefined : undefined;
   } else {
-    const input = z.object({ text: z.string().trim().min(1).max(LIMITS.textChars), filename: z.string().max(200).optional(), allowDuplicate: z.boolean().optional(), supersedesId: z.string().optional() }).parse(await body(request));
+    const input = z.object({ text: z.string().trim().min(1).max(LIMITS.textChars), filename: z.string().max(200).optional(), allowDuplicate: z.boolean().optional(), supersedesId: z.string().optional(), processingMode: z.enum(["parse_only", "ai"]).optional() }).parse(await body(request));
+    processingMode = uploadMode(input.processingMode);
     filename = input.filename?.endsWith(".txt") ? input.filename : `${input.filename || "Pasted quotation"}.txt`; bytes = new TextEncoder().encode(input.text); allowDuplicate = input.allowDuplicate ?? false; supersedesId = input.supersedesId;
   }
   const metadata = fileMetadata(filename, bytes.byteLength); const hash = createHash("sha256").update(bytes).digest("hex"); await checkUpload(context, comparison, hash, allowDuplicate, supersedesId);
-  const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: hash, size: bytes.byteLength, storagePath: "", createdAt: new Date().toISOString(), status: "uploaded", supersedesId };
+  const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: hash, size: bytes.byteLength, storagePath: "", createdAt: new Date().toISOString(), status: "uploaded", supersedesId, processingMode };
   document.storagePath = `${context.ownerId}/${document.id}`; const run = newRun(context, comparison, document); const quotation = { ...emptyQuotation(document.id, metadata.filename), contentHash: hash, supersedesId };
   await context.repository.writeObject(document, bytes);
   try { await admitUpload(context, document, run, quotation, allowDuplicate); }
@@ -180,9 +204,10 @@ export async function upload(request: Request, comparisonId: string) {
 }
 export async function initiateUpload(request: Request, comparisonId: string) {
   const context = await authorize(request); assertUploads(context); if (context.repository.mode !== "cloud") throw new ApiError(400, "local_multipart", "Local uploads use the multipart upload endpoint.");
-  const input = z.object({ filename: z.string(), size: z.number().int().positive(), sha256: z.string().regex(/^[a-f0-9]{64}$/), allowDuplicate: z.boolean().optional(), supersedesId: z.string().optional() }).parse(await body(request));
+  const input = z.object({ filename: z.string(), size: z.number().int().positive(), sha256: z.string().regex(/^[a-f0-9]{64}$/), allowDuplicate: z.boolean().optional(), supersedesId: z.string().optional(), processingMode: z.enum(["parse_only", "ai"]).optional() }).parse(await body(request));
+  const processingMode = uploadMode(input.processingMode);
   const comparison = await loaded(context, comparisonId); const metadata = fileMetadata(input.filename, input.size); await checkUpload(context, comparison, input.sha256, input.allowDuplicate ?? false, input.supersedesId);
-  const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: input.sha256, size: input.size, storagePath: "", createdAt: new Date().toISOString(), status: "uploading", supersedesId: input.supersedesId }; document.storagePath = `${context.ownerId}/${document.id}`;
+  const document: DocumentRecord = { id: randomUUID(), comparisonId, ownerId: context.ownerId, ...metadata, contentHash: input.sha256, size: input.size, storagePath: "", createdAt: new Date().toISOString(), status: "uploading", supersedesId: input.supersedesId, processingMode }; document.storagePath = `${context.ownerId}/${document.id}`;
   await admitUpload(context, document, null, { ...emptyQuotation(document.id, metadata.filename), contentHash: input.sha256, supersedesId: input.supersedesId }, input.allowDuplicate ?? false);
   const { data, error } = await adminClient().storage.from("quotations").createSignedUploadUrl(document.storagePath, { upsert: false });
   if (error || !data) throw new ApiError(503, "upload_unavailable", "Private storage could not issue an upload token. Retry the file.");
@@ -203,7 +228,7 @@ export async function finalizeUpload(request: Request, documentId: string) {
 export async function getRun(request: Request, runId: string) { const context = await authorize(request); id.parse(runId); runLocal(context); return json({ run: await context.repository.run(context.ownerId, runId) }); }
 export async function cancelRun(request: Request, runId: string) {
   const context = await authorize(request); id.parse(runId); const run = await context.repository.run(context.ownerId, runId);
-  if (["ready", "partial"].includes(run.stage)) throw new ApiError(409, "run_complete", "This file has finished processing.");
+  if (["ready", "partial", "source_ready"].includes(run.stage)) throw new ApiError(409, "run_complete", "This file has finished processing.");
   const next: RunRecord = { ...run, cancelRequested: true, stage: "cancelled", message: "Processing cancelled. The original file remains available." };
   await context.repository.saveRun(next, run.fence);
   if (run.taskRunId && context.repository.mode === "cloud") { const { runs } = await import("@trigger.dev/sdk"); await runs.cancel(run.taskRunId).catch(() => {}); }

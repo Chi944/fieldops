@@ -37,13 +37,14 @@ const stageLabel: Record<string, string> = {
   extracting: "Extracting quotation",
   reconciling: "Checking amounts and evidence",
   ready: "Ready for review",
+  source_ready: "Source ready · enter and review items",
   partial: "Partial extraction — review required",
   failed: "Needs attention",
   cancelled: "Cancelled",
   waiting_quota: "Waiting for free processing allowance",
 };
 export function UploadScreen({ comparison }: { comparison: Comparison }) {
-  const { capabilities, runs, refresh, save, toast } = useWorkspace();
+  const { capabilities, runs, refresh, save, toast, switchWorkspace } = useWorkspace();
   const [pasted, setPasted] = useState(""),
     [pasteName, setPasteName] = useState(""),
     [tab, setTab] = useState("files"),
@@ -55,6 +56,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
   const [deleteQuote, setDeleteQuote] = useState<Quotation | null>(null),
     [supersedesId, setSupersedesId] = useState("");
   const available = !comparison.isDemo && capabilities.canUpload;
+  const processingMode = capabilities.processingMode === "ai" && capabilities.canExtract ? "ai" : "parse_only";
   const update = (id: string, patch: Partial<Transfer>) =>
     setTransfers((all) =>
       all.map((t) => (t.id === id ? { ...t, ...patch } : t)),
@@ -62,7 +64,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
   const upload = async (file: File, allowDuplicate = false) => {
     if (!available) {
       toast(
-        "Real uploads require a configured local or private workspace. Use the saved samples below.",
+        "Open your personal workspace to add your own quotations. Sample comparisons accept fictional examples only.",
         true,
       );
       return;
@@ -103,6 +105,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
             size: file.size,
             sha256,
             allowDuplicate,
+            processingMode,
             ...(supersedesId ? { supersedesId } : {}),
           }),
         });
@@ -113,6 +116,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
       } else {
         body = new FormData();
         body.append("file", file);
+        body.append("processingMode", processingMode);
         if (allowDuplicate) body.append("allowDuplicate", "true");
         if (supersedesId) body.append("supersedesId", supersedesId);
       }
@@ -213,6 +217,8 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
             </p>
           </div>
         </div>
+        {!comparison.isDemo && <>
+        <div className="upload-method-note"><ShieldCheck size={17} /><div><strong>{processingMode === "parse_only" ? "Read sources, then enter reviewed items" : "Read sources and propose extracted items"}</strong><p>{processingMode === "parse_only" ? "Your file is saved and its readable pages or cells are prepared for review. No AI model is called; you enter and confirm the quotation details beside the source." : "The configured AI service proposes values from your source. Review every important field before comparing."}</p></div></div>
         <div className="segmented upload-tabs">
           <button
             className={tab === "files" ? "active" : ""}
@@ -252,6 +258,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
               className="sr-only"
               type="file"
               multiple
+              disabled={!available}
               accept=".pdf,.png,.jpg,.jpeg,.xlsx,.csv,.txt"
               aria-label="Choose quotation files"
               onChange={(e) => {
@@ -263,11 +270,12 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
             <button
               className="button primary"
               onClick={() => input.current?.click()}
+              disabled={!available}
             >
               <Plus size={16} />
               Choose files
             </button>
-            <small>PDF, PNG, JPEG, XLSX or CSV · up to 20 MB each</small>
+            <small>PDF, PNG, JPEG, XLSX, CSV or TXT · up to 20 MB each</small>
           </div>
         ) : (
           <form
@@ -290,6 +298,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
                     filename: pasteName.trim()
                       ? `${pasteName.trim()}.txt`
                       : "quotation.txt",
+                    processingMode,
                     ...(supersedesId ? { supersedesId } : {}),
                   }),
                 });
@@ -326,7 +335,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
               <span>{pasted.length.toLocaleString()} / 100,000 characters</span>
               <button
                 className="button primary"
-                disabled={!pasted.trim() || pasting}
+                disabled={!available || !pasted.trim() || pasting}
               >
                 {pasting ? (
                   <Loader2 className="spin" size={16} />
@@ -358,14 +367,14 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
             </small>
           </label>
         )}
+        </>}
         {comparison.isDemo ? (
           <div className="sample-callout">
             <FileText size={24} />
             <div>
-              <strong>Explore with saved sample quotations</strong>
+              <strong>Use fictional quotations in this sample comparison</strong>
               <p>
-                This demo keeps your edits in the browser. Samples have saved
-                extractions and do not run a model.
+                Add the three studio suppliers to explore this workflow. Their saved interpretations are examples, and your edits stay in this browser.
               </p>
             </div>
             <button className="button secondary" onClick={addSamples}>
@@ -373,20 +382,17 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
             </button>
           </div>
         ) : (
-          !capabilities.canExtract && (
+          !capabilities.canUpload && (
             <div className="notice-box">
               <AlertCircle size={18} />
               <div>
-                <strong>Automatic extraction is unavailable</strong>
-                <p>
-                  Your original files and readable source text are preserved.
-                  Review the source and add items manually, or retry when
-                  automatic extraction is available.
-                </p>
+                <strong>Personal uploads are not available yet</strong>
+                <p>{capabilities.reasons.join(" ") || "Check your personal workspace connection, then retry."}</p>
               </div>
             </div>
           )
         )}
+        {comparison.isDemo && <div className="sample-own-workspace"><p>Comparing your own suppliers?</p><button className="text-button" onClick={() => switchWorkspace("personal")}>Go to my personal workspace<ArrowRight size={15} /></button></div>}
         <div className="section-heading compact files-heading">
           <h2>
             Quotations{" "}
@@ -426,13 +432,13 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
                   <div className="file-status">
                     {active ? (
                       <Loader2 size={12} className="spin" />
-                    ) : ["ready", "partial"].includes(q.status) ? (
+                    ) : ["ready", "partial", "source_ready"].includes(q.status) ? (
                       <Check size={12} />
                     ) : (
                       <AlertCircle size={12} />
                     )}
                     <span>
-                      {stageLabel[run?.stage ?? q.status] ?? q.status}
+                      {stageLabel[active ? run.stage : q.status] ?? q.status}
                       {q.isDemo ? " · saved sample" : ""}
                     </span>
                     {q.items.length > 0 && (
@@ -453,12 +459,12 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
                   )}
                 </div>
                 <div className="file-actions">
-                  {q.sources.length > 0 && run?.stage === "failed" && (
+                  {q.sources.length > 0 && !active && (
                     <Link
                       className="button small secondary"
                       href={`/comparisons/${comparison.id}/review?q=${q.id}`}
                     >
-                      Review source
+                      {q.items.length ? "Resume review" : "Enter quotation details"}
                     </Link>
                   )}
                   <button
@@ -564,7 +570,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
               href={`/comparisons/${comparison.id}/review`}
               className="button primary"
             >
-              Review extractions
+              {processingMode === "parse_only" && !comparison.isDemo ? "Review sources and items" : "Review extractions"}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -605,7 +611,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
           Originals remain private in a configured workspace. Samples in this
           demo are fictional.
         </p>
-        {!comparison.isDemo && capabilities.canExtract && <p className="small">Automatic extraction sends parsed quotation text and source references to Groq. Review the extracted values before comparing. Free processing quotas can interrupt a job; successful work is preserved.</p>}
+        {!comparison.isDemo && processingMode === "ai" && <p className="small">Automatic extraction sends parsed quotation text and source references to Groq. Review the extracted values before comparing. Free processing quotas can interrupt a job; successful work is preserved.</p>}
       </aside>
       <Modal
         open={!!deleteQuote}

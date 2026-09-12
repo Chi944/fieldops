@@ -5,6 +5,7 @@ out/
 !.env.example
 .vercel/
 .trigger/
+supabase/.temp/
 coverage/
 playwright-report/
 test-results/

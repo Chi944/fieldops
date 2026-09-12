@@ -1,0 +1,44 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { capabilities, configuration } from "@/lib/server/config";
+import { liveAIConfiguration } from "@/lib/ai/groq";
+
+beforeEach(() => {
+  for (const key of ["FIELDOPS_LOCAL_MODE", "FIELDOPS_PROCESSING_MODE", "VERCEL", "RENDER", "AWS_LAMBDA_FUNCTION_NAME", "GROQ_API_KEY", "GROQ_FREE_TIER_CONFIRMED", "GROQ_ZDR_CONFIRMED", "TRIGGER_SECRET_KEY", "TRIGGER_PROJECT_ID", "NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"]) vi.stubEnv(key, "");
+});
+afterEach(() => vi.unstubAllEnvs());
+function cloud() {
+  vi.stubEnv("VERCEL", "1");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "test-public");
+  vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-secret");
+  vi.stubEnv("TRIGGER_SECRET_KEY", "test-worker");
+  vi.stubEnv("TRIGGER_PROJECT_ID", "test-project");
+}
+describe("personal processing admission", () => {
+  it("enables authenticated hosted parsing without a model and keeps anonymous uploads closed", () => {
+    cloud();
+    expect(capabilities(true)).toMatchObject({ mode: "cloud", canPersist: true, canUpload: true, canExtract: false, processingMode: "parse_only" });
+    expect(capabilities(false)).toMatchObject({ canPersist: false, canUpload: false, canExtract: false });
+    vi.stubEnv("TRIGGER_SECRET_KEY", "");
+    expect(capabilities(true)).toMatchObject({ canPersist: true, canUpload: false });
+  });
+  it("requires explicit AI mode even if model credentials and account flags are configured", () => {
+    cloud();
+    vi.stubEnv("GROQ_API_KEY", "test-only"); vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "true");
+    expect(capabilities(true).canExtract).toBe(false);
+    expect(liveAIConfiguration().ready).toBe(false);
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai");
+    expect(capabilities(true).canExtract).toBe(true);
+    expect(liveAIConfiguration().ready).toBe(true);
+    expect(capabilities(false).canExtract).toBe(false);
+    vi.stubEnv("GROQ_ZDR_CONFIRMED", "false");
+    expect(capabilities(true)).toMatchObject({ canUpload: true, canExtract: false, processingMode: "parse_only" });
+  });
+  it("defaults local personal use to sources only and never enables local mode on Vercel", () => {
+    vi.stubEnv("FIELDOPS_LOCAL_MODE", "true");
+    expect(capabilities()).toMatchObject({ mode: "local", canPersist: true, canUpload: true, canExtract: false, processingMode: "parse_only" });
+    vi.stubEnv("VERCEL", "1");
+    expect(configuration().local).toBe(false);
+    expect(capabilities()).toMatchObject({ mode: "demo", canUpload: false });
+  });
+});

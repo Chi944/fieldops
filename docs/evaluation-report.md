@@ -1,12 +1,12 @@
 # FieldOps measured evaluation
 
-Measured 2026-09-12T18:53:20.726Z. Mode: **baseline**. Run `baseline-all-f2a9c86ad905-8dc06a6ab2cb`.
+Measured 2026-09-12T20:16:04.624Z. Mode: **baseline**. Run `baseline-all-ff504a533a5a-8dc06a6ab2cb`.
 
 ## Dataset and protocol
 
 24 self-authored originals, 8 unrelated comparison scenarios, 144 logical items and 1106 selected field assertions. Development and held-out splits each have 12 documents. Formats: 8 text_pdf, 4 scan_pdf, 4 xlsx, 4 text, 2 csv, 2 png. Eight robustness cases are separate. Untuned held-out content; offline measurement only.
 
-Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `f2a9c86ad9051f2751c3ec5268f5b2031e9cdce1f444c6f8a41820f1b5a5effe`. The report stores per-document timing and errors in [JSON](../eval/results/latest.json).
+Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `ff504a533a5a84d12f5d68db1a764c9084c96bf04b2ee670ba5235eb781bc1a6`. The report stores per-document timing and errors in [JSON](../eval/results/latest.json).
 
 Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-256 ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468. The configuration fingerprint includes package.json, package-lock.json and this runtime/asset identity.
 
@@ -22,7 +22,7 @@ Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-2
 | Authored item identifiers present in parsed text | 100.0% (144/144) |
 | Parsed source locations present | 100.0% (963/963) |
 | Reported boxes within page bounds | 100.0% (544/544) |
-| Parser median / minimum / maximum | 17 / 0 / 6755 ms |
+| Parser median / minimum / maximum | 9 / 0 / 3867 ms |
 | Robustness assertions | 8/8 |
 | Paid model/provider cost for this offline run | USD 0; no provider calls |
 
@@ -38,7 +38,7 @@ Arithmetic and correction invariants run separately with `npm test -- tests/doma
 
 `npm run fixtures` regenerates the authored sources and gold; `npm run eval -- --mode baseline` runs local parsers and the identifier/text baseline. Complete OCR setup first with `npx tsx scripts/process.ts --prepare-ocr`.
 
-After the user configures and confirms the free API key, `npm run eval -- --live --split dev` runs real extraction with persistent request checkpoints. Freeze prompts and configuration before `npm run eval -- --live --split heldout`. The first live held-out run freezes code, dataset and source hashes. A changed configuration requires a fresh held-out set or explicit `--allow-posthoc`, which labels results as regression measurements. No paid fallback is implemented.
+After the user explicitly sets FIELDOPS_PROCESSING_MODE=ai and configures and confirms the free API key, `npm run eval -- --live --split dev` runs real extraction with persistent request checkpoints. Freeze prompts and configuration before `npm run eval -- --live --split heldout`. The first live held-out run freezes code, dataset and source hashes. A changed configuration requires a fresh held-out set or explicit `--allow-posthoc`, which labels results as regression measurements. No paid fallback is implemented.
 
 ## Independent review and limitations
 

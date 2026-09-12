@@ -18,8 +18,8 @@ async function rpc(name: string, args: unknown[]) {
 }
 async function seed(ownerId = owner1) {
   const c = comparison(ownerId); await rpc("fieldops_create_comparison", [ownerId, c]);
-  const d: DocumentRecord = { id: randomUUID(), comparisonId: c.id, ownerId, filename: "quote.txt", contentType: "text/plain", contentHash: "a".repeat(64), size: 100, storagePath: `${ownerId}/${randomUUID()}`, createdAt: now, status: "uploaded" };
-  const r: RunRecord = { id: randomUUID(), comparisonId: c.id, documentId: d.id, ownerId, stage: "queued", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: 0, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: d.contentHash };
+  const d: DocumentRecord = { id: randomUUID(), comparisonId: c.id, ownerId, filename: "quote.txt", contentType: "text/plain", contentHash: "a".repeat(64), size: 100, storagePath: `${ownerId}/${randomUUID()}`, createdAt: now, status: "uploaded", processingMode: "ai" };
+  const r: RunRecord = { id: randomUUID(), comparisonId: c.id, documentId: d.id, ownerId, processingMode: "ai", stage: "queued", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: 0, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: d.contentHash };
   await rpc("fieldops_create_upload", [ownerId, d, r, emptyQuotation(d.id, d.filename), 0]); return { c, d, r };
 }
 async function actAs(owner: string) { await db.exec("set local role authenticated"); await db.query("select set_config('request.jwt.claim.sub',$1,true)", [owner]); }
@@ -45,6 +45,57 @@ afterEach(async () => { await db.exec("rollback"); });
 afterAll(async () => { await db?.close(); });
 
 describe("actual migration behavior in PostgreSQL with Supabase schema stubs", () => {
+  it("persists source-only intent and fences terminal parsing results without inventing an extraction", async () => {
+    const { r, d } = await seed();
+    await db.query("update processing_runs set record=jsonb_set(record,'{processingMode}','\"parse_only\"') where id=$1", [r.id]);
+    const claimed = await rpc("fieldops_claim_run", [r.id, "parse-fence", new Date(Date.now() + 30000).toISOString()]) as RunRecord;
+    expect(claimed.processingMode).toBe("parse_only");
+    expect(await rpc("fieldops_save_run", [{ ...claimed, processingMode: "ai" }, claimed.fence])).toBe(false);
+    expect(await rpc("fieldops_complete_run", [r.id, claimed.fence, { ...emptyQuotation(d.id, d.filename), extractionVersion: 1, status: "ready" }])).toBe(false);
+    expect(await rpc("fieldops_save_run", [{ ...claimed, stage: "source_ready", progress: 100, leaseUntil: undefined }, claimed.fence])).toBe(true);
+    expect(await rpc("fieldops_save_run", [{ ...claimed, stage: "parsing" }, claimed.fence])).toBe(false);
+    expect(await rpc("fieldops_claim_run", [r.id, "late", new Date(Date.now() + 30000).toISOString()])).toBe(null);
+    expect(await rpc("fieldops_renew_lease", [r.id, claimed.fence, new Date(Date.now() + 30000).toISOString()])).toBe(false);
+    expect(await rpc("fieldops_pending_runs", [])).toEqual([]);
+    expect((await db.query("select * from extraction_versions")).rows).toEqual([]);
+  });
+  it("pins parsing intent at upload initiation so finalization cannot enable AI", async () => {
+    const c = comparison(); await rpc("fieldops_create_comparison", [owner1, c]);
+    const d: DocumentRecord = { id: randomUUID(), comparisonId: c.id, ownerId: owner1, filename: "manual.txt", contentType: "text/plain", contentHash: "b".repeat(64), size: 50, storagePath: `${owner1}/${randomUUID()}`, createdAt: now, status: "uploading", processingMode: "parse_only" };
+    await rpc("fieldops_create_upload", [owner1, d, null, emptyQuotation(d.id, d.filename), 0]);
+    const r: RunRecord = { id: randomUUID(), comparisonId: c.id, documentId: d.id, ownerId: owner1, stage: "queued", processingMode: "ai", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: 1, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: d.contentHash };
+    await db.exec("savepoint before_mismatch");
+    await expect(rpc("fieldops_finalize_upload", [owner1, d.id, d.contentHash, r])).rejects.toThrow("processing_mode_mismatch");
+    await db.exec("rollback to savepoint before_mismatch");
+    await rpc("fieldops_finalize_upload", [owner1, d.id, d.contentHash, { ...r, processingMode: "parse_only" }]);
+    expect((await db.query<{ record: RunRecord }>("select record from processing_runs where id=$1", [r.id])).rows[0].record.processingMode).toBe("parse_only");
+    await rpc("fieldops_finalize_upload", [owner1, d.id, d.contentHash, { ...r, id: randomUUID(), processingMode: "parse_only" }]);
+    expect((await db.query("select id from processing_runs where document_id=$1", [d.id])).rows).toHaveLength(1);
+  });
+  it("retries preserve parsing-only intent and never automatically resume model quota waits", async () => {
+    const { r } = await seed();
+    await db.query("update processing_runs set record=record||'{\"processingMode\":\"parse_only\",\"stage\":\"waiting_quota\",\"retryAfter\":\"2020-01-01T00:00:00Z\",\"quotaWaits\":20}' where id=$1", [r.id]);
+    expect(await rpc("fieldops_pending_runs", [])).toEqual([]);
+    expect(await rpc("fieldops_claim_run", [r.id, "quota", new Date(Date.now() + 30000).toISOString()])).toBe(null);
+    const retried = await rpc("fieldops_retry_run", [owner1, r.id]) as RunRecord;
+    expect(retried.processingMode).toBe("parse_only"); expect(retried.stage).toBe("queued");
+    expect(retried.quotaWaits).toBe(0); expect(retried.retryAfter).toBeUndefined();
+  });
+  it("gives an explicit cloud AI retry a fresh quota-wait allowance while preserving its selected mode", async () => {
+    const { r } = await seed();
+    const claimed = await rpc("fieldops_claim_run", [r.id, "exhausted-quota-fence", new Date(Date.now() + 30000).toISOString()]) as RunRecord;
+    const oldDeadline = new Date(Date.now() + 60000).toISOString();
+    expect(await rpc("fieldops_save_run", [{ ...claimed, stage: "waiting_quota", errorCode: "quota", quotaWaits: 20, retryAfter: oldDeadline, leaseUntil: undefined }, claimed.fence])).toBe(true);
+    expect(await rpc("fieldops_pending_runs", [])).toEqual([]);
+    const retried = await rpc("fieldops_retry_run", [owner1, r.id]) as RunRecord;
+    expect(retried).toMatchObject({ processingMode: "ai", stage: "queued", attempt: 0, quotaWaits: 0, cancelRequested: false });
+    expect(retried.retryAfter).toBeUndefined(); expect(retried.errorCode).toBeUndefined(); expect(retried.fence).not.toBe(claimed.fence);
+    const persisted = (await db.query<{ record: RunRecord }>("select record from processing_runs where id=$1", [r.id])).rows[0].record;
+    expect(persisted).toEqual(retried);
+    expect((await rpc("fieldops_pending_runs", []) as RunRecord[]).map((run) => run.id)).toContain(r.id);
+    const resumed = await rpc("fieldops_claim_run", [r.id, "fresh-retry-fence", new Date(Date.now() + 30000).toISOString()]) as RunRecord;
+    expect(resumed).toMatchObject({ processingMode: "ai", stage: "validating", attempt: 1, quotaWaits: 0 });
+  });
   it("atomically creates the document, run, snapshot version and free compute reservation", async () => {
     const { c, d, r } = await seed();
     expect((await db.query<{ revision: number }>("select revision from comparisons where id=$1", [c.id])).rows[0].revision).toBe(1);

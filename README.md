@@ -21,6 +21,18 @@ The manual path is usable while AI is disabled: upload a quotation, inspect pres
 
 ## Run locally
 
+For your own quotations, use the isolated personal workspace:
+
+```powershell
+npm ci
+npm run personal:check
+npm run personal
+```
+
+Open the ready URL printed in the terminal (normally `http://127.0.0.1:3001`). Your comparisons and originals persist in `.fieldops/personal`; sample data stays separate. AI is forced off. See [personal use, backups and recovery](docs/personal-use.md) for the complete workflow. English OCR is already checked by the launcher; install its language asset below when needed.
+
+For ordinary application development:
+
 Use Node.js 24 and npm. From this repository:
 
 ```powershell
@@ -36,7 +48,7 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 ## Reliability evidence
 
-Verified locally: **95 unit/integration tests and seven browser workflows pass**. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Public deployment results are recorded in [release verification](docs/release-verification.md). Linux CI repeats the checks from a clean checkout.
+Verified locally: **120 unit/integration tests and eight browser workflows pass**. The personal browser case uses two actual files through manual review, matching, Excel and PDF export, and reload persistence. TypeScript, ESLint and the production build pass. The deployed demo is independently usable without database or model credentials. Public deployment results are recorded in [release verification](docs/release-verification.md). Linux CI repeats the checks from a clean checkout.
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 
@@ -55,6 +67,7 @@ Server tests exercise real filesystem persistence and the actual SQL migrations 
 TypeScript, Next.js and React provide the interface and server API. Decimal.js owns monetary calculations. PDF.js, Tesseract, ExcelJS and CSV parsing preserve source evidence. Supabase supplies the optional relational database, OAuth and private storage; Trigger.dev runs the same processing function used by the local runner.
 
 - [Setup, recovery and API contracts](docs/setup.md)
+- [Personal launch, backup and restore](docs/personal-use.md)
 - [Free-tier deployment instructions](docs/deployment.md)
 - [Architecture and data model](docs/architecture.md)
 - [Security and retention behavior](docs/security-and-retention.md) and [dependency review](docs/dependency-review.md)

@@ -67,7 +67,7 @@ describe("reproducible benchmark integrity", () => {
   it("requires explicit live split and fails closed before provider calls when configuration is absent", async () => {
     expect(parseOptions([])).toEqual({ live: false, split: "all", allowPosthoc: false });
     expect(() => parseOptions(["--live"])).toThrow("explicit --split");
-    vi.stubEnv("GROQ_API_KEY", "");
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "");
     await expect(evaluate({ live: true, split: "dev" })).rejects.toThrow("GROQ_API_KEY");
   });
 });

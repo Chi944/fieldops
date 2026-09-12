@@ -6,7 +6,15 @@ Verified on 13 September 2026. This release delivers the public fixture demonstr
 
 - [Public application](https://fieldops-eight-blue.vercel.app) and [reliability page](https://fieldops-eight-blue.vercel.app/reliability).
 - [Independent source repository](https://github.com/Chi944/fieldops), complete [requirements](spec.md), [implementation plan](implementation-plan.md) and [acceptance status](acceptance-status.md).
-- [Local setup](setup.md), five Supabase migrations, [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md).
+- [Local setup](setup.md), six Supabase migrations, [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md).
+
+## Personal-use milestone verification
+
+The isolated personal launcher, source-only processing and manual review milestone passed TypeScript, ESLint, the production build and **all eight browser workflows in 24.8 seconds** against the local production server. The personal test uploads two real synthetic originals, confirms byte-identical private downloads, records supplier/currency/item corrections with source IDs, explicitly confirms manual coverage, approves an equivalent group, compares 25.00 and 22.50 quoted line costs, and preserves the unknown-delivery restriction. It reloads the Excel workbook, invokes printing, renders a Chromium PDF and verifies saved state after navigation/reload. Private records never enter demo browser storage; test-owned comparisons are removed in cleanup.
+
+**120 unit/integration tests across 13 files** passed. New coverage includes parser-only AI exclusion, durable mode pinning and terminal fences, manual-review acknowledgment and invalidation, bounded Windows lock contention, and backup/restore corruption, isolation and no-overwrite behavior. The runtime dependency audit reports zero findings. SQL tests execute all six migrations in embedded PostgreSQL with platform schemas stubbed; they do not certify hosted Supabase.
+
+The offline evaluation was rerun as `baseline-all-ff504a533a5a-8dc06a6ab2cb`: 24/24 complete parser manifests, 144/144 authored identifiers, 963/963 source locations, 544/544 bounded regions, 8/8 robustness assertions, baseline pair precision 102/102 and recall 102/116. There were no model calls. AI remains disabled, and hosted private acceptance is pending configuration. Clean Linux CI and public refresh evidence will be recorded after publication.
 
 ## UI refinement verification
 

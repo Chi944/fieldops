@@ -13,11 +13,14 @@ export interface Capabilities {
   canPersist: boolean;
   canUpload: boolean;
   canExtract: boolean;
+  processingMode?: "parse_only" | "ai";
   reasons: string[];
   user?: { email?: string };
 }
 export interface WorkspaceContext {
   comparisons: Comparison[];
+  workspaceScope: "personal" | "samples";
+  switchWorkspace: (scope: "personal" | "samples") => void;
   capabilities: Capabilities;
   runs: ProcessingRun[];
   toast: (message: string, error?: boolean) => void;

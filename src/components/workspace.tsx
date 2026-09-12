@@ -31,7 +31,8 @@ export function WorkspaceScreen({
   onRename: (c: Comparison) => void;
   onDelete: (c: Comparison) => void;
 }) {
-  const { comparisons, capabilities } = useWorkspace();
+  const { comparisons, capabilities, workspaceScope, switchWorkspace } = useWorkspace();
+  const personal = workspaceScope === "personal";
   const [query, setQuery] = useState(""),
     [filter, setFilter] = useState("all"),
     [menu, setMenu] = useState<string | null>(null);
@@ -59,17 +60,19 @@ export function WorkspaceScreen({
       </div>
       <section className="workspace-welcome" aria-label="Continue your work">
         <div className="welcome-copy">
-          <span className="welcome-context"><span className="status-dot" />{featured?.isDemo ? "A practical place to start" : featured ? "Continue your latest comparison" : "Start a comparison"}</span>
-          <h2>{featured?.name ?? "Bring the whole picture together."}</h2>
-          <p>{featured?.description || "Add your quotations, review what matters and build a comparison you can stand behind."}</p>
+          <span className="welcome-context"><span className="status-dot" />{featured?.isDemo ? "Fictional sample workspace" : featured ? "Continue your latest comparison" : personal ? "Your personal workspace is ready" : "Fictional sample workspace"}</span>
+          <h2>{featured?.name ?? (personal ? "Start with your own quotations." : "Explore a sample comparison.")}</h2>
+          <p>{featured?.description || (personal ? "Create a comparison, add complete supplier quotations, then review the original sources and enter the items you want to compare. No AI key is needed." : "Saved fictional quotations let you explore review, matching and reports. Your own documents belong in a personal workspace.")}</p>
           <div className="welcome-actions">
             {featured ? <><Link className="button primary" href={`/comparisons/${featured.id}/${featuredReview ? `review?q=${encodeURIComponent(featuredReview.id)}` : "compare"}`}>
               {featuredReview ? "Continue review" : "Open comparison"}<ArrowRight size={16} />
-            </Link><span className="welcome-detail">{featured.quotations.length} supplier quotations{featured.isDemo ? " / Fictional sample" : ""}</span></> : <button className="button primary" onClick={onCreate}>Create your first comparison<ArrowRight size={16} /></button>}
+            </Link><span className="welcome-detail">{featured.quotations.length} supplier quotations{featured.isDemo ? " / Fictional sample" : ""}</span></> : <button className="button primary" onClick={onCreate}>{personal ? "Start my comparison" : "Create a sample comparison"}<ArrowRight size={16} /></button>}
+            {!featured && personal && <button className="text-button" onClick={() => switchWorkspace("samples")}>Explore fictional samples</button>}
           </div>
         </div>
         <div className="welcome-art" aria-hidden="true"><Image src="/images/quotation-still-life-v1.webp" alt="" fill sizes="(max-width: 760px) 1px, 420px" loading="eager" unoptimized /></div>
       </section>
+      <div className="workspace-storage-note"><ShieldCheck size={16} /><p>{personal ? capabilities.mode === "local" ? "Saved on this computer. Original files and review history persist after a restart and remain until you delete them." : "Private account storage. Your original files and review history stay in your workspace." : "Fictional examples only. Sample edits stay in this browser; private quotations cannot be uploaded here."}</p>{!personal && <button className="text-button" onClick={() => switchWorkspace("personal")}>Use my own quotations<ArrowRight size={14} /></button>}</div>
       <div className="workspace-pulse" aria-label="Workspace summary">
         <div><FolderOpen size={18} /><strong>{comparisons.length}</strong><span>Comparisons</span></div>
         <div><FileText size={18} /><strong>{quotations}</strong><span>Quotations</span></div>
@@ -243,7 +246,7 @@ export function WorkspaceScreen({
           />
         )}
       </section>
-      <div className="workspace-assurance"><ShieldCheck size={18} /><p>{capabilities.canPersist ? "Private originals stay in your workspace. " : "Fictional quotations. Your sample edits stay in this browser. "}Sources, corrections and open questions travel with every report.</p><Link href="/reliability">See reliability evidence<ArrowRight size={14} /></Link></div>
+      <div className="workspace-assurance"><ShieldCheck size={18} /><p>{personal ? "Private originals stay in your workspace. " : "Fictional quotations. Your sample edits stay in this browser. "}Sources, corrections and open questions travel with every report.</p><Link href="/reliability">See reliability evidence<ArrowRight size={14} /></Link></div>
     </div>
   );
 }

@@ -69,6 +69,9 @@ export function FieldOps({
   const [initializing, setInitializing] = useState(true);
   const [capabilities, setCapabilities] =
     useState<Capabilities>(initialCapabilities);
+  const [overviewScope, setOverviewScope] = useState<"personal" | "samples">("personal");
+  const [creationScope, setCreationScope] = useState<"personal" | "samples">("samples");
+  const [workspaceDialog, setWorkspaceDialog] = useState(false);
   const [runs, setRuns] = useState<ProcessingRun[]>([]);
   const [notice, setNotice] = useState<{
     message: string;
@@ -91,6 +94,12 @@ export function FieldOps({
     comparisonId = path[0] === "comparisons" ? path[1] : null;
   const current = comparisons.find((c) => c.id === comparisonId),
     view = path[2] ?? "compare";
+  const workspaceScope = current ? current.isDemo ? "samples" : "personal" : capabilities.canPersist ? overviewScope : "samples";
+  const workspaceComparisons = useMemo(() => comparisons.filter(comparison => comparison.isDemo === (workspaceScope === "samples")), [comparisons, workspaceScope]);
+  const switchWorkspace = useCallback((scope: "personal" | "samples") => {
+    if (scope === "personal" && !capabilities.canPersist) { setWorkspaceDialog(true); return; }
+    setOverviewScope(scope); setWorkspaceDialog(false); setMobileNav(false); router.push("/");
+  }, [capabilities.canPersist, router]);
   const toast = useCallback((message: string, error = false) => {
     setNotice({ message, error });
     clearTimeout(toastTimer.current);
@@ -284,7 +293,8 @@ export function FieldOps({
   const create = useCallback(
     async (comparisonName: string, desc: string) => {
       let c: Comparison;
-      if (capabilities.canPersist)
+      if (creationScope === "personal" && !capabilities.canPersist) throw new Error("Your personal workspace is unavailable. Open FieldOps locally before adding private quotations.");
+      if (creationScope === "personal")
         c = (
           await api<{ comparison: Comparison }>("/api/comparisons", {
             method: "POST",
@@ -312,12 +322,12 @@ export function FieldOps({
       replaceComparison(c);
       router.push(`/comparisons/${c.id}/upload`);
       toast(
-        capabilities.canPersist
+        creationScope === "personal"
           ? "Comparison created."
           : "Demo comparison created. Add saved samples to explore the workflow.",
       );
     },
-    [capabilities.canPersist, replaceComparison, router, toast],
+    [capabilities.canPersist, creationScope, replaceComparison, router, toast],
   );
   const remove = useCallback(
     async (c: Comparison) => {
@@ -338,7 +348,9 @@ export function FieldOps({
   }, [toast, setComparisons]);
   const value = useMemo(
     () => ({
-      comparisons,
+      comparisons: workspaceComparisons,
+      workspaceScope,
+      switchWorkspace,
       capabilities,
       runs,
       toast,
@@ -350,7 +362,9 @@ export function FieldOps({
       refresh,
     }),
     [
-      comparisons,
+      workspaceComparisons,
+      workspaceScope,
+      switchWorkspace,
       capabilities,
       runs,
       toast,
@@ -366,6 +380,8 @@ export function FieldOps({
     current?.quotations.flatMap((q) => q.issues).filter((i) => !i.resolved)
       .length ?? 0;
   const openCreate = () => {
+    if (initializing) { toast("Opening your workspace. Please wait a moment."); return; }
+    setCreationScope(workspaceScope);
     setName("");
     setDescription("");
     setNewDialog(true);
@@ -381,18 +397,16 @@ export function FieldOps({
           <Link href="/" className="brand-link" aria-label="FieldOps workspace">
             <Brand />
           </Link>
-          <button className="workspace-switch" onClick={() => setHelp(true)}>
+          <button className="workspace-switch" onClick={() => setWorkspaceDialog(true)} aria-label="Choose workspace">
             <span className="workspace-avatar">F</span>
             <span>
               <strong>
-                {capabilities.mode === "local"
+                {workspaceScope === "samples" ? "Sample workspace" : capabilities.mode === "local"
                   ? "Local workspace"
                   : "FieldOps workspace"}
               </strong>
               <small>
-                {capabilities.canPersist
-                  ? "Private workspace"
-                  : "Portfolio demonstration"}
+                {workspaceScope === "personal" ? capabilities.mode === "local" ? "Saved on this computer" : "Private account storage" : "Fictional samples · browser edits"}
               </small>
             </span>
             <ChevronDown size={15} />
@@ -400,6 +414,7 @@ export function FieldOps({
           <button
             className="button primary sidebar-create"
             onClick={openCreate}
+            disabled={initializing}
           >
             <Plus size={17} />
             New comparison
@@ -414,9 +429,9 @@ export function FieldOps({
               Overview
             </Link>
             <span className="nav-section-title">
-              Your comparisons <span>{comparisons.length}</span>
+              {workspaceScope === "personal" ? "Your comparisons" : "Sample comparisons"} <span>{workspaceComparisons.length}</span>
             </span>
-            {comparisons.slice(0, 6).map((c) => (
+            {workspaceComparisons.slice(0, 6).map((c) => (
               <Link
                 key={c.id}
                 href={`/comparisons/${c.id}/compare`}
@@ -441,10 +456,14 @@ export function FieldOps({
               How FieldOps works
               <ArrowUpRight size={13} />
             </button>
-            <button className="nav-item" onClick={reset}>
+            <button className="nav-item" onClick={() => switchWorkspace(workspaceScope === "personal" ? "samples" : "personal")}>
+              <FolderOpen size={16} />
+              {workspaceScope === "personal" ? "Explore sample workspace" : "Use my own quotations"}
+            </button>
+            {workspaceScope === "samples" && <button className="nav-item" onClick={reset}>
               <RotateCcw size={16} />
               Reset sample workspace
-            </button>
+            </button>}
             <div className="profile">
               <span className="profile-avatar">
                 {capabilities.mode === "local" ? "LC" : "FO"}
@@ -510,10 +529,10 @@ export function FieldOps({
               )}
               <Badge
                 tone={
-                  current?.isDemo || !capabilities.canPersist ? "amber" : "teal"
+                  workspaceScope === "samples" ? "amber" : "teal"
                 }
               >
-                {current?.isDemo || !capabilities.canPersist
+                {workspaceScope === "samples"
                   ? "Sample workspace"
                   : capabilities.mode === "local"
                     ? "Local workspace"
@@ -545,7 +564,7 @@ export function FieldOps({
                 : "main-content"
             }
           >
-            {!comparisonId ? (
+            {!comparisonId && initializing ? <EmptyState title="Opening your workspace" description="Checking personal storage and loading saved comparisons." /> : !comparisonId ? (
               <WorkspaceScreen
                 onCreate={openCreate}
                 onRename={(c) => {
@@ -718,12 +737,11 @@ export function FieldOps({
               rows={3}
             />
           </label>
-          {!capabilities.canPersist && (
+          {creationScope === "samples" ? (
             <div className="notice-box">
-              This creates a browser-local demo comparison. Real uploads require
-              a configured local or private workspace.
+              This creates a sample comparison in this browser. It accepts saved fictional samples only. Use your personal workspace for your own quotations.
             </div>
-          )}
+          ) : <div className="notice-box"><ShieldCheck size={17} /><span>{capabilities.mode === "local" ? "Your comparison and original files are saved on this computer and remain available after a restart." : "Your comparison and original files are saved privately in your account."} You can read sources and enter items without AI.</span></div>}
           <div className="modal-actions">
             <button
               type="button"
@@ -745,6 +763,14 @@ export function FieldOps({
             </button>
           </div>
         </form>
+      </Modal>
+      <Modal open={workspaceDialog} onClose={() => setWorkspaceDialog(false)} title="Choose a workspace" description="Your quotations and fictional examples stay separate.">
+        <div className="workspace-choice-list">
+          {capabilities.canPersist ? <button className="workspace-choice" onClick={() => switchWorkspace("personal")}>
+            <ShieldCheck size={21} /><span><strong>{capabilities.mode === "local" ? "My local workspace" : "My private workspace"}</strong><small>{capabilities.mode === "local" ? "Original files, reviewed items and exports saved on this computer." : "Your original files and comparisons saved privately in your account."}</small></span><ChevronRight size={17} />
+          </button> : <div className="personal-setup-panel"><h3>Use your own quotations locally</h3><p>The public demo cannot receive private files. In your FieldOps project, run:</p><code>npm run personal</code><p>Open the local address printed by the launcher. It stores your work on your computer; source reading and manual comparison need no AI key.</p><a className="text-button" href="https://github.com/Chi944/fieldops/blob/main/docs/personal-use.md" target="_blank" rel="noreferrer">Personal setup instructions <ArrowUpRight size={14} /></a></div>}
+          <button className="workspace-choice" onClick={() => switchWorkspace("samples")}><Files size={21} /><span><strong>Fictional sample workspace</strong><small>Explore saved examples. Sample edits are stored only in this browser.</small></span><ChevronRight size={17} /></button>
+        </div>
       </Modal>
       <Modal
         open={!!rename}

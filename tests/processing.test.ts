@@ -145,6 +145,7 @@ describe("structured extraction reliability with labelled injected responses", (
     expect(calls).toBe(cache.size + 1);
   });
   it("blocks live use without a verified free plan and data controls", () => {
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai");
     vi.stubEnv("GROQ_API_KEY", ""); expect(() => requireLiveAI()).toThrow(/GROQ_API_KEY/);
     vi.stubEnv("GROQ_API_KEY", "TEST-ONLY-NOT-A-REAL-KEY"); vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "false"); expect(() => requireLiveAI()).toThrow(/Free Plan/);
     vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "false"); expect(() => requireLiveAI()).toThrow(/Zero Data Retention/);

@@ -97,6 +97,8 @@ export function ReviewScreen({
     );
   const issues = quotation.issues.filter((i) => !i.resolved).sort((a, b) => Number(b.severity === "error") - Number(a.severity === "error"));
   const recordedReviews = quotation.issues.filter((issue) => issue.resolved).length;
+  const manualReviewIssue = quotation.issues.find(issue => issue.id === `${quotation.id}:manual-review` && !issue.resolved);
+  const confirmingManualReview = acknowledge === `${quotation.id}:manual-review`;
   const nextIssue = issues.length ? issues[(issues.findIndex(issue => issue.id === selectedIssueId) + 1) % issues.length] : undefined;
   const selectedEvidence = quotation.sources.filter(source => selectedSources.includes(source.id));
   const visiblePath = (path: string) => {
@@ -244,9 +246,10 @@ export function ReviewScreen({
                 : "No flagged issues"}
             </Badge>
           </div>
+          {manualReviewIssue && quotation.manifest.complete && <div className="notice-box manual-review-notice"><ClipboardCheck size={18} /><div><strong>Source ready for your review</strong><p>The original has been read without AI extraction. Enter the supplier name and all quotation items, check every page or sheet and the commercial terms, then confirm your manual review.</p><button className="button secondary small" disabled={!quotation.items.length || quotation.supplier.name.state !== "value"} onClick={() => { setAcknowledge(manualReviewIssue.id); setResolution(""); }}>Confirm manual review</button></div></div>}
           {(!quotation.manifest.complete ||
-            quotation.status === "partial" ||
-            issues.some((i) => i.code === "incomplete_extraction")) && (
+            (!manualReviewIssue && (quotation.status === "partial" ||
+            issues.some((i) => i.code === "incomplete_extraction")))) && (
             <div className="notice-box red">
               <AlertCircle size={18} />
               <div>
@@ -343,7 +346,9 @@ export function ReviewScreen({
               <p>
                 {quotation.items.length
                   ? "No line items match this filter."
-                  : "No line items extracted yet. Review the original and add a missing item, or retry extraction once processing is available."}
+                  : quotation.extractionVersion === 0 && !quotation.isDemo
+                    ? "No items entered yet. Read the original quotation, then add every item you want to compare. Confirm manual review after checking all source sections."
+                    : "No line items extracted yet. Review the original and add a missing item, or retry extraction once processing is available."}
               </p>
               <button
                 className="button secondary small"
@@ -612,8 +617,8 @@ export function ReviewScreen({
       <Modal
         open={!!acknowledge}
         onClose={() => setAcknowledge(null)}
-        title="Record issue review"
-        description="Acknowledgement records your reasoning. It does not remove the discrepancy or make incomplete costs comparable."
+        title={confirmingManualReview ? "Confirm manual review" : "Record issue review"}
+        description={confirmingManualReview ? "Confirm that you checked every original page or sheet, entered all relevant items and reviewed the commercial terms. This records your assessment; it does not invent missing prices or terms or claim AI extraction." : "Acknowledgement records your reasoning. It does not remove the discrepancy or make incomplete costs comparable."}
       >
         <form
           onSubmit={async (e) => {
@@ -660,7 +665,7 @@ export function ReviewScreen({
           </label>
           <div className="modal-actions">
             <button className="button primary" disabled={!resolution.trim()}>
-              Record review
+              {confirmingManualReview ? "Confirm manual review" : "Record review"}
             </button>
           </div>
         </form>

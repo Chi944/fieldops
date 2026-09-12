@@ -124,7 +124,7 @@ test("reviewers can reject, split and regroup offers without losing supplier row
   expect(new Set(members).size).toBe(15);
 });
 
-test("real local pasted text survives disabled AI and supports manual recovery without fabricated evidence", async ({ page, request }, testInfo) => {
+test("real local pasted text prepares sources and supports manual entry without fabricated evidence", async ({ page, request }, testInfo) => {
   const status = await (await request.get("/api/status")).json();
   test.skip(status.mode !== "local", "Local storage integration needs the isolated local test server.");
   expect(status.canExtract, "This test must never enable a live model").toBe(false);
@@ -140,19 +140,21 @@ test("real local pasted text survives disabled AI and supports manual recovery w
     await expect.poll(async () => {
       const response = await request.get(`/api/comparisons/${id}`); const data = await response.json();
       return data.comparison.quotations[0]?.status;
-    }, { timeout: 30_000 }).toBe("partial");
+    }, { timeout: 30_000 }).toBe("source_ready");
     const persisted = await (await request.get(`/api/comparisons/${id}`)).json();
     const quotation = persisted.comparison.quotations[0];
     expect(quotation.items).toHaveLength(0);
     expect(quotation.sources.length).toBeGreaterThan(0);
     expect(quotation.isDemo).toBe(false);
-    expect(persisted.runs[0].errorCode).toBe("ai_unavailable");
+    expect(persisted.runs[0].processingMode).toBe("parse_only");
+    expect(persisted.runs[0].stage).toBe("source_ready");
+    expect(persisted.runs[0].errorCode).toBeUndefined();
     expect(quotation.issues.some((issue: { code: string }) => issue.code === "incomplete_extraction")).toBe(true);
     const source = await request.get(`/api/documents/${quotation.documentId}/source`);
     expect(source.ok()).toBe(true);
     expect(await source.text()).toBe(text);
     await workflow(page, "Extraction review").click();
-    await expect(page.getByText("Extraction is incomplete", { exact: true })).toBeVisible();
+    await expect(page.getByText("Source ready for your review", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Add an item", exact: true }).click();
     const modal = page.getByRole("dialog", { name: "Add a missing item", exact: true });
     await modal.getByLabel("Item description", { exact: true }).fill("Cable ties");
@@ -171,7 +173,7 @@ test("real local pasted text survives disabled AI and supports manual recovery w
     expect(recovered.corrections.length).toBeGreaterThan(0);
     // ParseManifest describes parser coverage, independently of extraction status.
     expect(recovered.quotations[0].manifest.complete).toBe(true);
-    expect(recovered.quotations[0].status).toBe("partial");
+    expect(recovered.quotations[0].status).toBe("source_ready");
     expect(recovered.quotations[0].issues.some((issue: { code: string; resolved: boolean }) => issue.code === "incomplete_extraction" && !issue.resolved)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath("manual-recovery.png"), fullPage: true });
     await page.reload();
@@ -232,7 +234,7 @@ test("real PDF and image uploads render original canvases and selected source re
     await page.getByLabel("Choose quotation files", { exact: true }).setInputFiles(fixtures.map(f => f.path));
     await expect.poll(async () => {
       const data = await (await request.get(`/api/comparisons/${id}`)).json();
-      return data.comparison.quotations.filter((q: { status: string }) => q.status === "partial").length;
+      return data.comparison.quotations.filter((q: { status: string }) => q.status === "source_ready").length;
     }, { timeout: 45_000 }).toBe(2);
     await workflow(page, "Extraction review").click();
     for (const fixture of fixtures) {

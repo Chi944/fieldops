@@ -14,6 +14,7 @@ let pending: Promise<unknown> = Promise.resolve();
 let quotaWindow = 0; let windowReservation = 0; let dailyDate = ""; let dailyReservation = 0;
 export function liveAIConfiguration(): { ready: boolean; model: string; reason: string | null } {
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
+  if (process.env.FIELDOPS_PROCESSING_MODE !== "ai") return { ready: false, model, reason: "AI interpretation is disabled. Set FIELDOPS_PROCESSING_MODE=ai only when intentionally enabling the configured free integration." };
   if (!process.env.GROQ_API_KEY) return { ready: false, model, reason: "GROQ_API_KEY is missing. Demo fixtures are available; live extraction has not run." };
   if (process.env.GROQ_FREE_TIER_CONFIRMED !== "true") return { ready: false, model, reason: "Confirm the Groq account is on its Free Plan with GROQ_FREE_TIER_CONFIRMED=true. Paid accounts and paid fallback are not supported." };
   if (process.env.GROQ_ZDR_CONFIRMED !== "true") return { ready: false, model, reason: "Enable Zero Data Retention in Groq Data Controls, then set GROQ_ZDR_CONFIRMED=true before uploading private documents." };

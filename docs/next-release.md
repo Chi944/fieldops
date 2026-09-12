@@ -1,17 +1,20 @@
 # Next release: a private live pilot
 
-Reviewed 13 September 2026 against the current implementation and official provider documentation. This is a recommendation, not a record of new provisioning or deployed changes. AI remains disabled under the user's existing instruction.
+The provider comparison below retains the official-documentation research dated 13 September 2026. Implementation status has been updated for the personal-use milestone. This is not a record of hosted provisioning or hosted acceptance. AI remains disabled under the user's existing instruction.
 
-Keep **Supabase Free + Trigger.dev Free + the existing Vercel Hobby deployment** for the next release. The next milestone is an invited private workspace that accepts real quotations, parses their sources, supports manual review, and survives failures. AI activation and measured AI reliability are a separate, explicitly gated milestone.
+Keep **Supabase Free + Trigger.dev Free + the existing Vercel Hobby deployment** for the future hosted pilot. Personal use is now available locally without any cloud account: run `npm run personal`, upload real quotations, review their sources and enter the comparison details manually. Hosted acceptance and measured AI reliability remain separate milestones.
 
 ## What works, and what still blocks live operation
 
-The public [FieldOps demonstration](https://fieldops-eight-blue.vercel.app) is deployed. Its sample quotations are labeled fixtures. Actual local parsing, source review, manual entry, matching, corrections, persistence and exports work with AI disabled. The UI refinement passed 95 unit/integration tests, seven local browser workflows and five public browser workflows; see [release verification](release-verification.md) and [acceptance status](acceptance-status.md).
+The public [FieldOps demonstration](https://fieldops-eight-blue.vercel.app) is deployed with labeled fixtures. The personal launcher uses isolated `.fieldops/personal` storage and a safe loopback port from 3001–3009. Personal comparisons and fictional samples have separate workspace views; only sample edits enter browser storage. Actual local parsing, source review, manual entry, matching, corrections, persistence and exports work with AI disabled. Hash-verified backup/restore tools preserve saved state and originals without overwriting an existing destination. See [personal-use instructions](personal-use.md).
 
-| Gap | Evidence in the current repository | Practical consequence |
+The personal milestone's current unit/integration run passed **120 tests**. This does not establish hosted behavior or AI accuracy. Browser and deployment evidence is recorded separately in [release verification](release-verification.md) and [acceptance status](acceptance-status.md).
+
+| Area | Current implementation and evidence | Remaining work |
 | --- | --- | --- |
 | Hosted services are unconfigured | [Deployment record](deployment.md): public deployment has no environment variables; Supabase/Auth/Trigger are unconfigured | Visitors cannot save private comparisons or upload their own files |
-| Hosted uploads require AI readiness | [Capability checks](../src/lib/server/config.ts), enforced by [upload service](../src/lib/server/service.ts): cloud `canUpload` requires Supabase, an authenticated user, Trigger **and** a configured model | Adding a database and worker alone cannot deliver the useful manual workflow while AI remains disabled |
+| Parser-only hosted admission is implemented | [Capability checks](../src/lib/server/config.ts) and [upload service](../src/lib/server/service.ts) permit authenticated uploads with Supabase and Trigger while AI is off; each upload/run keeps its selected processing mode | Configure the services and verify this flow on the actual hosted platforms |
+| Source readiness and manual attestation are implemented | The [shared worker](../src/lib/server/jobs.ts) finishes complete parser-only work as `source_ready`; [manual review](../src/lib/server/service.ts) requires readable source coverage, supplier name and items, with later edits reopening review | Verify the hosted round trip; manual attestation is the buyer's assessment, not a claim of model extraction |
 | Hosted platform behavior is unverified | SQL tests use real PostgreSQL migrations with Supabase platform schemas stubbed; [worker configuration](../trigger.config.ts) has not been deployed | OAuth sessions, signed storage, native OCR dependencies, queue recovery and deletion need tests on the actual services |
 | Capacity and operations need a pilot boundary | [Retention policy](security-and-retention.md): unfinished upload intents never expire automatically; [repository](../src/lib/server/cloud-repository.ts) implements deletion retries but no workspace storage allowance | A small number of active users can exhaust free storage through many comparisons or abandoned uploads; failed cleanup needs an operator-visible signal |
 | AI results have not been measured | [Evaluation report](evaluation-report.md) measures offline parsing and baseline matching; [AI adapter](../src/lib/ai/groq.ts) has no verified live run | Baseline results cannot be presented as extraction accuracy, semantic matching accuracy or model safety evidence |
@@ -22,15 +25,15 @@ Current readiness checks establish configuration presence, not successful access
 
 ### 1. Configure and verify invited private workspaces
 
-Use dedicated Free projects and the [existing setup procedure](deployment.md). Apply all five migrations, configure the private `quotations` bucket, GitHub OAuth callbacks and the server-only keys, then add invited **numeric GitHub IDs** to `invited_accounts`. Keep model credentials unset. A small pilot should use personal workspaces; shared team administration is unnecessary for this milestone.
+Use dedicated Free projects and the [existing setup procedure](deployment.md). Apply all **six** migrations in filename order, including `20260913000600_personal_processing.sql`, configure the private `quotations` bucket, GitHub OAuth callbacks and the server-only keys, then add invited **numeric GitHub IDs** to `invited_accounts`. Keep model credentials unset and `FIELDOPS_PROCESSING_MODE=parse_only`. A small pilot should use personal workspaces; shared team administration is unnecessary for this milestone.
 
 **Acceptance:** two invited synthetic accounts can each create, edit and reopen comparisons; an uninvited account is denied; user A cannot read user B's comparison, document, job or signed-source endpoint; logout and invitation revocation work. Verify the actual hosted policies and callbacks, not only the embedded SQL tests. No real supplier documents are needed for these checks.
 
-### 2. Ship hosted parsing and manual recovery with AI disabled
+### 2. Complete hosted parser-only acceptance
 
-Separate upload/persistence/parser capabilities from extraction capability. Add an explicit persisted parsing-only processing mode and a clear successful state such as “Source ready — enter quotation details.” Retain incomplete interpretation as a review issue; a parser completing successfully must not claim AI extraction completed. Avoid automatically retrying an intentionally disabled model.
+**Implementation complete:** upload and extraction capabilities are separate; document/run processing mode is persisted and cannot be promoted by retry; legacy uploads default to parser-only. Complete parsing ends in `source_ready` without calling an AI model. Unreadable sections remain partial. Source-linked manual entry and corrections are available, and the buyer must record a manual-review acknowledgement before the quotation becomes ready. Later corrections or added items reopen that review. Readiness does not remove missing prices, source requirements or commercial incompatibilities.
 
-Deploy the existing Trigger tasks with the pinned native parser dependencies and English OCR asset. Preserve one-file-at-a-time processing, source hashes, duplicate/revision handling, resumable checkpoints and cancellation fences. Use the same source-linked manual entry and audited corrections already available locally.
+**Still required:** deploy the existing Trigger tasks with the pinned native parser dependencies and English OCR asset. Verify one-file-at-a-time processing, source hashes, duplicate/revision handling, resumable checkpoints and cancellation fences on the hosted services. The six migrations include `source_ready` terminal guards and pinned-mode checks; embedded SQL tests do not prove hosted deployment behavior.
 
 **Acceptance:** a synthetic PDF, scan, XLSX and pasted quotation each travel through hosted upload, parsing, manual review, matching, matrix and export. A mixed batch retains successful files when another fails. Interrupt, cancel, repeat upload/finalize, retry and edit during processing; no stale result may replace a newer correction. Assert that no model request is made throughout these tests.
 
@@ -38,7 +41,7 @@ Deploy the existing Trigger tasks with the pinned native parser dependencies and
 
 Add persistent per-workspace byte/document allowances and reserve capacity before issuing an upload URL. Set an explicit expiry for abandoned upload intents, reconcile orphaned objects, and release capacity only after verified deletion. Bound comparison/version growth while retaining the audit information promised to the user. Make queued work, oldest lease, failed deletion, remaining reservations and last successful reconciliation visible in an operator diagnostic view without document contents.
 
-Add a tested backup-and-restore procedure for both database records and private objects. Supabase Free does not include automatic backups or point-in-time recovery; exported workbooks do not replace a recoverable application backup. Do not promise an uptime guarantee on a free pilot. [Supabase plan details](https://supabase.com/pricing).
+Local backup and restore are implemented and tested with synthetic originals, correction history, parsed evidence, jobs and checkpoints; see [personal-use instructions](personal-use.md). A separate hosted backup-and-restore procedure for PostgreSQL records and private objects still needs implementation and verification. Supabase Free does not include automatic backups or point-in-time recovery; exported workbooks do not replace a recoverable application backup. Do not promise an uptime guarantee on a free pilot. [Supabase plan details](https://supabase.com/pricing).
 
 **Acceptance:** exceeding a quota refuses new work while preserving existing comparisons; expired uploads release their objects and reservation; a failed deletion retries successfully; a synthetic workspace can be restored with its source links and correction history intact. Show a useful recovery state when a free service pauses or becomes unavailable.
 
@@ -66,7 +69,7 @@ Neon now offers authentication and object storage as well as PostgreSQL. A compa
 | Authentication | Social OAuth and Auth integrated with PostgreSQL; current application uses Supabase sessions and provider identities | Managed Better Auth in beta, with GitHub OAuth, branch-local auth data and Data API/RLS integration | Neon can support invited users, but session handling and the numeric GitHub allowlist lookup must be reimplemented and verified |
 | Private source storage | 1 GB Free storage; access policies use PostgreSQL RLS on `storage.objects` | S3-compatible Object Storage beta; 5 GB Free/project, private buckets and presigned GET/PUT URLs; currently Ohio and Frankfurt | Neon has a larger stated free file allowance, but source signing/deletion and per-user authorization need a new adapter |
 | Background work | Current app already implements its durable lifecycle on Trigger | Neon Functions are in beta; their documentation explicitly directs independent lifecycle/cancellation work to a dedicated job system | Changing databases would not remove the need for durable processing |
-| Change required now | Configure the existing integration, fix the parsing-only gate and run hosted acceptance | Replace auth/session integration, adapt repository access and service RPCs, rewrite platform-specific identity/storage policies, then repeat hosted acceptance | Keep Supabase to spend the next release on working private comparisons |
+| Change required now | Configure the existing parser-only integration and run hosted acceptance | Replace auth/session integration, adapt repository access and service RPCs, rewrite platform-specific identity/storage policies, then repeat hosted acceptance | Keep Supabase to spend the next release on hosted private comparisons |
 
 Database/plan figures: [Supabase pricing](https://supabase.com/pricing), [Neon pricing](https://neon.com/pricing). Authentication: [Neon Managed Better Auth](https://neon.com/docs/auth/overview), [GitHub OAuth setup](https://neon.com/docs/auth/guides/setup-oauth). Object access: [Supabase storage RLS](https://supabase.com/docs/guides/storage/security/access-control), [Neon Object Storage](https://neon.com/docs/storage/overview), [presigned requests](https://neon.com/docs/storage/objects). Worker lifecycle: [Neon Functions runtime limits](https://neon.com/docs/compute/functions/reference/runtime-limits).
 
@@ -76,7 +79,7 @@ Both choices can start at USD 0 within their Free allowances. Neon states that F
 
 Moving now would have no known live supplier data to transfer, but still requires changing the Supabase-specific `auth.users`/`auth.identities` references, session cookies, service-role RPC calls and storage policies in [migrations](../supabase/migrations), [request authorization](../src/lib/server/context.ts) and [cloud repository](../src/lib/server/cloud-repository.ts). The shared domain, calculations, parsers, UI and much of the job lifecycle can remain. A hybrid Neon database plus Supabase Auth/Storage adds another integration without resolving the present blockers.
 
-Reconsider Neon if branch-isolated test environments or a demonstrated Supabase capacity limitation becomes more valuable than the migration effort. For the current release, better hosted verification and a usable manual workflow provide the more direct improvement.
+Reconsider Neon if branch-isolated test environments or a demonstrated Supabase capacity limitation becomes more valuable than the migration effort. The manual workflow is now implemented; hosted verification provides the more direct next improvement.
 
 ## Scope after the private pilot
 

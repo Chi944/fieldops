@@ -37,7 +37,8 @@ export type IssueCode = "missing_field" | "ambiguous_value" | "amount_mismatch" 
 export interface ReviewIssue { id: string; code: IssueCode; severity: "error" | "warning" | "info"; message: string; documentId: string; itemId?: string; fieldPath?: string; sourceIds: string[]; resolved: boolean; resolution?: string; }
 export interface CoverageUnit { id: string; label: string; status: "parsed" | "empty" | "failed" | "unsupported"; sourceCount: number; message?: string; }
 export interface ParseManifest { parserVersion: string; units: CoverageUnit[]; complete: boolean; warnings: string[]; }
-export type ProcessingStage = "queued" | "validating" | "parsing" | "extracting" | "reconciling" | "ready" | "partial" | "failed" | "cancelled" | "waiting_quota";
+export type ProcessingMode = "parse_only" | "ai";
+export type ProcessingStage = "queued" | "validating" | "parsing" | "extracting" | "reconciling" | "source_ready" | "ready" | "partial" | "failed" | "cancelled" | "waiting_quota";
 export interface Quotation {
   id: string; documentId: string; filename: string; format: string; contentHash: string;
   status: ProcessingStage; supplier: Supplier; quotationNumber: FieldValue; date: FieldValue;
@@ -63,7 +64,7 @@ export interface Comparison {
   exchangeRates: ExchangeRate[]; preferences: { priority: "cost" | "lead_time" | "requirements"; notes: string };
 }
 export interface ParsedDocument { documentId: string; filename: string; format: string; contentHash: string; sources: SourceSpan[]; manifest: ParseManifest; originalText?: string; }
-export interface ProcessingRun { id: string; comparisonId: string; documentId: string; stage: ProcessingStage; progress: number; attempt: number; fence: string; inputRevision: number; cancelRequested: boolean; errorCode?: string; message?: string; createdAt: string; updatedAt: string; }
+export interface ProcessingRun { id: string; comparisonId: string; documentId: string; processingMode: ProcessingMode; stage: ProcessingStage; progress: number; attempt: number; fence: string; inputRevision: number; cancelRequested: boolean; errorCode?: string; message?: string; createdAt: string; updatedAt: string; }
 export const LIMITS = { files: 5, fileBytes: 20 * 1024 * 1024, pdfPages: 10, worksheets: 5, populatedCells: 20000, items: 100, textChars: 100000, imagePixels: 20000000 } as const;
 export function emptyItem(id: string): QuoteItem {
   return { id, kind: "unknown", description: absent(), identifier: absent(), quantity: absent(), unit: absent(), packageSize: absent(), packageUnit: absent(), minimumOrder: absent(), orderIncrement: absent(), unitPrice: absent(), lineAmount: absent(), currency: absent(), billingBasis: absent(), duration: absent(), scope: absent(), leadTime: absent(), taxRate: absent(), taxBasis: "not_stated", tiers: [], discount: null, attributes: [], sourceIds: [] };

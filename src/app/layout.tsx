@@ -7,6 +7,7 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "./globals.css";
 import "./refinements.css";
 import "@/components/review-polish.css";
+import "@/components/personal-workspace.css";
 
 export const metadata: Metadata = {
   title: "FieldOps — Every quote, a clearer decision",

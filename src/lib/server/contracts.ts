@@ -1,9 +1,9 @@
-import type { Comparison, ProcessingRun, ParsedDocument, Quotation } from "@/lib/domain/types";
+import type { Comparison, ProcessingMode, ProcessingRun, ParsedDocument, Quotation } from "@/lib/domain/types";
 
 export interface DocumentRecord {
   id: string; comparisonId: string; ownerId: string; filename: string; contentType: string;
   contentHash: string; size: number; storagePath: string; createdAt: string;
-  status: "uploading" | "uploaded" | "deleted"; supersedesId?: string;
+  status: "uploading" | "uploaded" | "deleted"; supersedesId?: string; processingMode?: ProcessingMode;
 }
 export interface RunRecord extends ProcessingRun {
   ownerId: string; taskRunId?: string; dispatchedAt?: string; leaseUntil?: string;

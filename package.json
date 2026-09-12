@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
+    "personal": "tsx scripts/personal-start.ts",
+    "personal:check": "tsx scripts/personal-start.ts --check",
+    "personal:backup": "tsx scripts/personal-backup.ts",
+    "personal:restore": "tsx scripts/personal-restore.ts",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "lint": "eslint .",

@@ -33,6 +33,7 @@ Create a free project and apply every SQL file in `supabase/migrations` in filen
 3. `202609130003_quota_resume.sql`
 4. `202609130004_document_deletion.sql`
 5. `202609130005_rolling_budget.sql`
+6. `20260913000600_personal_processing.sql`
 
 These create the personal-workspace tables, invitation checks, RLS, transactional RPCs, version records, private `quotations` bucket, checkpoint storage and deletion/budget records. Do not make the bucket public or grant browser roles service-function execution. Configure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` and server-only `SUPABASE_SERVICE_ROLE_KEY` in the web deployment.
 
@@ -56,7 +57,7 @@ Replace the placeholder before running the SQL; it does not identify a real invi
 
 This step is unnecessary while demonstrating fixtures or working locally. When the private pilot is ready, create a dedicated **Free** Trigger project, configure its plan spending limit, and select the option to cancel active runs on exhaustion where available. The free plan currently includes $5 monthly credits and production task deployments. Its billing-limit enforcement is delayed; it is not an instantaneous hard budget switch. Keep the organization on Free and never enable paid overages. [Trigger pricing](https://trigger.dev/pricing), [billing-limit behavior](https://trigger.dev/docs/billing-limits).
 
-Set `TRIGGER_PROJECT_ID` in the deployment shell/configuration and the matching production `TRIGGER_SECRET_KEY` in the web deployment. In the Trigger production environment, configure the Supabase URL, anonymous key and service-role key required by the shared server configuration, plus `FIELDOPS_LOCAL_MODE=false`. Do not upload `.env.local` or `.fieldops/state.json`.
+Set `TRIGGER_PROJECT_ID` in the deployment shell/configuration and the matching production `TRIGGER_SECRET_KEY` in the web deployment. In the Trigger production environment, configure the Supabase URL, anonymous key and service-role key required by the shared server configuration, plus `FIELDOPS_LOCAL_MODE=false` and `FIELDOPS_PROCESSING_MODE=parse_only`. Set parsing-only mode on Vercel as well. Do not upload `.env.local` or anything from `.fieldops/personal`.
 
 Prepare the OCR asset and deploy the pinned task CLI:
 
@@ -71,7 +72,9 @@ The document task uses one concurrent worker, a ten-minute active runtime limit 
 
 ### 4. AI remains disabled
 
-Leave `GROQ_API_KEY` empty and both confirmation flags false in the web and worker environments. Hosted uploads deliberately remain unavailable until authentication, storage, worker and model readiness checks all pass. Local real parsing and manual entry remain usable.
+Leave `GROQ_API_KEY` empty, both confirmation flags false and `FIELDOPS_PROCESSING_MODE=parse_only` in the web and worker environments. Authenticated hosted uploads require private storage and a configured worker, and now work independently of model readiness. Successful parsing produces `source_ready`; unreadable/unsupported coverage remains partial or failed. Neither state invents an AI extraction. The buyer enters quotation details, reviews every source section and explicitly confirms manual review before using complete reviewed coverage.
+
+Upload initiation pins `processingMode` on both the source record and its job. Finalization and retry cannot promote a parsing-only source to AI. Existing records without a mode migrate to parsing only. A later AI upload requires explicit `FIELDOPS_PROCESSING_MODE=ai` as well as the existing key, free-plan, retention and supported-model gates. Leave that future integration disabled for this personal milestone.
 
 A future explicit configuration step must confirm the actual Groq Free Plan and retention setting, set the allowed model, and evaluate real model responses before making performance claims. The boolean environment flags record the operator's confirmation; they cannot verify provider-account settings. There is no subscription-token bridge or paid fallback.
 

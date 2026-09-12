@@ -1,0 +1,36 @@
+.workspace-storage-note, .upload-method-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 15px 17px;
+  color: #3b5b50;
+  border: 1px solid #dce5df;
+  background: #f4f8f4;
+  border-radius: 7px;
+}
+.workspace-storage-note { margin: 17px 0 22px; align-items: center; }
+.workspace-storage-note > svg, .upload-method-note > svg { color: #17665d; flex-shrink: 0; margin-top: 2px; }
+.workspace-storage-note p, .upload-method-note p { margin: 0; font-size: 12px; line-height: 1.65; }
+.workspace-storage-note > .text-button { flex-shrink: 0; margin-left: auto; }
+.upload-method-note { margin: 0 0 18px; }
+.upload-method-note strong { display: block; color: #172e2a; font-size: 13px; margin-bottom: 5px; }
+.workspace-choice-list { display: grid; gap: 15px; }
+.workspace-choice { display: flex; gap: 14px; align-items: center; text-align: left; border: 1px solid #dce5df; border-radius: 8px; background: white; padding: 17px; color: #17665d; width: 100%; }
+.workspace-choice:hover { background: #f4f8f4; border-color: #9db9aa; }
+.workspace-choice > svg { flex-shrink: 0; }
+.workspace-choice > svg:last-child { margin-left: auto; }
+.workspace-choice strong { display: block; color: #172e2a; font-size: 14px; font-weight: 600; }
+.workspace-choice small { display: block; color: #52645d; line-height: 1.6; font-size: 12px; margin-top: 5px; }
+.personal-setup-panel { border: 1px solid #dce5df; border-radius: 8px; padding: 18px; background: #f6f7f3; }
+.personal-setup-panel h3 { font-size: 16px; margin: 0 0 8px; color: #172e2a; }
+.personal-setup-panel p { font-size: 13px; color: #52645d; line-height: 1.65; margin: 9px 0 13px; }
+.personal-setup-panel code { display: block; padding: 10px 12px; font-size: 13px; background: #e7eee7; border-radius: 5px; color: #143e39; }
+.sample-own-workspace { display: flex; align-items: center; gap: 15px; margin: 14px 0 24px; }
+.sample-own-workspace p { font-size: 13px; margin: 0; color: #52645d; }
+.manual-review-notice .button { margin-top: 11px; }
+@media (max-width: 640px) {
+  .workspace-storage-note { flex-wrap: wrap; }
+  .workspace-storage-note p { flex: 1; min-width: 180px; }
+  .workspace-storage-note > .text-button { margin-left: 26px; }
+  .sample-own-workspace { align-items: flex-start; flex-direction: column; gap: 5px; }
+}

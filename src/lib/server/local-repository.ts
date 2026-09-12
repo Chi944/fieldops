@@ -18,7 +18,7 @@ async function retryFileOperation(operation: () => Promise<void>) {
     }
   }
 }
-const terminal = new Set(["ready", "partial", "failed", "cancelled", "waiting_quota"]);
+const terminal = new Set(["source_ready", "ready", "partial", "failed", "cancelled", "waiting_quota"]);
 const notFound = () => new ApiError(404, "not_found", "This resource is unavailable in your workspace.");
 
 /** Single-machine repository. Atomic JSON snapshots and an exclusive file lock survive process restarts. */
@@ -27,7 +27,14 @@ export class LocalRepository implements Repository {
   readonly directory: string;
   constructor(directory = process.env.FIELDOPS_DATA_DIR || resolve(process.cwd(), ".fieldops")) { this.directory = resolve(directory); }
   private async state(): Promise<State> {
-    try { return JSON.parse(await readFile(join(this.directory, "state.json"), "utf8")) as State; }
+    try {
+      const state = JSON.parse(await readFile(join(this.directory, "state.json"), "utf8")) as State;
+      // Older snapshots never recorded consent to model processing. Normalize to
+      // parser-only; the next atomic write persists that safe migration default.
+      for (const document of Object.values(state.documents)) document.processingMode ??= "parse_only";
+      for (const run of Object.values(state.runs)) run.processingMode ??= "parse_only";
+      return state;
+    }
     catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return initialState(); throw new ApiError(503, "storage_unreadable", "Local saved data could not be read. Restore a backup before continuing."); }
   }
   private async transaction<T>(fn: (state: State) => T): Promise<T> {
@@ -37,7 +44,12 @@ export class LocalRepository implements Repository {
     for (let attempt = 0; attempt < 200 && !lock; attempt++) {
       try { lock = await open(lockPath, "wx", 0o600); await lock.writeFile(JSON.stringify({ pid: process.pid, createdAt: Date.now() })); }
       catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        const code = (error as NodeJS.ErrnoException).code;
+        // Windows can report a transient access/busy error while another writer's
+        // lock is closing or being deleted. We have not acquired it: only wait,
+        // and never inspect or delete that unknown lock on this error path.
+        if (!lock && ["EPERM", "EACCES", "EBUSY"].includes(code ?? "")) { await sleep(20); continue; }
+        if (code !== "EEXIST") throw error;
         try {
           const owner = JSON.parse(await readFile(lockPath, "utf8")) as { pid: number };
           try { process.kill(owner.pid, 0); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ESRCH") await unlink(lockPath).catch(() => {}); }
@@ -118,6 +130,8 @@ export class LocalRepository implements Repository {
     await this.transaction((state) => {
       const record = this.owned(state, ownerId, document.comparisonId);
       if (record.comparison.revision !== expectedRevision) throw new ApiError(409, "stale_revision", "The comparison changed during upload. Retry this file.");
+      document.processingMode ??= "parse_only";
+      if (run && run.processingMode !== document.processingMode) throw new ApiError(400, "processing_mode_mismatch", "The processing run must use the mode selected for this upload.");
       state.documents[document.id] = document;
       if (run) state.runs[run.id] = run;
       record.comparison.quotations.push(quotation); record.comparison.revision++; record.comparison.updatedAt = new Date().toISOString();
@@ -129,6 +143,7 @@ export class LocalRepository implements Repository {
       const document = state.documents[documentId];
       if (!document || document.ownerId !== ownerId || document.status !== "uploading") throw notFound();
       this.owned(state, ownerId, document.comparisonId);
+      if (run.processingMode !== document.processingMode) throw new ApiError(400, "processing_mode_mismatch", "The processing mode was pinned when this upload began.");
       document.status = "uploaded"; document.contentHash = hash; state.runs[run.id] = run;
     });
   }
@@ -152,12 +167,13 @@ export class LocalRepository implements Repository {
   async pendingRuns() {
     const state = await this.state();
     const now = new Date().toISOString();
-    return Object.values(state.runs).filter((r) => (!terminal.has(r.stage) || (r.stage === "waiting_quota" && r.retryAfter && r.retryAfter <= now)) && !r.cancelRequested && (!r.leaseUntil || r.leaseUntil < now));
+    return Object.values(state.runs).filter((r) => (!terminal.has(r.stage) || (r.processingMode === "ai" && r.stage === "waiting_quota" && r.retryAfter && r.retryAfter <= now)) && !r.cancelRequested && (!r.leaseUntil || r.leaseUntil < now));
   }
   async saveRun(run: RunRecord, expectedFence?: string) {
     return this.transaction((state) => {
       const current = state.runs[run.id];
       if (!current || (expectedFence && current.fence !== expectedFence) || (current.cancelRequested && !run.cancelRequested)) return false;
+      if (current.processingMode !== run.processingMode) return false;
       if (expectedFence && terminal.has(current.stage) && current.stage !== run.stage) return false;
       state.runs[run.id] = { ...run, updatedAt: new Date().toISOString() }; return true;
     });
@@ -165,7 +181,7 @@ export class LocalRepository implements Repository {
   async claimRun(id: string, fence: string, leaseUntil: string) {
     return this.transaction((state) => {
       const run = state.runs[id];
-      const resumingQuota = run?.stage === "waiting_quota" && Boolean(run.retryAfter && run.retryAfter <= new Date().toISOString());
+      const resumingQuota = run?.processingMode === "ai" && run.stage === "waiting_quota" && Boolean(run.retryAfter && run.retryAfter <= new Date().toISOString());
       if (!run || (terminal.has(run.stage) && !resumingQuota) || run.cancelRequested || (run.leaseUntil && run.leaseUntil > new Date().toISOString())) return null;
       if (!state.documents[run.documentId] || !state.comparisons[run.comparisonId]) return null;
       run.fence = fence; run.leaseUntil = leaseUntil; if (!resumingQuota) run.attempt++; run.stage = "validating"; run.updatedAt = new Date().toISOString(); delete run.retryAfter;
@@ -188,7 +204,7 @@ export class LocalRepository implements Repository {
   async saveParsed(run: RunRecord, parsed: ParsedDocument) {
     await this.transaction((state) => {
       const current = state.runs[run.id];
-      if (!current || current.fence !== run.fence || current.cancelRequested || !state.documents[run.documentId]) return;
+      if (!current || current.fence !== run.fence || current.cancelRequested || terminal.has(current.stage) || !state.documents[run.documentId]) return;
       state.parsed[run.documentId] = parsed;
     });
   }
@@ -201,6 +217,7 @@ export class LocalRepository implements Repository {
     return this.transaction((state) => {
       const current = state.runs[run.id]; const document = state.documents[run.documentId]; const record = state.comparisons[run.comparisonId];
       if (!current || current.fence !== run.fence || current.cancelRequested || !document || document.status !== "uploaded" || !record || terminal.has(current.stage)) return false;
+      if (current.processingMode !== "ai" || run.processingMode !== "ai" || document.processingMode !== "ai") return false;
       const comparison = record.comparison; const index = comparison.quotations.findIndex((q) => q.documentId === run.documentId);
       if (index < 0 || comparison.quotations[index].extractionVersion >= run.extractionVersion) return false;
       const extraction = { id: `${run.documentId}:${run.extractionVersion}`, documentId: run.documentId, version: run.extractionVersion, quotation, createdAt: new Date().toISOString() };
