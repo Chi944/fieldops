@@ -14,7 +14,11 @@ FieldOps is a deployed, invited personal-workspace pilot. The supported path is 
 | Recovery | A read-only hosted backup of the five synthetic originals restored to a new local directory with all hashes, byte counts, source IDs and comparison revision preserved. No personal workspace or server was overwritten. [Recovery procedure](cloud-recovery.md). |
 | Operations | Private Workspace status shows reserved original capacity, pending cleanup, configured processing mode and job counts on demand. It exposes no other owners' counts, and does not continuously poll or claim to probe service health. |
 
-The first hosted format check used the previously deployed worker. The updated web/worker release and final verification are recorded below when complete; applying the database migration alone does not prove deployed code has changed.
+The first five-format check used the previous worker. The new worker `20260920.1` (`6vls4g3j`) then passed its health task, JPEG OCR and CSV parsing while preserving successful files around a malformed-PDF failure. On the updated web release, an exact duplicate was rejected without adding work; the explicit separate-copy action created one new processed quotation while preserving the original. The live status panel reported the owned counts and failed job correctly.
+
+Source **`6999678`** passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/35509209155) and deployed automatically through the connected Git repository to Vercel **READY** `dpl_8JwpzMGMy7CjQZYBpuDcGD1qzYyH`. Local verification passed **299 tests across 35 files**, typecheck, lint, production build and **10 browser workflows in 34.2 seconds**. The runtime audit had zero findings. The canonical deployment passed **6/6 applicable public browser checks in 34.1 seconds**; four real-upload/local-only cases were intentionally excluded from that public run and were tested locally or in the separate signed-in acceptance checks. [Detailed release evidence](release-verification.md).
+
+The synthetic acceptance data was then removed and verified: all nine originals and their staging keys returned 404, deletion tombstones retired after the actual replay period, and reserved original capacity returned to zero. Compute reservations were preserved. The new maintenance schedule also completed on its deployed worker version. No private personal data was used or removed; the separate synthetic recovery backup remains private.
 
 ## Operating the pilot
 

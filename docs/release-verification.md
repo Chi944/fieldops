@@ -10,7 +10,8 @@ Updated on 20 September 2026. The public demonstration, local personal workflow 
 - Fresh offline run `baseline-all-768b9c5aa64f-8dc06a6ab2cb`: 24/24 complete parser manifests, 144/144 identifiers, 963/963 source locations, 544/544 bounded regions, 8/8 robustness assertions. Gold-item baseline matching precision 102/102, recall 102/116 and hard-negative false equivalence 0/28. No model calls in this baseline.
 - The [separate AI review](ai-reliability-2026-09-20.md) preserves eight development responses, two validated intermediate chunks, six rejections, zero complete quotations and zero held-out calls. Hosted AI remains disabled; safeguards and parser completeness are not AI accuracy claims.
 - Trigger version `20260920.1`, deployment `6vls4g3j`, deployed on Node 24 with the pinned SDK/OCR asset. The fresh health task passed, followed by JPEG/CSV parsing and malformed-PDF isolation. [Hosted acceptance](hosted-acceptance.md) records actual runs and the private status check.
-- Hardening source `a220746` passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/35508763894) and automatically deployed to Vercel as READY `dpl_FGABQT66szMheMCfoDsJDkhZ2SF8`. The follow-up duplicate-recovery fix is being published and verified separately.
+- Hardening source `a220746` passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/35508763894) and automatically deployed to Vercel as READY `dpl_FGABQT66szMheMCfoDsJDkhZ2SF8`. The verified follow-up is recorded next.
+- Final source **`6999678`** passed [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/35509209155), including all six Docker PostgreSQL cases and ten browser workflows. Git automatically deployed READY Vercel `dpl_8JwpzMGMy7CjQZYBpuDcGD1qzYyH`; the canonical URL passed **6/6 public browser checks in 34.1 seconds**, with four local-only cases skipped. The signed-in hosted duplicate check displayed both recovery choices and created exactly one new source-ready CSV only after the explicit copy action. Worker version remains `20260920.1` because this final fix changes browser recovery, not task code.
 
 ## Delivered
 
@@ -18,7 +19,7 @@ Updated on 20 September 2026. The public demonstration, local personal workflow 
 - [Independent source repository](https://github.com/Chi944/fieldops), complete [requirements](spec.md), [implementation plan](implementation-plan.md) and [acceptance status](acceptance-status.md).
 - [Local setup](setup.md), [active Neon migration and restricted role](../neon/README.md), [deployment instructions](deployment.md), [architecture](architecture.md), [retention behavior](security-and-retention.md), [case study](case-study.md) and [three-minute demonstration script](demo-script.md). Earlier migration files remain as regression history.
 
-## Current milestone: cloud integration and measured AI recovery
+## Historical 13 September milestone: cloud integration and AI recovery
 
 Final integration source **`5aa72fe`** is published and [clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/34723941700) passed. Its Git-triggered Vercel deployment **`dpl_9NLcmNWDZPB8YZBn9Nxbckxkqjv8`** is READY at the canonical URL. All **6/6 applicable public browser checks passed in 31.4 seconds**, with three local-only checks deliberately skipped. The public report serves `baseline-all-c46b4849dea0-8dc06a6ab2cb`, covering all 24 offline documents. The [separate AI report](live-ai-development.md) preserves the failed full-document probe and two successful small application quotations.
 
@@ -78,7 +79,7 @@ All 144 authored identifiers were present in parsed text, 963/963 parser locator
 | --- | --- |
 | Live extraction and semantic matching | Free/ZDR and the dedicated local key are configured. Two tiny application extractions and one match passed, but the selected multi-item PDF did not complete. Hosted AI stays disabled until its reliability boundary is acceptable; no paid fallback |
 | Private cloud isolation | Actual invited sign-in, persistence, logout and anonymous source denial passed. A second identity, uninvited access and cross-user hosted routes still need real-account acceptance |
-| Hosted durable processing | Production text jobs and deletion passed. Hosted PDF/scan/image/XLSX/CSV, interruption, repeated uploads, cancellation, retry, stale edits and quota recovery remain required |
+| Hosted durable processing | Hosted text/PDF/scan/PNG/JPEG/XLSX/CSV, mixed-file failure and explicit duplicate-copy checks passed. Forced interruption, cancellation/retry, stale edits and quota recovery still need dedicated hosted acceptance |
 | Live reliability claims | Preserve failed development attempts and unavailable usage, then freeze configuration for the untouched held-out set. Current small measurements do not establish the 90%/95% targets |
 
 No automatic paid fallback, purchases, existing-project reuse, supplier contact or private-document publication occurred. The hosted manual workflow, local personal workspace and fixture demo remain usable within their documented limits.

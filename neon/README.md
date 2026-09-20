@@ -53,7 +53,7 @@ Only unfinished `uploading` intents expire after 24 hours. Finalization checks t
 
 Deleting a source releases comparison slots immediately, but its original-file count and bytes remain reserved until the final successful object deletion after the grace period. Provider failures keep the reservation and tombstone for a later sweep. Comparison and managed-account cascades use the same document trigger. Legacy tombstones without surviving size metadata conservatively reserve 20 MiB each until cleanup succeeds.
 
-The server helper `CloudRepository.capacity(ownerId)` wraps `select public.fieldops_capacity($1)` and returns typed workspace/project counts, byte totals, pending-deletion usage and limits. Public status exposes only the authenticated workspace values and a shared-capacity availability boolean; it must never disclose other owners' counts.
+The server helper `CloudRepository.capacity(ownerId)` wraps `select public.fieldops_capacity($1)` and returns typed workspace/project counts, byte totals, pending-deletion usage and limits. The private workspace-status endpoint exposes only the authenticated workspace values and a shared-capacity availability boolean; it must never disclose other owners' counts.
 
 The private Workspace status panel requests this data only when opened or refreshed. It reports configured processing availability and queue counts without continuously polling or claiming to test provider health. Verify it against the updated deployed web version; an applied database migration alone does not prove the panel is published.
 

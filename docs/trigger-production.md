@@ -6,6 +6,8 @@ Deployment [`6vls4g3j`](https://cloud.trigger.dev/projects/v3/proj_gqdrztfnxotyd
 
 A fresh [health run](https://cloud.trigger.dev/projects/v3/proj_gqdrztfnxotydnuhiaku/runs/run_06gbt890tc6imhaumm8e9krj01) completed on that version at `2026-09-20T11:43:57.619Z`: 18 CSV source cells, exact USD 251.30 total, zero model/database calls and zero private files. Provider execution was 93 ms and reported `costInCents: 0.0001569375`, covered by Free credit; this is usage metadata, not an invoice measurement. The private receipt is `.fieldops/trigger-hardening-health.json` and uses a new idempotency key distinct from the historical smoke below.
 
+The production maintenance schedule also executed on `20260920.1` at 11:45 and 12:00 UTC, both completed (600 ms and 645 ms). The latter run is `run_06gbtc1389r5bkd5qorh44b601`. These verify the new scheduled handler actually runs; no real upload was deliberately aged by 24 hours, so abandoned-intent expiry races remain established by the real PostgreSQL tests rather than this empty-queue smoke. The read-only SDK receipt is `.fieldops/reconcile-hardening-check.json`.
+
 The five-format hosted check and subsequent new-worker failure/recovery checks are recorded in [hosted acceptance](hosted-acceptance.md). The following section preserves the original worker's verification.
 
 ## 13 September 2026 initial deployment
