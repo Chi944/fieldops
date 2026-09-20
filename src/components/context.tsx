@@ -43,6 +43,34 @@ export function useWorkspace() {
   if (!value) throw new Error("Workspace context missing");
   return value;
 }
+export class ApiRequestError extends Error {
+  readonly code?: string;
+  readonly details?: { documentId: string };
+
+  constructor(
+    readonly status: number,
+    payload: unknown,
+    fallback = "The request could not be completed. Try again.",
+  ) {
+    const envelope = payload && typeof payload === "object" && "error" in payload
+      ? payload.error : undefined;
+    const error = envelope && typeof envelope === "object" ? envelope : undefined;
+    const message = error && "message" in error && typeof error.message === "string"
+      && error.message.trim() ? error.message : fallback;
+    super(message);
+    this.name = "ApiRequestError";
+    if (error && "code" in error && typeof error.code === "string"
+      && /^[a-z][a-z0-9_]{0,79}$/.test(error.code)) this.code = error.code;
+    const details = error && "details" in error ? error.details : undefined;
+    // Keep only the identifier needed for recovery, never arbitrary server
+    // details or a supplied URL. The original endpoint still authorizes access.
+    if (details && typeof details === "object" && "documentId" in details
+      && typeof details.documentId === "string"
+      && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(details.documentId)) {
+      this.details = { documentId: details.documentId };
+    }
+  }
+}
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -54,11 +82,11 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
   if (response.status === 204) return undefined as T;
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    throw new ApiRequestError(response.status, payload);
+  }
   const json = await response.json();
-  if (!response.ok)
-    throw new Error(
-      json.error?.message ?? "The request could not be completed. Try again.",
-    );
   return json as T;
 }
 export function revisionOf(c: Comparison): Comparison {

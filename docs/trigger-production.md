@@ -1,5 +1,15 @@
 # Production worker verification
 
+## 20 September 2026 hardening deployment
+
+Deployment [`6vls4g3j`](https://cloud.trigger.dev/projects/v3/proj_gqdrztfnxotydnuhiaku/deployments/6vls4g3j), version **`20260920.1`**, completed with the pinned 4.5.16 SDK/build/CLI, Node 24 and prepared English OCR asset. It includes bounded abandoned-upload expiry and cleanup. Runtime configuration remains parser-only, with no production model key or paid fallback.
+
+A fresh [health run](https://cloud.trigger.dev/projects/v3/proj_gqdrztfnxotydnuhiaku/runs/run_06gbt890tc6imhaumm8e9krj01) completed on that version at `2026-09-20T11:43:57.619Z`: 18 CSV source cells, exact USD 251.30 total, zero model/database calls and zero private files. Provider execution was 93 ms and reported `costInCents: 0.0001569375`, covered by Free credit; this is usage metadata, not an invoice measurement. The private receipt is `.fieldops/trigger-hardening-health.json` and uses a new idempotency key distinct from the historical smoke below.
+
+The five-format hosted check and subsequent new-worker failure/recovery checks are recorded in [hosted acceptance](hosted-acceptance.md). The following section preserves the original worker's verification.
+
+## 13 September 2026 initial deployment
+
 The dedicated Trigger Free project `proj_gqdrztfnxotydnuhiaku` deployed successfully on 13 September 2026 using SDK/build/CLI4.5.16 and node24. Deployment `ewdnylwz`, version `20260912.1`, was built for linux/amd64. The CLI bundled the prepared English OCR asset; a build alone does not establish OCR execution.
 
 The exact manual deployment used:

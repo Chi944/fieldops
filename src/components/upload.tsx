@@ -19,7 +19,7 @@ import type { Comparison, ProcessingRun, Quotation } from "@/lib/domain/types";
 import { LIMITS } from "@/lib/domain/types";
 import { demoComparisons } from "@/lib/demo";
 import { proposeMatches } from "@/lib/domain/matching";
-import { api, useWorkspace } from "./context";
+import { api, ApiRequestError, useWorkspace } from "./context";
 import { Modal, FileIcon, openOriginal, supplierName } from "./ui";
 
 interface Transfer {
@@ -28,6 +28,8 @@ interface Transfer {
   progress: number;
   status: "uploading" | "done" | "failed" | "cancelled";
   message?: string;
+  errorCode?: string;
+  documentId?: string;
   file?: File;
 }
 const stageLabel: Record<string, string> = {
@@ -61,6 +63,12 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
     setTransfers((all) =>
       all.map((t) => (t.id === id ? { ...t, ...patch } : t)),
     );
+  const failTransfer = (id: string, error: unknown) => update(id, {
+    status: "failed",
+    message: error instanceof Error ? error.message : "The upload failed. Try again.",
+    errorCode: error instanceof ApiRequestError ? error.code : undefined,
+    documentId: error instanceof ApiRequestError ? error.details?.documentId : undefined,
+  });
   const upload = async (file: File, allowDuplicate = false) => {
     if (!available) {
       toast(
@@ -137,11 +145,11 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
         requests.current.delete(id);
         try {
           if (xhr.status < 200 || xhr.status >= 300) {
-            let message = "The upload failed. Try again.";
+            let payload: unknown;
             try {
-              message = JSON.parse(xhr.responseText).error?.message ?? message;
+              payload = JSON.parse(xhr.responseText);
             } catch {}
-            throw new Error(message);
+            throw new ApiRequestError(xhr.status, payload, "The upload failed. Try again.");
           }
           if (cloudDocumentId)
             await api(`/api/documents/${cloudDocumentId}/finalize`, {
@@ -150,7 +158,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
           update(id, { status: "done", progress: 100 });
           await refresh(comparison.id);
         } catch (error) {
-          update(id, { status: "failed", message: (error as Error).message });
+          failTransfer(id, error);
         }
       };
       xhr.onerror = () => {
@@ -171,7 +179,7 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
       };
       xhr.send(body);
     } catch (error) {
-      update(id, { status: "failed", message: (error as Error).message });
+      failTransfer(id, error);
     }
   };
   const addSamples = async () => {
@@ -541,21 +549,30 @@ export function UploadScreen({ comparison }: { comparison: Comparison }) {
                 ) : (
                   t.status === "failed" &&
                   t.file && (
+                    <div className="file-actions">
+                    {t.errorCode === "duplicate" && t.documentId && (
+                      <a
+                        className="button small secondary"
+                        href={`/api/documents/${encodeURIComponent(t.documentId)}/source`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Open existing source
+                      </a>
+                    )}
                     <button
                       className="button small secondary"
                       onClick={() => {
                         setTransfers((all) => all.filter((x) => x.id !== t.id));
                         void upload(
                           t.file!,
-                          /duplicate/i.test(t.message ?? ""),
+                          t.errorCode === "duplicate",
                         );
                       }}
                     >
-                      Retry
-                      {/duplicate/i.test(t.message ?? "")
-                        ? " intentionally"
-                        : ""}
+                      {t.errorCode === "duplicate" ? "Upload separate copy" : "Retry"}
                     </button>
+                    </div>
                   )
                 )}
               </div>

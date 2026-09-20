@@ -14,7 +14,7 @@ On 20 September 2026, five further synthetic originals (text PDF, scanned PDF, P
 
 Trigger Free, CLI authentication, its Development health task and the production parser worker are verified. The organization uses the included-plan billing limit with cancellation of active runs enabled. Application reservations retain headroom below the included credit; provider caps are soft and are not the sole safeguard. Groq's dedicated FieldOps project is on Free with inference Zero Data Retention enabled. Tiny synthetic live extractions passed; larger development probes exposed structured-output and completeness failures, which remain recorded. Held-out model requests remain zero, and hosted AI stays disabled.
 
-Every service must stay on its Free/Hobby plan. No payment details, upgrade, paid fallback or new paid service is authorized. Neon object storage is free **during the current beta**, not a permanent free-storage promise. Stop using that cloud storage if free access ends; local originals/manual review and the fixture demo remain available. Consult [release verification](release-verification.md) for revision-specific checks.
+Every service must stay on its Free/Hobby plan. No payment details, upgrade, paid fallback or new paid service is authorized. Neon Object Storage is GA with 5 GB per project on Free, rechecked on 20 September 2026. [Neon GA announcement](https://neon.com/blog/neon-backend-is-ga). If continued storage requires payment, stop cloud admission, verify a local backup and remove cloud originals before paid retention applies. Local manual review and the fixture demo remain available. Consult [release verification](release-verification.md) for revision-specific checks.
 
 ## Public fixture demonstration
 
@@ -32,7 +32,7 @@ Follow [Neon database setup](../neon/README.md) to create the restricted `fieldo
 
 Every database operation sets the restricted role inside the same transaction as its parameterized query. Runtime reads are trusted-server reads with explicit owner scopes; this is not a public browser Data API. Mutation functions enforce owner, revision and job fences. See [security boundaries](security-and-retention.md).
 
-Neon Free has finite database, compute, object-storage and transfer allowances. Confirm the actual project's plan and limits before admission. A database pause or exhausted allowance must not cause a paid upgrade or provider switch. Managed Auth and object storage are evolving services: verify branch endpoints and current beta restrictions. [Neon Auth](https://neon.com/docs/auth/overview), [Neon object storage](https://neon.com/docs/storage/overview).
+Neon Free has finite database, compute, object-storage and transfer allowances. Confirm the actual project's plan and limits before admission. A database pause or exhausted allowance must not cause a paid upgrade or provider switch. Verify branch endpoints and current service restrictions against the [free-service boundaries](free-services.md), [Neon Auth](https://neon.com/docs/auth/overview) and [Neon object storage](https://neon.com/docs/storage/overview). FieldOps does not use Neon Functions or AI Gateway.
 
 ## 2. Managed Auth, GitHub and invitations
 

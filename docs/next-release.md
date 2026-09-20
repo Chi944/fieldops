@@ -1,6 +1,6 @@
 # Private pilot and remaining release gates
 
-The current implementation uses **Neon only**, with Vercel Hobby, Neon Free and Trigger Free. Its hosted parser/manual-review workflow now works through GitHub sign-in, private source storage, production processing, comparison and export. Hosted processing remains parser-only with no production Groq key; Groq Free is enabled separately for the local AI workspace. Neon Object Storage is free during beta. [Deployment instructions](deployment.md), [free-service boundaries](free-services.md) and [release verification](release-verification.md) contain current evidence.
+The current implementation uses **Neon only**, with Vercel Hobby, Neon Free and Trigger Free. Its hosted parser/manual-review workflow now works through GitHub sign-in, private source storage, production processing, comparison and export. Hosted processing remains parser-only with no production Groq key; Groq Free is enabled separately for the local AI workspace. Neon Object Storage is GA with 5 GB per project on Free. [Neon GA announcement](https://neon.com/blog/neon-backend-is-ga). [Deployment instructions](deployment.md), [free-service boundaries](free-services.md) and [release verification](release-verification.md) contain current evidence.
 
 ## Available now
 
@@ -19,7 +19,7 @@ The local personal workspace supports persistent source review, manual entry/cor
 | Hosted persistence and isolation | Reload, sign-out/re-entry and deletion of the synthetic comparison passed; both originals return storage 404. Add an uninvited identity and two authenticated users to prove cross-user comparison/API/source denial. One successful invited identity and anonymous 401 responses do not complete that matrix. |
 | Hosted processing | Pasted text and one example each of text PDF, scanned PDF, PNG, XLSX and CSV passed production parsing. Verify the updated worker, uploaded text/JPEG where advertised, broader layouts, and end-to-end reviewed comparison/export for those formats. Preserve successful files during another failure; verify duplicate/revision, forced interruption, cancel/retry and stale edits. |
 | Live AI reliability | Keep the observed provider rejections. Finish multiformat development probes beyond the two tiny local successes, freeze schema/prompt/model/parser configuration, then run the untouched held-out split. Compare AI matching with the baseline using actual field/row/match/ambiguity/source/latency/usage denominators. Hosted AI remains disabled until separately configured and verified. |
-| Free capacity | Verify actual usage against conservative reservations. Pause when free allowances end; never upgrade or enable paid fallback. Neon storage is currently free during beta, so stop cloud admission if continued use would require payment. |
+| Free capacity | Verify actual usage against conservative reservations and finite provider allowances. Pause when free allowances end; never upgrade or enable paid fallback. If terms change so retained storage requires payment, stop cloud admission, verify a local backup and remove cloud originals before paid retention applies. |
 
 ## Further engineering work
 

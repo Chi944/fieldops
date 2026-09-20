@@ -1,6 +1,6 @@
 # Free-service operating limits
 
-Reviewed against public provider documentation on 2026-09-13. These are capacity estimates, not measured bills or a promise of uninterrupted free hosting. Keep every provider on its Free plan; quota exhaustion must pause processing or leave manual review available. Never enable a paid plan, paid fallback, automatic top-up, or subscription-token bridge to make a failed job continue.
+Neon allowances rechecked against official documentation on 2026-09-20; the other provider estimates retain their 2026-09-13 review date. These are capacity estimates, not measured bills or a promise of uninterrupted free hosting. Keep every provider on its Free plan; quota exhaustion must pause processing or leave manual review available. Never enable a paid plan, paid fallback, automatic top-up, or subscription-token bridge to make a failed job continue.
 
 ## Trigger compute allowance
 
@@ -40,12 +40,12 @@ The OCR command downloads English language data during setup. Runtime parsing us
 
 The verification workflow uses Node 24, the package lock, OCR setup, type checking, lint, unit/integration tests, a Next production build, and browser tests against that production build. It has no model credentials and disables the free-plan/data-policy gates. It does not provision providers or deploy Trigger tasks. Hosted Linux OCR, authentication, storage, worker scheduling and provider usage still require separate synthetic deployment checks. Keep provider secrets out of pull-request jobs and artifact uploads.
 
-## Neon capacity and beta dependency
+## Neon capacity and free-plan boundary
 
-The published Neon Free allowance includes 100 CU-hours/month per project, 0.5 GB database storage and 60,000 monthly active Auth users. These are provider limits, not proof that FieldOps has that much unused capacity. Source evidence, correction history and checkpoints occupy database storage even when original files live in object storage. [Neon pricing](https://neon.com/pricing).
+Neon's 17 September GA announcement lists Free allowances of 100 CU-hours and 0.5 GB database storage per project, 5 GB object storage per project, and 60,000 monthly active Auth users. [Neon GA announcement](https://neon.com/blog/neon-backend-is-ga).
 
-Neon Object Storage is currently a beta service available to try free. Its beta availability is not a permanent free storage contract. Recheck its current terms before expanding use; keep export/backup recovery available and stop cloud admission if continued storage requires payment. The application does not use Neon's AI Gateway or Functions. [Neon backend beta announcement](https://neon.com/blog/neon-backend-is-beta).
+These finite provider allowances do not establish FieldOps's remaining capacity. Source evidence, correction history and checkpoints occupy database storage separately from originals. Recheck actual usage and current terms before expanding use. FieldOps does not use Neon's AI Gateway or Functions.
 
 The hosted browser stops polling once processing reaches a terminal state and while the tab is hidden. It refreshes on focus or explicit actions, and pauses quota waits until their recorded retry time. This prevents an idle comparison from holding compute awake indefinitely. The production reconciliation schedule still wakes the database every 15 minutes. Assuming a fixed 0.25 CU and five-minute idle timeout, those wakes alone could use roughly 62 CU-hours over 31 days; this is an estimate, not actual usage. Watch the remaining Free allowance before expanding the pilot.
 
-The storage beta has no automatic pricing-change detector in FieldOps. If its free access ends, disable cloud upload admission, export and remove retained cloud originals before any paid retention applies, and use the local workspace. Do not treat an upgrade prompt as permission to continue. No paid image-generation call, custom-domain purchase, card addition or provider upgrade is required for the current application.
+FieldOps has no automatic pricing-change detector. If free access ends or continued retention would require payment, disable cloud upload admission, verify a local backup and export, then remove retained cloud originals before paid retention applies. Continue in the local workspace. Do not treat an upgrade prompt as permission to continue. No paid image-generation call, custom-domain purchase, card addition or provider upgrade is required for the current application.
