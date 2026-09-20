@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Activity,
   ArrowUpRight,
   Check,
   ChevronDown,
@@ -34,6 +35,7 @@ import { UploadScreen } from "./upload";
 import { ReviewScreen } from "./review";
 import { MatchingScreen } from "./matching";
 import { ComparisonScreen, ReportScreen } from "./comparison";
+import { WorkspaceStatusDialog } from "./workspace-status";
 
 const steps = [
   { id: "upload", name: "Quotations", icon: UploadCloud },
@@ -73,6 +75,7 @@ export function FieldOps({
   const [overviewScope, setOverviewScope] = useState<"personal" | "samples">("personal");
   const [creationScope, setCreationScope] = useState<"personal" | "samples">("samples");
   const [workspaceDialog, setWorkspaceDialog] = useState(false);
+  const [statusDialog, setStatusDialog] = useState(false);
   const [runs, setRuns] = useState<ProcessingRun[]>([]);
   const [notice, setNotice] = useState<{
     message: string;
@@ -477,6 +480,7 @@ export function FieldOps({
               <strong>Every number, a source.</strong>
               <p>Clear comparisons you can stand behind.</p>
             </div>
+            {capabilities.canPersist && <button className="nav-item" onClick={() => { setStatusDialog(true); setMobileNav(false); }}><Activity size={17} /> Workspace status</button>}
             <button className="nav-item" onClick={() => setHelp(true)}>
               <CircleHelp size={17} />
               How FieldOps works
@@ -788,6 +792,7 @@ export function FieldOps({
           </div>
         </form>
       </Modal>
+      <WorkspaceStatusDialog open={statusDialog} onClose={() => setStatusDialog(false)} />
       <Modal open={workspaceDialog} onClose={() => setWorkspaceDialog(false)} title="Choose a workspace" description="Your quotations and fictional examples stay separate.">
         <div className="workspace-choice-list">
           {capabilities.canPersist ? <button className="workspace-choice" onClick={() => switchWorkspace("personal")}>

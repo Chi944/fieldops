@@ -1,6 +1,15 @@
 # First-release verification
 
-Verified on 13 September 2026. The public demonstration, local personal workflow and invited hosted parser/manual workflow work through comparison and Excel export. Real local AI extraction and matching succeeded on two tiny synthetic quotations; a multi-item PDF failed safely. Full hosted format coverage and held-out AI acceptance remain open.
+Updated on 20 September 2026. The public demonstration, local personal workflow and invited hosted parser/manual workflow work through comparison and Excel export. Hosted text PDF, scanned PDF, PNG, XLSX and CSV parsing and a five-original recovery drill now passed. Larger AI quotation extraction still fails safely; held-out AI acceptance remains open. [Production readiness](production-readiness.md) defines the private-pilot boundary.
+
+## 20 September hardening verification
+
+- **296/296 tests across 34 files**, including six independent-session PostgreSQL concurrency tests, passed in 29.65 seconds. TypeScript, ESLint, Next.js production build and the zero-finding runtime dependency audit passed.
+- **9/9 local production-build browser workflows passed in 27.3 seconds**. The principal workflow covers uploads, manual evidence review, corrections, approved matching, comparison, workbook round-trip, print/PDF, reload persistence and cleanup. Source canvases, keyboard navigation and selected WCAG A/AA checks—including the new status dialog—pass.
+- Atomic capacity/upload expiry migration applied to the dedicated Neon branch. Streamed request limits, fresh invitation checks, owner-isolated status, an operator upload pause switch and hosted-to-local backup/restore now have regression coverage. Original byte limits do not claim to bound all derived database/history storage.
+- Fresh offline run `baseline-all-768b9c5aa64f-8dc06a6ab2cb`: 24/24 complete parser manifests, 144/144 identifiers, 963/963 source locations, 544/544 bounded regions, 8/8 robustness assertions. Gold-item baseline matching precision 102/102, recall 102/116 and hard-negative false equivalence 0/28. No model calls in this baseline.
+- The [separate AI review](ai-reliability-2026-09-20.md) preserves eight development responses, two validated intermediate chunks, six rejections, zero complete quotations and zero held-out calls. Hosted AI remains disabled; safeguards and parser completeness are not AI accuracy claims.
+- Trigger version `20260920.1`, deployment `6vls4g3j`, built and deployed on Node 24 with the pinned SDK and prepared OCR asset. Fresh task execution, Git-linked Vercel publication and clean Linux CI are being verified; their receipts follow when complete.
 
 ## Delivered
 

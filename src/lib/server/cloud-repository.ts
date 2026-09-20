@@ -6,12 +6,30 @@ import { storageWrite, storageRead, storageDelete } from "./neon-storage";
 
 // Names are fixed application code, never user input; values use PostgreSQL parameters.
 type RpcName = "create_comparison" | "save_comparison" | "delete_comparison" | "delete_document" | "create_upload" | "finalize_upload" | "pending_runs" | "save_run" | "claim_run" | "renew_lease" | "retry_run" | "save_parsed" | "save_checkpoint" | "complete_run";
+export interface CapacityUsage {
+  comparisons: number;
+  documents: number;
+  bytes: number;
+  pendingDeletionDocuments: number;
+  pendingDeletionBytes: number;
+  limits: { comparisons: number; documents: number; bytes: number };
+}
+/** Server diagnostics. Public status must expose workspace usage only, not other owners' counts. */
+export interface CloudCapacity {
+  workspace: CapacityUsage;
+  project: CapacityUsage;
+  uploadIntentTtlHours: number;
+}
 async function rpc<T>(name: RpcName, params: unknown[] = []): Promise<T> {
   const rows = await sqlQuery<{ result: T }>(`select public.fieldops_${name}(${params.map((_, index) => `$${index + 1}`).join(",")}) as result`, params);
   return rows[0]?.result;
 }
 export class CloudRepository implements Repository {
   readonly mode = "cloud" as const;
+  async capacity(ownerId: string): Promise<CloudCapacity> {
+    const rows = await sqlQuery<{ result: CloudCapacity }>("select public.fieldops_capacity($1) as result", [ownerId]);
+    return rows[0].result;
+  }
   async list(ownerId: string) {
     const rows = await sqlQuery<{ snapshot: Comparison }>("select snapshot from public.comparisons where owner_id=$1 and deleted_at is null order by updated_at desc", [ownerId]);
     return rows.map(row => row.snapshot);
@@ -75,7 +93,13 @@ export class CloudRepository implements Repository {
   async cleanup(options: { signal?: AbortSignal } = {}) {
     if (options.signal?.aborted) return;
     let entries: { id: string; storage_path: string }[];
-    try { entries = await sqlQuery<{ id: string; storage_path: string }>("select id,storage_path from public.deletion_outbox order by created_at limit 50", [], options); }
+    try {
+      // Expiry removes only abandoned uploading intents; its delete trigger durably
+      // records both object cleanup and capacity before any network deletion starts.
+      await sqlQuery("select public.fieldops_expire_uploads()", [], options);
+      if (options.signal?.aborted) return;
+      entries = await sqlQuery<{ id: string; storage_path: string }>("select id,storage_path from public.deletion_outbox order by created_at limit 50", [], options);
+    }
     catch (error) { if (options.signal?.aborted) return; throw error; }
     for (const entry of entries) {
       if (options.signal?.aborted) return;

@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { emptyQuotation, type Comparison } from "@/lib/domain/types";
 import type { DocumentRecord, RunRecord } from "@/lib/server/contracts";
-import { CloudRepository } from "@/lib/server/cloud-repository";
+import { CloudRepository, type CloudCapacity } from "@/lib/server/cloud-repository";
 import { storageDelete } from "@/lib/server/neon-storage";
 
 // Repository statements execute against the same actual PostgreSQL migration. Only transport
@@ -248,7 +248,7 @@ describe("Neon migration behavior with inspected managed auth schema stubs", () 
     const tables = await db.query<{ relrowsecurity: boolean }>("select relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'");
     expect(tables.rows.length).toBe(16); expect(tables.rows.every(row => row.relrowsecurity)).toBe(true);
     const permissions = await db.query<{ allowed: boolean }>("select has_function_privilege('fieldops_untrusted',p.oid,'EXECUTE') as allowed from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'fieldops_%'");
-    expect(permissions.rows.length).toBe(17); expect(permissions.rows.every(row => !row.allowed)).toBe(true);
+    expect(permissions.rows.length).toBe(20); expect(permissions.rows.every(row => !row.allowed)).toBe(true);
   });
   it("deletes one source while preserving the other supplier and scrubbing old snapshots", async () => {
     const { c, d } = await seed();
@@ -259,5 +259,183 @@ describe("Neon migration behavior with inspected managed auth schema stubs", () 
     const snapshot = (await db.query<{ snapshot: Comparison }>("select snapshot from comparisons where id=$1", [c.id])).rows[0].snapshot;
     expect(snapshot.quotations.map((q) => q.documentId)).toEqual([d2.id]);
     expect((await db.query("select version from comparison_versions where comparison_id=$1", [c.id])).rows).toHaveLength(1);
+  });
+});
+
+describe("atomic pilot capacity and abandoned-upload retention", () => {
+  const MiB = 1024 * 1024;
+  const repository = new CloudRepository();
+  async function capacity(owner = owner1) { return await rpc("fieldops_capacity", [owner]) as CloudCapacity; }
+  async function create(owner = owner1) {
+    const c = comparison(owner); await rpc("fieldops_create_comparison", [owner, c]); return c;
+  }
+  async function admit(c: Comparison, size = 100, hash = "b".repeat(64)) {
+    const revision = (await repository.get(c.workspaceId, c.id)).revision;
+    const id = randomUUID();
+    const d: DocumentRecord = { id, comparisonId: c.id, ownerId: c.workspaceId, filename: "synthetic.txt", contentType: "text/plain", contentHash: hash, size, storagePath: `${c.workspaceId}/${id}`, status: "uploading", createdAt: now, processingMode: "parse_only" };
+    await rpc("fieldops_create_upload", [d.ownerId, d, null, emptyQuotation(d.id, d.filename), revision]);
+    return d;
+  }
+  async function reject(action: () => Promise<unknown>, error: string) {
+    await db.exec("savepoint expected_rejection");
+    await expect(action()).rejects.toThrow(error);
+    await db.exec("rollback to savepoint expected_rejection");
+  }
+  async function newOwner() {
+    const id = randomUUID(); await db.query('insert into neon_auth."user"(id) values($1)', [id]); return id;
+  }
+  async function addFiles(owner: string, count: number, size = 100) {
+    let c = await create(owner);
+    for (let index = 0; index < count; index++) {
+      if (index && index % 5 === 0) c = await create(owner);
+      await admit(c, size);
+    }
+  }
+  function pendingRun(d: DocumentRecord): RunRecord {
+    return { id: randomUUID(), comparisonId: d.comparisonId, documentId: d.id, ownerId: d.ownerId, processingMode: "parse_only", stage: "queued", progress: 0, attempt: 0, fence: randomUUID(), inputRevision: 1, cancelRequested: false, createdAt: now, updatedAt: now, extractionVersion: 1, expectedHash: d.contentHash };
+  }
+
+  it("enforces both workspace and project comparison counts without partial snapshots", async () => {
+    for (let index = 0; index < 20; index++) await create();
+    await reject(() => create(), "workspace_comparison_limit");
+    for (const owner of [owner2, await newOwner(), await newOwner(), await newOwner()]) {
+      for (let index = 0; index < 20; index++) await create(owner);
+    }
+    const sixthOwner = await newOwner();
+    await reject(() => create(sixthOwner), "project_capacity");
+    expect((await capacity()).workspace.comparisons).toBe(20);
+    expect((await capacity()).project.comparisons).toBe(100);
+    expect((await db.query("select version from comparison_versions")).rows).toHaveLength(100);
+    expect((await db.query("select id from workspaces where owner_id=$1", [sixthOwner])).rows).toHaveLength(0);
+  });
+
+  it("counts all uploading intents against the workspace and project document limits", async () => {
+    await addFiles(owner1, 50);
+    const full = await create();
+    await reject(() => admit(full), "workspace_document_limit");
+    for (const owner of [owner2, await newOwner(), await newOwner()]) await addFiles(owner, 50);
+    const fresh = await create(await newOwner());
+    await reject(() => admit(fresh), "project_capacity");
+    expect((await capacity()).workspace).toMatchObject({ documents: 50, bytes: 5000 });
+    expect((await capacity()).project).toMatchObject({ documents: 200, bytes: 20000 });
+    expect((await db.query("select * from processing_reservations")).rows).toHaveLength(0);
+  });
+
+  it("retains byte capacity through repeated deletion and failed cleanup, releasing only after a final successful sweep", async () => {
+    const full = await create(); const files: DocumentRecord[] = [];
+    for (let index = 0; index < 5; index++) files.push(await admit(full, 20 * MiB));
+    const next = await create();
+    await reject(() => admit(next, 1), "workspace_storage_limit");
+    await rpc("fieldops_delete_document", [owner1, files[0].id, 5]);
+    await reject(() => rpc("fieldops_delete_document", [owner1, files[0].id, 6]), "not_found");
+    expect((await capacity()).workspace).toMatchObject({ documents: 5, bytes: 100 * MiB, pendingDeletionDocuments: 1, pendingDeletionBytes: 20 * MiB });
+    await repository.cleanup();
+    expect((await capacity()).workspace.bytes).toBe(100 * MiB);
+    await db.exec("update deletion_outbox set created_at=now()-interval '6 minutes'");
+    vi.mocked(storageDelete).mockRejectedValueOnce(new Error("synthetic cleanup unavailable"));
+    await repository.cleanup();
+    await reject(() => admit(next, 1), "workspace_storage_limit");
+    expect((await capacity()).workspace.bytes).toBe(100 * MiB);
+    await repository.cleanup();
+    expect((await capacity()).workspace).toMatchObject({ documents: 4, bytes: 80 * MiB, pendingDeletionDocuments: 0 });
+    await admit(next, 20 * MiB);
+    expect((await capacity()).workspace.bytes).toBe(100 * MiB);
+  });
+
+  it("enforces project bytes even when every workspace remains below its own limit", async () => {
+    await addFiles(owner1, 5, 20 * MiB);
+    await addFiles(owner2, 5, 20 * MiB);
+    const third = await create(await newOwner());
+    await admit(third, 20 * MiB); await admit(third, 20 * MiB); await admit(third, 10 * MiB);
+    await reject(() => admit(third, 1), "project_capacity");
+    expect((await capacity(third.workspaceId)).workspace.bytes).toBe(50 * MiB);
+    expect((await capacity()).project.bytes).toBe(250 * MiB);
+  });
+
+  it("does not double-reserve a stale repeated request and charges explicit same-content revisions separately", async () => {
+    const c = await create(); const first = await admit(c, 200);
+    await reject(() => rpc("fieldops_create_upload", [owner1, first, null, emptyQuotation(first.id, first.filename), 0]), "stale_revision");
+    await reject(() => rpc("fieldops_create_upload", [owner1, first, null, emptyQuotation(first.id, first.filename), 1]), "duplicate key");
+    expect((await capacity()).workspace).toMatchObject({ documents: 1, bytes: 200 });
+    const second = await admit(c, 200, first.contentHash);
+    expect(second.id).not.toBe(first.id);
+    expect((await capacity()).workspace).toMatchObject({ documents: 2, bytes: 400 });
+    expect((await repository.get(owner1, c.id)).quotations).toHaveLength(2);
+    expect((await db.query("select * from processing_reservations")).rows).toHaveLength(0);
+  });
+
+  it("checks single-file size and comparison slots before reserving any capacity", async () => {
+    const c = await create();
+    for (const size of [0, -1, 1.5, 20 * MiB + 1]) await reject(() => admit(c, size), "file_size");
+    for (let index = 0; index < 5; index++) await admit(c);
+    await reject(() => admit(c), "comparison_document_limit");
+    expect((await capacity()).workspace).toMatchObject({ documents: 5, bytes: 500 });
+    expect((await repository.get(owner1, c.id)).revision).toBe(5);
+  });
+
+  it("rejects expired finalization before compute reservation, then durably removes the intent and fences stale saves", async () => {
+    const c = await create(); const d = await admit(c); const r = pendingRun(d);
+    // Relational time is authoritative, not a client-controlled document timestamp.
+    await db.query("update documents set created_at=now()-interval '24 hours',record=jsonb_set(record,'{createdAt}',to_jsonb(now())) where id=$1", [d.id]);
+    await reject(() => rpc("fieldops_finalize_upload", [owner1, d.id, d.contentHash, r]), "upload_expired");
+    expect((await db.query("select * from processing_reservations")).rows).toHaveLength(0);
+    expect(await rpc("fieldops_expire_uploads", [])).toBe(1);
+    expect(await rpc("fieldops_expire_uploads", [])).toBe(0);
+    await reject(() => rpc("fieldops_finalize_upload", [owner1, d.id, d.contentHash, r]), "not_found");
+    await reject(() => rpc("fieldops_save_comparison", [owner1, { ...c, revision: 1 }, 1]), "stale_revision");
+    expect((await repository.get(owner1, c.id)).quotations).toEqual([]);
+    expect((await capacity()).workspace).toMatchObject({ documents: 1, bytes: 100, pendingDeletionDocuments: 1 });
+    expect((await db.query<{ recent: boolean }>("select created_at>=now()-interval '1 second' as recent from deletion_outbox")).rows).toEqual([{ recent: true }]);
+    expect((await db.query("select * from processing_runs")).rows).toHaveLength(0);
+  });
+
+  it("expires at most 25 abandoned intents per sweep and preserves recent intentions", async () => {
+    await addFiles(owner1, 30);
+    await db.exec("update documents set created_at=now()-interval '25 hours'");
+    const recent = await admit(await create());
+    expect(await rpc("fieldops_expire_uploads", [])).toBe(25);
+    expect((await capacity()).workspace).toMatchObject({ documents: 31, pendingDeletionDocuments: 25 });
+    expect(await rpc("fieldops_expire_uploads", [])).toBe(5);
+    expect((await db.query<{ id: string }>("select id from documents")).rows).toEqual([{ id: recent.id }]);
+    expect((await db.query("select id from deletion_outbox")).rows).toHaveLength(30);
+    expect((await capacity()).workspace).toMatchObject({ documents: 31, bytes: 3100 });
+  });
+
+  it("preserves an old completed quotation, evidence and buyer corrections while expiring a sibling intent", async () => {
+    const { c, d, r } = await seed();
+    await rpc("fieldops_claim_run", [r.id, "complete", new Date(Date.now() + 30000).toISOString()]);
+    const parsed = { documentId: d.id, sources: [{ id: "kept-source", documentId: d.id, kind: "text", text: "Synthetic supplier" }] };
+    await rpc("fieldops_save_parsed", [r.id, "complete", parsed]);
+    const q = { ...emptyQuotation(d.id, d.filename), extractionVersion: 1, status: "ready", items: [{ id: "kept-item", kind: "goods" }], sources: parsed.sources };
+    expect(await rpc("fieldops_complete_run", [r.id, "complete", q])).toBe(true);
+    const current = await repository.get(owner1, c.id);
+    const correction = { id: randomUUID(), quotationId: q.id, fieldPath: "supplierName", original: "Original", corrected: "Reviewed" };
+    await rpc("fieldops_save_comparison", [owner1, { ...current, corrections: [correction] }, current.revision]);
+    const unfinished = await admit(c);
+    await db.exec("update documents set created_at=now()-interval '48 hours'");
+    expect(await rpc("fieldops_expire_uploads", [])).toBe(1);
+    const saved = await repository.get(owner1, c.id);
+    expect(saved.quotations).toEqual([q]); expect(saved.corrections).toEqual([correction]);
+    expect((await db.query("select id from documents where id=$1", [unfinished.id])).rows).toEqual([]);
+    expect((await db.query("select id from source_spans")).rows).toEqual([{ id: "kept-source" }]);
+    expect((await db.query("select id from quotation_items")).rows).toEqual([{ id: "kept-item" }]);
+    expect((await repository.run(owner1, r.id)).stage).toBe("ready");
+    expect((await db.query<{ amount: string }>("select sum(reserved_usd) as amount from processing_reservations")).rows[0].amount).toBe("0.13000");
+    await rpc("fieldops_delete_comparison", [owner1, c.id]);
+    expect((await capacity()).workspace).toMatchObject({ comparisons: 0, documents: 2, bytes: 200, pendingDeletionDocuments: 2 });
+    expect((await db.query<{ amount: string }>("select sum(reserved_usd) as amount from processing_reservations")).rows[0].amount).toBe("0.13000");
+  });
+
+  it("retains a cleanup reservation through managed-account cascade including parsed and item relations", async () => {
+    const { d, r } = await seed();
+    await rpc("fieldops_claim_run", [r.id, "account-delete", new Date(Date.now() + 30000).toISOString()]);
+    await rpc("fieldops_save_parsed", [r.id, "account-delete", { documentId: d.id, sources: [{ id: "source", kind: "text" }] }]);
+    await rpc("fieldops_save_checkpoint", [r.id, "account-delete", "private", { value: "synthetic" }]);
+    expect(await rpc("fieldops_complete_run", [r.id, "account-delete", { ...emptyQuotation(d.id, d.filename), extractionVersion: 1, status: "ready", items: [{ id: "item", kind: "goods" }] }])).toBe(true);
+    await db.query('delete from neon_auth."user" where id=$1', [owner1]);
+    for (const table of ["comparisons", "documents", "processing_runs", "parsed_documents", "source_spans", "extraction_versions", "quotation_items", "ai_checkpoints"]) expect((await db.query(`select * from public.${table}`)).rows).toEqual([]);
+    expect((await capacity()).workspace).toMatchObject({ comparisons: 0, documents: 1, bytes: 100, pendingDeletionDocuments: 1 });
+    expect((await db.query<{ size_bytes: number }>("select size_bytes::int from deletion_outbox")).rows).toEqual([{ size_bytes: 100 }]);
+    expect((await db.query("select * from processing_reservations")).rows).toHaveLength(1);
   });
 });

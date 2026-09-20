@@ -8,6 +8,7 @@
     "personal:check": "tsx scripts/personal-start.ts --check",
     "personal:backup": "tsx scripts/personal-backup.ts",
     "personal:restore": "tsx scripts/personal-restore.ts",
+    "cloud:backup": "tsx scripts/cloud-backup.ts",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "lint": "eslint .",

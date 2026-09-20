@@ -1,8 +1,10 @@
 import { createHash } from "node:crypto";
+import { extractionWireSchema, expandExtraction } from "./transport";
+import { strictSchema } from "./schema";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
-export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; }
-export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; providerError?: { code: string; message: string | null }; }
+export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4"; }
+export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; contentCharacters?: number; reasoningCharacters?: number; rejectedAt?: "transport"; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
   get(key: string): Promise<AIResult | null>;
@@ -12,7 +14,7 @@ export interface AICheckpoint {
 }
 export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
-export const PROMPT_VERSION = "fieldops-extraction-3";
+export const PROMPT_VERSION = "fieldops-extraction-5";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
 // One request at a time. Provider quota remains authoritative across deployed workers.
 let pending: Promise<unknown> = Promise.resolve();
@@ -29,7 +31,8 @@ export function liveAIConfiguration(): { ready: boolean; model: string; reason: 
 export function requireLiveAI(): void { const configuration = liveAIConfiguration(); if (!configuration.ready) throw new AIUnavailableError(configuration.reason ?? undefined); }
 
 class RejectedResponse extends ProcessingError {
-  constructor(message: string, readonly result: AIResult, retryable = false) { super("invalid_output", message, retryable); }
+  readonly result: AIResult;
+  constructor(message: string, result: AIResult, retryable = false) { super("invalid_output", message, retryable); this.result = { ...result, rejectedAt: "transport" }; }
 }
 
 export async function requestAI<T = AIResult>(request: AIRequest, options: AIOptions = {}, validate?: (result: AIResult) => T | Promise<T>): Promise<T> {
@@ -81,11 +84,14 @@ async function enqueue<T>(operation: () => Promise<T>): Promise<T> {
 /** Short transport aliases reduce repeated citation tokens; stored IDs stay parser-owned. */
 export function compactExtractionRequest(request: AIRequest): { request: AIRequest; restore(data: unknown): unknown } {
   if (request.purpose !== "extraction") return { request, restore: data => data };
-  let body: { sources?: { id: string; [key: string]: unknown }[] };
+  let body: { sources?: { id: string; [key: string]: unknown }[]; context?: { id: string; [key: string]: unknown }[] };
   try { body = JSON.parse(request.user); } catch { return { request, restore: data => data }; }
   if (!Array.isArray(body.sources)) return { request, restore: data => data };
-  const original = new Map(body.sources.map((source, index) => [`s${index}`, source.id]));
-  const user = JSON.stringify({ ...body, sources: body.sources.map((source, index) => ({ ...source, id: `s${index}` })) });
+  const targets = body.sources, context = body.context ?? [];
+  const all = [...targets, ...context];
+  const original = new Map(all.map((source, index) => [`s${index}`, source.id]));
+  const aliases = new Map(all.map((source, index) => [source.id, `s${index}`]));
+  const user = JSON.stringify({ ...body, sources: targets.map(source => ({ ...source, id: aliases.get(source.id) })), ...(body.context ? { context: context.map(source => ({ ...source, id: aliases.get(source.id) })) } : {}) });
   function identifier(value: unknown): string {
     if (typeof value !== "string" || !original.has(value)) throw new Error("Unknown evidence alias");
     return original.get(value)!;
@@ -99,7 +105,10 @@ export function compactExtractionRequest(request: AIRequest): { request: AIReque
       return [key, restore(value)];
     }));
   }
-  return { request: { ...request, user }, restore };
+  return { request: { ...request, user, ...(request.transport === "quotation-v4" ? { schema: strictSchema(extractionWireSchema) } : {}) }, restore: data => {
+    const restored = restore(data);
+    return request.transport === "quotation-v4" ? expandExtraction(restored, targets.map(source => source.id), context.map(source => source.id)) : restored;
+  } };
 }
 
 function reserveQuota(tokens: number): void {
@@ -118,16 +127,16 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
   const Groq = (await import("groq-sdk")).default;
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY, maxRetries: 0, timeout: 45000 });
   const wire = compactExtractionRequest(request);
-  const estimatedInput = Math.ceil((wire.request.system.length + wire.request.user.length + JSON.stringify(request.schema).length) / 3);
+  const estimatedInput = Math.ceil((wire.request.system.length + wire.request.user.length + JSON.stringify(wire.request.schema).length) / 3);
   reserveQuota(estimatedInput + request.maxOutputTokens);
   const started = Date.now();
   for (let attempt = 0; attempt < 2; attempt++) {
     checkCancelled(options.signal);
     try {
       const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: wire.request.system }, { role: "user", content: wire.request.user }], reasoning_effort: "low", temperature: 0,
-        max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}_${createHash("sha256").update(JSON.stringify(request.schema)).digest("hex").slice(0, 12)}`, strict: true, schema: request.schema } } }, { signal: options.signal }), 45000, options.signal);
+        max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}_${createHash("sha256").update(JSON.stringify(wire.request.schema)).digest("hex").slice(0, 12)}`, strict: true, schema: wire.request.schema } } }, { signal: options.signal }), 45000, options.signal);
       const choice = response.choices[0];
-      const result: AIResult = { data: choice?.message.content ?? null, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, costUsd: "0", elapsedMs: Date.now() - started, finishReason: choice?.finish_reason ?? "missing" };
+      const result: AIResult = { data: choice?.message.content ?? null, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, usageAvailable: !!response.usage, costUsd: response.usage ? "0" : null, elapsedMs: Date.now() - started, finishReason: choice?.finish_reason ?? "missing", contentCharacters: choice?.message.content?.length ?? 0, reasoningCharacters: choice?.message.reasoning?.length ?? 0 };
       if (!choice || choice.finish_reason !== "stop" || !choice.message.content) throw new RejectedResponse("The model returned an incomplete extraction. Split this section into fewer rows and retry; no partial model output was accepted.", result);
       let data: unknown; try { data = JSON.parse(choice.message.content); } catch { throw new RejectedResponse("The model did not return valid structured data. Retry the failed section.", result, true); }
       try { data = wire.restore(data); }

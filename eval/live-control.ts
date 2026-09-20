@@ -30,7 +30,7 @@ export function liveRequestController(options: {
       try {
         const result = await options.request(input, context);
         state.completedResponses++;
-        await options.persist({ event: "response_received", at: now(), purpose: input.purpose, inputTokens: result.inputTokens, outputTokens: result.outputTokens, elapsedMs: result.elapsedMs, model: result.model, costUsd: result.costUsd });
+        await options.persist({ event: "response_received", at: now(), purpose: input.purpose, inputTokens: result.inputTokens, outputTokens: result.outputTokens, elapsedMs: result.elapsedMs, model: result.model, costUsd: result.costUsd, usageAvailable: result.usageAvailable });
         return result;
       } catch (error) {
         const code = errorCode(error), raw = (error as { retryAfterMs?: unknown })?.retryAfterMs;

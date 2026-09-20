@@ -47,3 +47,9 @@ A separate review found that deleting a comparison could wait behind a long glob
 The next release should collect permissioned, less regular quotations; independently verify a larger hold-out set; run real extraction and same-input AI-versus-baseline matching; and investigate the most consequential measured failures. More varied scan degradation, multilingual interpretation, graduated tiers and bundle equivalence need explicit support boundaries and additional evidence before expanding claims.
 
 The current value of the project is a connected, inspectable workflow and an honest measurement boundary: buyers can see the quotation, the interpretation, the calculation, and the unresolved question behind each decision.
+
+## Reliability at the storage boundary
+
+Production hardening on 20 September reproduced an expiry defect: deleting one abandoned upload changed its comparison revision, causing a live SQL cursor to skip another expired intent in the same comparison. The fix materializes a bounded set of candidate IDs before performing mutations, then rechecks each intent under locks. Separate real PostgreSQL sessions now test finalize-versus-expire races and assert that completed uploads survive while only 25 of 30 abandoned intents expire per sweep.
+
+The same work reproduced managed-account deletion failing on two non-cascading owner foreign keys. The incremental migration fixes those two relationships and uses document deletion triggers to retain private-object cleanup and reserved bytes until cleanup succeeds. A hosted synthetic recovery drill then copied five originals and 197 source spans into a verified local restore. These are concrete persistence/recovery results; they do not improve or substitute for the still-incomplete AI accuracy benchmark.

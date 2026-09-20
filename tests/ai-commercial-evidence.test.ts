@@ -22,6 +22,24 @@ async function extract(commercial: string, tiers: Omit<PriceTier, "sourceIds">[]
 const tier = { min: "1", max: "49", unitPrice: "10.00", unit: "each", basis: "all_units" as const };
 
 describe("commercial terms require source-backed numbers and explicit calculation context", () => {
+  async function scalar(text: string, key: "currency" | "taxRate", value: string, raw: string) {
+    const parsed = await parseDocument({ documentId: "scalar-evidence", filename: "quote.txt", text });
+    const source = parsed.sources[0].id;
+    const field = { key, label: key, type: "text", state: "value", value, raw, unit: null, sourceIds: [source] };
+    return extractQuotation(parsed, { request: async () => ({ model: "INJECTED-NO-PROVIDER", inputTokens: 0, outputTokens: 0, elapsedMs: 0, costUsd: null, data: {
+      supplier: [], quotation: key === "currency" ? [field] : [], terms: [], items: [], charges: [], attributes: key === "taxRate" ? [{ ...field, type: "decimal" }] : [], uncertainties: [], coverage: [{ sourceId: source, disposition: "used", reason: "Synthetic source" }],
+    } }) });
+  }
+  it("rejects a different currency code and an ambiguous dollar symbol", async () => {
+    await expect(scalar("Currency SGD", "currency", "USD", "SGD")).rejects.toMatchObject({ code: "invalid_evidence" });
+    await expect(scalar("Price $10", "currency", "USD", "$")).rejects.toMatchObject({ code: "invalid_evidence" });
+    expect((await scalar("Currency: Singapore dollars", "currency", "SGD", "Singapore dollars")).currency.value).toBe("SGD");
+  });
+  it("requires the exact extracted rate to be tied to tax, not to a nearby discount", async () => {
+    await expect(scalar("Tax amount 0; discount 5%", "taxRate", "0", "0")).rejects.toMatchObject({ code: "invalid_evidence" });
+    await expect(scalar("GST 9%; discount 5%", "taxRate", "5", "5%")).rejects.toMatchObject({ code: "invalid_evidence" });
+    expect((await scalar("GST 0%; discount 5%", "taxRate", "0", "0%")).attributes[0].value.value).toBe("0");
+  });
   it("rejects invented tier bounds and prices despite an existing owned source ID", async () => {
     for (const override of [{ min: "1000" }, { max: "9999" }, { unitPrice: "0.01" }]) {
       await expect(extract("All-unit tiers (each): 1-49 at 10.00.", [{ ...tier, ...override }])).rejects.toMatchObject({ code: "invalid_evidence" });

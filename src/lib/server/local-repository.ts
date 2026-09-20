@@ -20,6 +20,13 @@ async function retryFileOperation(operation: () => Promise<void>) {
 }
 const terminal = new Set(["source_ready", "ready", "partial", "failed", "cancelled", "waiting_quota"]);
 const notFound = () => new ApiError(404, "not_found", "This resource is unavailable in your workspace.");
+function removeRecoveredHistory(state: State, comparisonId: string) {
+  if (!state.cloudRecoveryArchive) return;
+  // Imported cloud history contains original text. Deleting even one source
+  // invalidates all old snapshots for its comparison, matching hosted retention.
+  state.cloudRecoveryArchive.comparisonVersions = state.cloudRecoveryArchive.comparisonVersions.filter(version => version.comparisonId !== comparisonId);
+  if (!state.cloudRecoveryArchive.comparisonVersions.length) delete state.cloudRecoveryArchive;
+}
 
 /** Single-machine repository. Atomic JSON snapshots and an exclusive file lock survive process restarts. */
 export class LocalRepository implements Repository {
@@ -91,6 +98,7 @@ export class LocalRepository implements Repository {
   async remove(ownerId: string, comparisonId: string) {
     await this.transaction((state) => {
       this.owned(state, ownerId, comparisonId);
+      removeRecoveredHistory(state, comparisonId);
       for (const document of Object.values(state.documents).filter((d) => d.comparisonId === comparisonId && d.ownerId === ownerId)) {
         state.deletionOutbox.push({ id: randomUUID(), storagePath: document.storagePath, ownerId, createdAt: new Date().toISOString() });
         delete state.parsed[document.id];
@@ -108,6 +116,7 @@ export class LocalRepository implements Repository {
       const document = state.documents[documentId]; if (!document || document.ownerId !== ownerId) throw notFound();
       const { comparison } = this.owned(state, ownerId, document.comparisonId);
       if (comparison.revision !== expectedRevision) throw new ApiError(409, "stale_revision", "The comparison changed. Reload it before deleting this source.");
+      removeRecoveredHistory(state, document.comparisonId);
       const quotation = comparison.quotations.find((q) => q.documentId === documentId); const quotationId = quotation?.id ?? documentId;
       const deletedSources = new Set(quotation?.sources.map((s) => s.id) ?? []);
       comparison.quotations = comparison.quotations.filter((q) => q.documentId !== documentId);

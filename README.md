@@ -8,13 +8,15 @@ An evidence-first workspace for comparing supplier quotations across goods and s
 
 FieldOps is a new, independent portfolio project. Its first release favors defensible comparisons over a universal-format claim.
 
+See the [current production-readiness record](docs/production-readiness.md) for verified personal-pilot behavior and the remaining AI release gates. Private cloud recovery is documented [here](docs/cloud-recovery.md).
+
 ## Current capabilities
 
 | Mode | What works | Boundaries |
 | --- | --- | --- |
 | Public demonstration | Connected workspace, source review, item grouping, comparison scenarios, Excel and print report using labeled synthetic quotations | Browser-local sample data; no private uploads or live model calls |
 | Local workspace | Persistent comparisons, real PDF/image/spreadsheet/text parsing, private originals, progress/cancel/retry, audited manual entry and corrections, identifier/text matching | Explicit loopback-only mode; one local buyer; the server must remain running |
-| Private cloud pilot | Neon PostgreSQL migration, managed Auth invitation checks, private object upload implementation and verified Trigger development smoke | Direct-account Free database, Auth and private storage configured; production OAuth/worker acceptance is in progress |
+| Private cloud pilot | Invited GitHub sign-in, Neon database/private originals, production Trigger processing, source review, audited corrections, comparison and exports | Hosted parser/manual workflow verified; AI remains disabled pending complete-document reliability checks. Free allowances can pause processing. |
 | AI integration | Configurable Groq adapter, validated structured responses, source checks, bounded calls and resumable checkpoints | Free account and inference ZDR configured; tiny synthetic live extractions passed. Larger development failures are retained; broad accuracy and held-out results are not yet established. |
 
 The manual path is usable while AI is disabled: upload a quotation, inspect preserved source text and locations, add reviewed lines, approve conservative match groups, then compare and export. Missing values remain missing; manually entered values are labeled user corrections.
@@ -48,7 +50,9 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 ## Reliability evidence
 
-The latest production-build browser run passed **nine workflows in 30.8 seconds**. TypeScript, lint and build passed. **204 unit/integration tests pass across 24 files** after the live-output reliability fixes; current exact results are recorded in [release verification](docs/release-verification.md). The personal browser case uses two actual files through manual review, matching, Excel and PDF export, and reload persistence. TypeScript, ESLint and the production build pass; the runtime dependency audit reports zero findings. A real [Trigger Development smoke run](docs/trigger-development.md) also completed using only fixed synthetic input. Clean Linux CI and a public deployment refresh for this latest milestone are still pending. Historical verified deployments are recorded in [release verification](docs/release-verification.md).
+The 20 September hardening run passed **296 unit/integration tests across 34 files**, including six real concurrent PostgreSQL tests. TypeScript, ESLint and the production build pass; the runtime dependency audit reports zero findings. Browser checks exercise actual uploads through manual review, approved matching, Excel and PDF export, persistence, evidence viewing, keyboard use and accessibility. Exact browser timings, hosted checks and deployment revisions are recorded in [release verification](docs/release-verification.md).
+
+Five hosted synthetic originals—text PDF, scanned PDF, PNG, XLSX and CSV—completed production parsing with 197 source spans. A read-only backup restored all five originals and their hashes into a separate local workspace. The private status panel reports original-file capacity, pending cleanup and job counts; an operator can pause new cloud uploads while retaining access to saved comparisons. These checks support an invited personal pilot, not unrestricted production AI. The [latest AI review](docs/ai-reliability-2026-09-20.md) records eight development responses, six rejections and no complete multi-item quotation; hosted AI remains off.
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 

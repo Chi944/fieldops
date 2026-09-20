@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "measuredAt": "2026-09-12T22:50:05.388Z",
-  "runId": "baseline-all-c46b4849dea0-8dc06a6ab2cb",
+  "measuredAt": "2026-09-20T11:36:30.702Z",
+  "runId": "baseline-all-768b9c5aa64f-8dc06a6ab2cb",
   "mode": "baseline",
   "split": "all",
   "datasetHash": "8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6",
-  "configurationHash": "c46b4849dea02967f2e976065794107eb142a19afd427a413b102e15adc7262e",
+  "configurationHash": "768b9c5aa64ff7029ea4e2e0b1eb3ab514423020d7db33fbe5b81c91f7cd679e",
   "holdoutStatus": "Untuned held-out content; offline measurement only",
   "dataset": {
     "documents": 24,
@@ -62,17 +62,17 @@
     },
     "timing": {
       "count": 24,
-      "medianMs": 9.82589999999982,
-      "minimumMs": 0.13429999999971187,
-      "maximumMs": 4058.5432,
-      "totalMs": 21503.447999999997
+      "medianMs": 11.61620000000039,
+      "minimumMs": 0.14090000000032887,
+      "maximumMs": 4041.3223,
+      "totalMs": 21269.976799999997
     },
     "documents": [
       {
         "id": "industrial-1",
         "format": "text_pdf",
         "split": "dev",
-        "elapsedMs": 801.8662,
+        "elapsedMs": 805.0948000000001,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -97,7 +97,7 @@
         "id": "industrial-2",
         "format": "scan_pdf",
         "split": "dev",
-        "elapsedMs": 3988.5218000000004,
+        "elapsedMs": 3782.8156,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -122,7 +122,7 @@
         "id": "industrial-3",
         "format": "xlsx",
         "split": "dev",
-        "elapsedMs": 466.7600999999995,
+        "elapsedMs": 413.8234000000002,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -147,7 +147,7 @@
         "id": "office-1",
         "format": "text",
         "split": "dev",
-        "elapsedMs": 0.44070000000010623,
+        "elapsedMs": 0.6971999999996115,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -172,7 +172,7 @@
         "id": "office-2",
         "format": "csv",
         "split": "dev",
-        "elapsedMs": 10.958700000000135,
+        "elapsedMs": 16.19930000000022,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -197,7 +197,7 @@
         "id": "office-3",
         "format": "text_pdf",
         "split": "dev",
-        "elapsedMs": 11.056899999999587,
+        "elapsedMs": 11.61620000000039,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -222,7 +222,7 @@
         "id": "event-1",
         "format": "png",
         "split": "dev",
-        "elapsedMs": 2139.5216,
+        "elapsedMs": 2123.8200000000006,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -247,7 +247,7 @@
         "id": "event-2",
         "format": "xlsx",
         "split": "dev",
-        "elapsedMs": 8.848799999999756,
+        "elapsedMs": 10.174299999999675,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -272,7 +272,7 @@
         "id": "event-3",
         "format": "text_pdf",
         "split": "dev",
-        "elapsedMs": 8.453999999999724,
+        "elapsedMs": 41.46070000000054,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -297,7 +297,7 @@
         "id": "translation-1",
         "format": "scan_pdf",
         "split": "dev",
-        "elapsedMs": 4058.5432,
+        "elapsedMs": 3871.4058999999997,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -322,7 +322,7 @@
         "id": "translation-2",
         "format": "text",
         "split": "dev",
-        "elapsedMs": 0.23250000000007276,
+        "elapsedMs": 0.23660000000018044,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -347,7 +347,7 @@
         "id": "translation-3",
         "format": "text_pdf",
         "split": "dev",
-        "elapsedMs": 8.585499999999229,
+        "elapsedMs": 10.810699999999997,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -372,7 +372,7 @@
         "id": "laboratory-1",
         "format": "text_pdf",
         "split": "heldout",
-        "elapsedMs": 8.91110000000117,
+        "elapsedMs": 7.149400000000242,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -397,7 +397,7 @@
         "id": "laboratory-2",
         "format": "scan_pdf",
         "split": "heldout",
-        "elapsedMs": 3927.5993000000017,
+        "elapsedMs": 4041.3223,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -422,7 +422,7 @@
         "id": "laboratory-3",
         "format": "xlsx",
         "split": "heldout",
-        "elapsedMs": 14.375500000000102,
+        "elapsedMs": 15.33770000000004,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -447,7 +447,7 @@
         "id": "kitchen-1",
         "format": "text",
         "split": "heldout",
-        "elapsedMs": 0.13429999999971187,
+        "elapsedMs": 0.14090000000032887,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -472,7 +472,7 @@
         "id": "kitchen-2",
         "format": "csv",
         "split": "heldout",
-        "elapsedMs": 2.2656999999999243,
+        "elapsedMs": 2.6151000000008935,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -497,7 +497,7 @@
         "id": "kitchen-3",
         "format": "text_pdf",
         "split": "heldout",
-        "elapsedMs": 7.274400000000242,
+        "elapsedMs": 7.087299999999232,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -522,7 +522,7 @@
         "id": "installation-1",
         "format": "png",
         "split": "heldout",
-        "elapsedMs": 2063.1705999999995,
+        "elapsedMs": 2095.4367999999995,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -547,7 +547,7 @@
         "id": "installation-2",
         "format": "xlsx",
         "split": "heldout",
-        "elapsedMs": 7.473399999998946,
+        "elapsedMs": 6.35019999999713,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -572,7 +572,7 @@
         "id": "installation-3",
         "format": "text_pdf",
         "split": "heldout",
-        "elapsedMs": 9.258399999998801,
+        "elapsedMs": 8.399799999999232,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -597,7 +597,7 @@
         "id": "facilities-1",
         "format": "scan_pdf",
         "split": "heldout",
-        "elapsedMs": 3949.1434999999983,
+        "elapsedMs": 3988.778599999998,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -622,7 +622,7 @@
         "id": "facilities-2",
         "format": "text",
         "split": "heldout",
-        "elapsedMs": 0.22589999999763677,
+        "elapsedMs": 0.15960000000268337,
         "complete": true,
         "units": 1,
         "parsedUnits": 1,
@@ -647,7 +647,7 @@
         "id": "facilities-3",
         "format": "text_pdf",
         "split": "heldout",
-        "elapsedMs": 9.82589999999982,
+        "elapsedMs": 9.04439999999886,
         "complete": true,
         "units": 2,
         "parsedUnits": 2,
@@ -679,7 +679,7 @@
       "notes": "Exact byte copy of the first development original; should offer duplicate recovery without resetting saved work.",
       "passed": true,
       "actual": "hash equality check",
-      "elapsedMs": 0.6785999999992782
+      "elapsedMs": 0.8100999999987835
     },
     {
       "id": "intentional-revision",
@@ -689,7 +689,7 @@
       "notes": "Changed content with same quotation identifier and explicit revision; it must not be discarded as a duplicate.",
       "passed": true,
       "actual": "different bytes, same identifier, explicit revision",
-      "elapsedMs": 0.46780000000217115
+      "elapsedMs": 0.6508999999969092
     },
     {
       "id": "password-pdf",
@@ -699,7 +699,7 @@
       "notes": "Real self-authored encrypted PDF; test password fixture-only. Not a claim about all encryption variants.",
       "passed": true,
       "actual": "password_protected",
-      "elapsedMs": 2.0349999999998545
+      "elapsedMs": 2.3883999999998196
     },
     {
       "id": "malformed-file",
@@ -709,7 +709,7 @@
       "notes": "Artificially malformed PDF, separate from valid extraction denominators.",
       "passed": true,
       "actual": "malformed_file",
-      "elapsedMs": 1.7724999999991269
+      "elapsedMs": 1.497799999997369
     },
     {
       "id": "unreadable-scan",
@@ -719,7 +719,7 @@
       "notes": "Artificial blank grey raster used as an unreadable input; does not model the distribution of real scan degradation.",
       "passed": true,
       "actual": "partial",
-      "elapsedMs": 470.81210000000283
+      "elapsedMs": 400.2305000000015
     },
     {
       "id": "unsupported-format",
@@ -729,7 +729,7 @@
       "notes": "Unsupported extension must produce a format/re-export recovery path.",
       "passed": true,
       "actual": "unsupported_format",
-      "elapsedMs": 0.43990000000121654
+      "elapsedMs": 1.1889999999984866
     },
     {
       "id": "excessive-size",
@@ -738,7 +738,7 @@
       "notes": "Constructs a 20 MiB + 1 byte buffer at evaluation time; the large artificial payload is not committed.",
       "passed": true,
       "actual": "file_too_large",
-      "elapsedMs": 0.06179999999949359
+      "elapsedMs": 0.08769999999640277
     },
     {
       "id": "malicious-instructions",
@@ -748,7 +748,7 @@
       "notes": "Parser preservation is measurable without AI; model resistance requires a real live run and remains unverified here.",
       "passed": true,
       "actual": "Untrusted text preserved as source data; live model resistance NOT TESTED",
-      "elapsedMs": 0.3918000000012398
+      "elapsedMs": 0.9635000000016589
     }
   ],
   "ai": {

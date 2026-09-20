@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import ExcelJS from "exceljs";
+import AxeBuilder from "@axe-core/playwright";
 import type { Comparison, ProcessingRun } from "../../src/lib/domain/types";
 
 async function correct(page: Page, label: string, value: string) {
@@ -24,6 +25,13 @@ test("personal quotations persist separately from samples through manual review,
   await expect(page.locator(".workspace-switch")).toContainText("Local workspace");
   await expect(page.locator(".workspace-switch")).toContainText("Saved on this computer");
   await expect(page.getByRole("heading", { name: "Your quotation workspace", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Workspace status", exact: true }).click();
+  const diagnostics = page.getByRole("dialog", { name: "Workspace status", exact: true });
+  await expect(diagnostics.getByText("Manual source review", { exact: true })).toBeVisible();
+  await expect(diagnostics.getByRole("region", { name: "Processing queue" })).toBeVisible();
+  expect((await new AxeBuilder({ page }).include('[role="dialog"]').analyze()).violations).toEqual([]);
+  await diagnostics.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(diagnostics).toBeHidden();
   await expect(page.locator(".comparison-list-row").filter({ hasText: "Studio equipment & installation" })).toHaveCount(0);
   await page.getByRole("button", { name: "New comparison", exact: true }).first().click();
   const create = page.getByRole("dialog", { name: "Start a comparison", exact: true });

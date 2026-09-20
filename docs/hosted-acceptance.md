@@ -28,3 +28,19 @@ The synthetic comparison was deleted through the UI. The comparison record was r
 This check covers one invited identity and two pasted originals. Separate-account rejection, cross-user access, every hosted file format, production OCR, interruption and quota exhaustion still need hosted acceptance. Automated SQL, local parser and browser tests cover portions of those behaviors but do not replace provider tests. Browser print/PDF is exercised by local production browser tests; this hosted smoke verified Excel and the report view, not the native print dialog.
 
 Hosted processing remains explicitly parser-only. The separate [local AI smoke](ai-setup-verification.md) completed two tiny extractions and one AI match, but a multi-item PDF probe failed safely. The [evaluation report](evaluation-report.md) retains those limitations. All selected accounts remain on Free/Hobby; [free-service boundaries](free-services.md) explain quota pauses and Neon's temporary free storage beta.
+
+## Additional hosted formats — 20 September 2026
+
+Five self-authored benchmark files were uploaded through the real signed-in browser in a separate disposable comparison. All five production runs completed in parser-only mode with complete manifests. Each original-source endpoint rejected anonymous requests with HTTP401. The scanned PDF rendered both pages in the source-review panel, and its OCR excerpts retained page locations.
+
+| Original | Preserved sources | OCR sources | Production run | Provider execution time |
+| --- | ---: | ---: | --- | ---: |
+| `industrial-1.pdf` (text PDF, two pages) |40|0|`run_06gbt2f0pfhrreiespk2rcjn01`|929ms|
+| `industrial-2.pdf` (scan, two pages) |39|39|`run_06gbt2f3pm30gtluvcijmsm601`|7365ms|
+| `event-1.png` |33|33|`run_06gbt2f446ph8theo33lshha01`|3896ms|
+| `industrial-3.xlsx` (two sheets) |58|0|`run_06gbt2eutovjt5glt51tam8k01`|789ms|
+| `office-2.csv` |27|0|`run_06gbt2euu4dlpe1qqosepjdf01`|487ms|
+
+These are execution durations, not browser end-to-end latency. Summed provider usage was0.114461cents, covered by the Free plan credit; it is not a charged invoice. This check establishes hosted parsing and preserved-source coverage, not item/field accuracy. OCR still produced ambiguous `l`/`I` glyphs in the scanned source, which require review. No AI model was called.
+
+A scoped read-only backup and local restore then preserved all five original hashes/byte counts (538486bytes), comparison revision and197source spans. [Recovery evidence and procedure](cloud-recovery.md). The earlier pasted-text end-to-end comparison/export acceptance remains a separate result. A second hosted OAuth identity, hosted forced interruption and comprehensive live AI measurements remain outside these checks.

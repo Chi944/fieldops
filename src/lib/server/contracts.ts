@@ -17,6 +17,7 @@ export interface State {
   runs: Record<string, RunRecord>; extractions: Record<string, ExtractionRecord>; parsed: Record<string, ParsedDocument>;
   deletionOutbox: { id: string; storagePath: string; ownerId: string; createdAt: string }[];
   checkpoints?: Record<string, unknown>;
+  cloudRecoveryArchive?: { format: 1; capturedAt: string; ownerId: string; snapshotSha256: string; comparisonVersions: { comparisonId: string; version: number; snapshot: Comparison; createdAt: string }[] };
 }
 export interface Repository {
   mode: "local" | "cloud";

@@ -71,11 +71,12 @@ export default function ReliabilityPage() {
       <section>
         <h2>What happened with real AI</h2>
         <p>
-          Two small, one-item synthetic quotations eventually completed local AI
-          extraction, followed by an evidence-linked match and buyer approval.
-          A separate two-page, six-item development quotation did not complete:
-          its final chunk failed twice while the two validated chunks were
-          preserved. No partial quotation was accepted as complete.
+          Two small, one-item synthetic quotations completed local AI extraction
+          in September, followed by an evidence-linked match and buyer approval.
+          The latest development review on 20 September tested one larger,
+          two-page quotation: eight provider responses produced two validated
+          intermediate chunks and six rejections, with no complete quotation.
+          No partial quotation was accepted as complete.
         </p>
         <p>
           Hosted AI remains disabled. The held-out set has received no model
@@ -84,7 +85,7 @@ export default function ReliabilityPage() {
         </p>
         <a
           className="text-button"
-          href="https://github.com/Chi944/fieldops/blob/main/docs/live-ai-development.md"
+          href="https://github.com/Chi944/fieldops/blob/main/docs/ai-reliability-2026-09-20.md"
         >
           Inspect the real AI results and failures →
         </a>

@@ -39,6 +39,23 @@ describe("validated AI checkpoints with synthetic injected responses", () => {
     expect(names[0]).toMatch(/^fieldops_extraction_[a-f0-9]{12}$/); expect(names[0]).not.toBe(names[1]); expect(names[0]).toBe(names[2]);
     expect(transport.mock.calls.every(call => call[0].response_format.json_schema.strict === true)).toBe(true);
   });
+  it("records output lengths without retaining reasoning, and marks absent usage as unavailable", async () => {
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "TEST-ONLY-NOT-A-REAL-KEY");
+    vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "true");
+    transport.mockResolvedValue({ choices: [{ finish_reason: "stop", message: { content: "{}", reasoning: "Synthetic diagnostic text" } }] });
+    const result = await requestAI({ purpose: "extraction", schema: {}, system: "Synthetic", user: "Synthetic", maxOutputTokens: 5 });
+    expect(result).toMatchObject({ usageAvailable: false, costUsd: null, contentCharacters: 2, reasoningCharacters: 25 });
+    expect(result).not.toHaveProperty("reasoning");
+  });
+  it("marks transport-normalization rejections even when the provider returns stop and valid JSON", async () => {
+    vi.stubEnv("FIELDOPS_PROCESSING_MODE", "ai"); vi.stubEnv("GROQ_API_KEY", "TEST-ONLY-NOT-A-REAL-KEY");
+    vi.stubEnv("GROQ_FREE_TIER_CONFIRMED", "true"); vi.stubEnv("GROQ_ZDR_CONFIRMED", "true");
+    const bad = { fields: [], items: [{}], charges: [], excluded: [], uncertainties: [] };
+    transport.mockResolvedValue({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify(bad) } }], usage: { prompt_tokens: 17, completion_tokens: 23 } });
+    const cache = savedResponses();
+    await expect(requestAI({ purpose: "extraction", transport: "quotation-v4", schema: {}, system: "Synthetic", user: JSON.stringify({ sources: [{ id: "source", text: "Widget" }] }), maxOutputTokens: 5 }, { checkpoint: cache.checkpoint })).rejects.toMatchObject({ code: "invalid_output" });
+    expect(cache.rejected).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ data: bad, finishReason: "stop", rejectedAt: "transport", inputTokens: 17, outputTokens: 23 }), "invalid_output", { cached: false });
+  });
 
   it("rejects empty separators, missing source records and arbitrary coverage strings", async () => {
     const parsed = await document();

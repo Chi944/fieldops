@@ -166,6 +166,35 @@ export async function createBackup(source: string, destination: string): Promise
   } finally { await releaseSession(); }
 }
 
+/** Build the existing portable backup format from a captured, private workspace.
+ * The caller supplies bounded originals and a final consistency check. Failed
+ * copies/checks retain the incomplete marker and can never be restored as valid.
+ */
+export async function createSnapshotBackup(state: State, destination: string, readOriginal: (document: DocumentRecord) => Promise<Uint8Array>, beforePublish: () => Promise<void>): Promise<BackupManifest> {
+  const serialized = JSON.stringify(state);
+  if (Buffer.byteLength(serialized) > stateLimit) fail("The workspace state exceeds the portable backup limit. No backup was published.");
+  const captured = parseState(serialized);
+  destination = resolve(destination); await newDirectory(destination);
+  const files: FileEntry[] = [];
+  for (const document of documents(captured)) {
+    const bytes = await readOriginal(document);
+    if (bytes.byteLength !== document.size || bytes.byteLength > LIMITS.fileBytes || createHash("sha256").update(bytes).digest("hex") !== document.contentHash) fail("A private original does not match the captured hash or size. The backup remains incomplete.");
+    const path = `objects/${document.storagePath}`, target = join(destination, ...path.split("/"));
+    await mkdir(dirname(target), { recursive: true, mode: 0o700 }); await writeNewFile(target, bytes);
+    const copied = await fileEntry(destination, path, LIMITS.fileBytes);
+    if (copied.sha256 !== document.contentHash || copied.size !== document.size) fail("A copied private original failed verification. The backup remains incomplete.");
+    files.push(copied);
+  }
+  await writeNewFile(join(destination, "state.json"), serialized);
+  const savedState = await fileEntry(destination, "state.json", stateLimit);
+  if (savedState.sha256 !== createHash("sha256").update(serialized).digest("hex")) fail("The copied workspace state failed verification. The backup remains incomplete.");
+  files.unshift(savedState);
+  const manifest: BackupManifest = { format: "fieldops-private-backup", version: 1, createdAt: new Date().toISOString(), stateVersion: 1, comparisons: Object.keys(captured.comparisons).length, documents: documents(captured).length, files };
+  await beforePublish();
+  await writeNewFile(join(destination, "manifest.json"), JSON.stringify(manifest, null, 2));
+  await unlink(join(destination, incompleteMarker)); return manifest;
+}
+
 export async function verifyBackup(source: string): Promise<{ manifest: BackupManifest; state: State }> {
   source = resolve(source); if (await exists(join(source, incompleteMarker))) fail("This backup is incomplete and cannot be restored.");
   let candidate: unknown;

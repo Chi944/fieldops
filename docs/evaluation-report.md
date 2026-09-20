@@ -1,14 +1,14 @@
 # FieldOps measured evaluation
 
-Measured 2026-09-12T22:50:05.388Z. Mode: **baseline**. Run `baseline-all-c46b4849dea0-8dc06a6ab2cb`.
+Measured 2026-09-20T11:36:30.702Z. Mode: **baseline**. Run `baseline-all-768b9c5aa64f-8dc06a6ab2cb`.
 
-This report is the complete offline baseline. The [separate live development report](live-ai-development.md) records two successful small application quotations and the failed two-page AI probe; [its archived JSON](../eval/results/live-industrial-1.json) retains the original live configuration. Offline parser and baseline results are not model-accuracy results.
+The [20 September AI reliability review](ai-reliability-2026-09-20.md) is separate: eight returned development responses, no accepted complete quotation, and zero held-out model calls. Hosted AI remains disabled. The historical September baseline is preserved in [archived JSON](../eval/results/baseline-2026-09-13.json).
 
 ## Dataset and protocol
 
 24 self-authored originals, 8 unrelated comparison scenarios, 144 logical items and 1106 selected field assertions. Development and held-out splits each have 12 documents. Formats: 8 text_pdf, 4 scan_pdf, 4 xlsx, 4 text, 2 csv, 2 png. Eight robustness cases are separate. Untuned held-out content; offline measurement only.
 
-Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `c46b4849dea02967f2e976065794107eb142a19afd427a413b102e15adc7262e`. The report stores per-document timing and errors in [JSON](../eval/results/baseline.json).
+Dataset SHA-256: `8dc06a6ab2cb3988ac0b23b16898c27d899200d3fcf029bd8428cdd94bf6d0c6`. Configuration SHA-256: `768b9c5aa64ff7029ea4e2e0b1eb3ab514423020d7db33fbe5b81c91f7cd679e`. The report stores per-document timing and errors in [JSON](../eval/results/latest.json).
 
 Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-256 ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468. The configuration fingerprint includes package.json, package-lock.json and this runtime/asset identity.
 
@@ -24,7 +24,7 @@ Runtime: Node v24.19.0, win32/x64. OCR language asset: eng.traineddata.gz; SHA-2
 | Authored item identifiers present in parsed text | 100.0% (144/144) |
 | Parsed source locations present | 100.0% (963/963) |
 | Reported boxes within page bounds | 100.0% (544/544) |
-| Parser median / minimum / maximum | 10 / 0 / 4059 ms |
+| Parser median / minimum / maximum | 12 / 0 / 4041 ms |
 | Robustness assertions | 8/8 |
 | Provider cost for this offline run | USD 0; no provider calls |
 

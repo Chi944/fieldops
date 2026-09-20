@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "measuredAt": "2026-09-20T11:34:02.921527+00:00",
+  "protocol": "Adaptive development debugging on one repeated self-authored two-page development PDF only. Six configurations, including one process-local 20b comparison; not a fixed-model benchmark or general accuracy estimate. No held-out inference. Every failure is preserved.",
+  "heldoutModelRequests": 0,
+  "dataset": {
+    "uniqueDocuments": 1,
+    "logicalItems": 6,
+    "selectedStatedFields": 46,
+    "criticalFields": 43
+  },
+  "runs": [
+    {
+      "runId": "live-dev-document-0693e948-eaafd7100bde-8dc06a6ab2cb",
+      "configurationHash": "eaafd7100bde7fec5bcb14a50fa2bcf6c82d1ee5559a03ced7f3287084a0825f",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-120b",
+      "firstEventAt": "2026-09-20T11:13:28.644Z",
+      "lastEventAt": "2026-09-20T11:13:31.500Z",
+      "completedDocuments": 0,
+      "validatedChunks": 0,
+      "returnedResponses": 1,
+      "responsesWithoutUsage": 1,
+      "knownInputTokens": 0,
+      "knownOutputTokens": 0,
+      "responseTimeMs": 2283,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "provider_schema_rejected",
+          "providerError": {
+            "code": "json_validate_failed",
+            "message": "Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '/fields/5/key' does not validate with /properties/fields/items/properties/key/enum: value must be one of 'name', 'contact', 'email', 'phone', 'address', 'quotationNumber', 'date', 'revision', 'currency', 'locale', 'statedSubtotal', 'statedTotal', 'validity', 'availability', 'leadTime', 'delivery', 'payment', 'warranty', 'exclusions', 'notes', 'description', 'identifier', 'quantity', 'unit', 'packageSize', 'packageUnit', 'minimumOrder', 'orderIncrement', 'unitPrice', 'lineAmount', 'billingBasis', 'duration', 'scope', 'taxRate', 'amount', 'specification', 'packageContents'"
+          },
+          "usageAvailable": false,
+          "inputTokens": null,
+          "outputTokens": null,
+          "elapsedMs": 2283
+        }
+      ]
+    },
+    {
+      "runId": "live-dev-document-0693e948-4ab8071ccecd-8dc06a6ab2cb",
+      "configurationHash": "4ab8071ccecd9ab54a203420863a6255b128764aff62cbfaf65a3df080a195fd",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-120b",
+      "firstEventAt": "2026-09-20T11:17:40.310Z",
+      "lastEventAt": "2026-09-20T11:17:43.859Z",
+      "completedDocuments": 0,
+      "validatedChunks": 0,
+      "returnedResponses": 1,
+      "responsesWithoutUsage": 1,
+      "knownInputTokens": 0,
+      "knownOutputTokens": 0,
+      "responseTimeMs": 3481,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "provider_schema_rejected",
+          "providerError": {
+            "code": "json_validate_failed",
+            "message": "Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '/items/0/attributes/0' does not validate with /properties/items/items/properties/attributes/items/required: missing properties: 'unit'"
+          },
+          "usageAvailable": false,
+          "inputTokens": null,
+          "outputTokens": null,
+          "elapsedMs": 3481
+        }
+      ]
+    },
+    {
+      "runId": "live-dev-document-0693e948-0918ed70dfca-8dc06a6ab2cb",
+      "configurationHash": "0918ed70dfcad1d46fa69abea25db06d6e6eb45d146932205838d67d43a78acf",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-120b",
+      "firstEventAt": "2026-09-20T11:19:10.996Z",
+      "lastEventAt": "2026-09-20T11:21:14.716Z",
+      "completedDocuments": 0,
+      "validatedChunks": 2,
+      "returnedResponses": 3,
+      "responsesWithoutUsage": 1,
+      "knownInputTokens": 3928,
+      "knownOutputTokens": 2335,
+      "responseTimeMs": 9621,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "provider_schema_rejected",
+          "providerError": {
+            "code": "json_validate_failed",
+            "message": "Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '' does not validate with /required: missing properties: 'excluded', 'uncertainties'"
+          },
+          "usageAvailable": false,
+          "inputTokens": null,
+          "outputTokens": null,
+          "elapsedMs": 3629
+        }
+      ]
+    },
+    {
+      "runId": "live-dev-document-0693e948-85679c20c6d7-8dc06a6ab2cb",
+      "configurationHash": "85679c20c6d7577e9d8fd5161e89950625feacef5c62b89dfabee41266623d6b",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-120b",
+      "firstEventAt": "2026-09-20T11:24:10.214Z",
+      "lastEventAt": "2026-09-20T11:24:13.791Z",
+      "completedDocuments": 0,
+      "validatedChunks": 0,
+      "returnedResponses": 1,
+      "responsesWithoutUsage": 0,
+      "knownInputTokens": 2014,
+      "knownOutputTokens": 1375,
+      "responseTimeMs": 3468,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "stop",
+          "providerError": null,
+          "usageAvailable": true,
+          "inputTokens": 2014,
+          "outputTokens": 1375,
+          "elapsedMs": 3468
+        }
+      ]
+    },
+    {
+      "runId": "live-dev-document-0693e948-1400eaeb3f33-8dc06a6ab2cb",
+      "configurationHash": "1400eaeb3f338d934df67443cf0f2e1f1cf1bd3273feed75dd6f6ce3145c0328",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-20b",
+      "firstEventAt": "2026-09-20T11:25:14.818Z",
+      "lastEventAt": "2026-09-20T11:25:17.138Z",
+      "completedDocuments": 0,
+      "validatedChunks": 0,
+      "returnedResponses": 1,
+      "responsesWithoutUsage": 0,
+      "knownInputTokens": 2014,
+      "knownOutputTokens": 1480,
+      "responseTimeMs": 2247,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "stop",
+          "providerError": null,
+          "usageAvailable": true,
+          "inputTokens": 2014,
+          "outputTokens": 1480,
+          "elapsedMs": 2247
+        }
+      ]
+    },
+    {
+      "runId": "live-dev-document-0693e948-a7401194e35b-8dc06a6ab2cb",
+      "configurationHash": "a7401194e35bdf8d5862515589ad6c4ca13cd17b0ae2680d7a98979788e29489",
+      "documentId": "industrial-1",
+      "model": "openai/gpt-oss-120b",
+      "firstEventAt": "2026-09-20T11:32:09.152Z",
+      "lastEventAt": "2026-09-20T11:32:12.421Z",
+      "completedDocuments": 0,
+      "validatedChunks": 0,
+      "returnedResponses": 1,
+      "responsesWithoutUsage": 1,
+      "knownInputTokens": 0,
+      "knownOutputTokens": 0,
+      "responseTimeMs": 3196,
+      "failures": [
+        {
+          "errorCode": "invalid_output",
+          "finishReason": "provider_schema_rejected",
+          "providerError": {
+            "code": "json_validate_failed",
+            "message": "Generated JSON does not match the expected schema. Please adjust your prompt. See 'failed_generation' for more details. Error: jsonschema: '/items/0' does not validate with /properties/items/items/required: missing properties: 'kind'"
+          },
+          "usageAvailable": false,
+          "inputTokens": null,
+          "outputTokens": null,
+          "elapsedMs": 3196
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "completedDocuments": 0,
+    "validatedChunks": 2,
+    "returnedResponses": 8,
+    "responsesWithoutUsage": 4,
+    "knownInputTokens": 7956,
+    "knownOutputTokens": 5190,
+    "responseTimeMs": 24296
+  },
+  "limitations": [
+    "Known tokens exclude responses whose usage was not returned. Placeholder zeros are not measurements.",
+    "Elapsed values sum provider response time, not end-to-end time or quota waiting.",
+    "Provider strict schema errors and application validation failures are distinct; none were replaced with fixture outputs.",
+    "No final successful full document or held-out AI result was established."
+  ],
+  "measurementCorrection": "Two stop responses rejected during transport normalization were retained with usage but omitted from the original event journal. Counts here are independently reconstructed from successful checkpoints plus non-cached rejected response records, with each returned response counted once. The evaluator now explicitly marks transport-stage rejection to prevent this undercount; original probe reports remain preserved."
+}

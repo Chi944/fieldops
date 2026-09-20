@@ -25,9 +25,31 @@ const inputItem = z.object({ baseRevision: z.number().int().nonnegative(), quota
 const extensionTypes: Record<string, string> = { pdf: "application/pdf", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", csv: "text/csv", txt: "text/plain" };
 
 export async function body(request: Request): Promise<unknown> {
-  if (Number(request.headers.get("content-length") ?? 0) > 2 * 1024 * 1024) throw new ApiError(413, "input_too_large", "The submitted data is too large.");
-  const value = await request.text(); if (value.length > 2 * 1024 * 1024) throw new ApiError(413, "input_too_large", "The submitted data is too large.");
-  try { return JSON.parse(value); } catch { throw new ApiError(400, "invalid_json", "The request contains invalid JSON."); }
+  const limit = 2 * 1024 * 1024, length = request.headers.get("content-length");
+  if (length !== null && (!/^\d+$/.test(length) || !Number.isSafeInteger(Number(length)))) throw new ApiError(400, "invalid_length", "The submitted request has an invalid length.");
+  if (length !== null && Number(length) > limit) throw new ApiError(413, "input_too_large", "The submitted data is too large.");
+  if (!request.body) throw new ApiError(400, "invalid_json", "The request contains invalid JSON.");
+  const reader = request.body.getReader(), chunks: Uint8Array[] = [];
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(15000)]);
+  const cancel = () => { void reader.cancel().catch(() => {}); };
+  signal.addEventListener("abort", cancel, { once: true });
+  let size = 0;
+  try {
+    for (;;) {
+      signal.throwIfAborted();
+      const result = await reader.read(); signal.throwIfAborted();
+      if (result.done) break;
+      size += result.value.byteLength;
+      if (size > limit) { cancel(); throw new ApiError(413, "input_too_large", "The submitted data is too large."); }
+      chunks.push(result.value);
+    }
+    try { return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks, size))); }
+    catch { throw new ApiError(400, "invalid_json", "The request contains invalid UTF-8 JSON."); }
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    if (signal.aborted) { cancel(); throw new ApiError(408, "input_timeout", "The request was interrupted or took too long. Retry the action."); }
+    throw new ApiError(400, "invalid_json", "The request could not be read as JSON.");
+  } finally { signal.removeEventListener("abort", cancel); reader.releaseLock(); }
 }
 function runLocal(context: RequestContext) { if (context.repository.mode === "local") startLocalRunner(context.repository as LocalRepository); }
 async function loaded(context: RequestContext, comparisonId: string) { id.parse(comparisonId); return (await hydrateComparison(context.repository, await context.repository.get(context.ownerId, comparisonId))).comparison; }

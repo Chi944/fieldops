@@ -1,0 +1,36 @@
+# Production readiness — private pilot
+
+FieldOps is a deployed, invited personal-workspace pilot. The supported path is **upload → source review/manual entry → approved matching → comparison → Excel or print report**. The public sample workspace remains independent of private cloud services. Broad automatic AI extraction is not ready for production: complete-document development probes still reject missing or unsupported output, and held-out AI accuracy is not established. Keep hosted `FIELDOPS_PROCESSING_MODE=parse_only` until a frozen candidate passes the documented release gates.
+
+## Evidence from 20 September 2026
+
+| Area | Evidence and boundary |
+| --- | --- |
+| Free-only accounts | Groq console showed Free $0 and Inference APIs ZDR enabled; Neon CLI returned the dedicated organization plan `free`; Trigger displayed Free Plan; Vercel displayed Hobby. No purchases, billing changes, new keys or paid fallback were introduced. Provider allowances and Neon storage beta terms still apply. |
+| Hosted parser breadth | Five self-authored files uploaded through the actual browser to private Neon storage and production Trigger: text PDF, scanned PDF, PNG, XLSX and CSV. All completed with full parser manifests, 197 preserved source spans in total, and anonymous source requests returned 401. This is parser coverage, not extraction accuracy. |
+| Atomic capacity | Applied `202609200001_capacity_and_intent_expiry.sql` to the dedicated project/branch in one owner transaction; SHA-256 `450f22f957684221fe1a4bc455645829782b7f75e707a9302587b69dcc61dc9d`. Six independent PostgreSQL-session tests verify admission races, finalization/expiry and bounded cleanup. |
+| Access boundary | Real route handlers exercise fresh session/invitation checks and scoped repository SQL against the shipped migrations, including cross-owner original signing and mutation denial. External SDK/database transports are substituted; this does not claim two real hosted identities were tested. |
+| Request limits | JSON bodies are limited while reading to 2 MiB of UTF-8 bytes, with a 15-second deadline and interrupted/invalid-body errors. Oversized streams are cancelled. |
+| Recovery | A read-only hosted backup of the five synthetic originals restored to a new local directory with all hashes, byte counts, source IDs and comparison revision preserved. No personal workspace or server was overwritten. [Recovery procedure](cloud-recovery.md). |
+| Operations | Private Workspace status shows reserved original capacity, pending cleanup, configured processing mode and job counts on demand. It exposes no other owners' counts, and does not continuously poll or claim to probe service health. |
+
+The first hosted format check used the previously deployed worker. The updated web/worker release and final verification are recorded below when complete; applying the database migration alone does not prove deployed code has changed.
+
+## Operating the pilot
+
+1. Keep Vercel on Hobby, the dedicated Neon organization on Free and Trigger/Groq on Free. Do not add paid fallback or payment details to fix a quota pause. Follow [free-service boundaries](free-services.md).
+2. Use the Git-linked `Chi944/fieldops` repository for the web deployment. Apply new numbered Neon migrations in order, inside an owner transaction, after local SQL tests. Use only the restricted runtime connection in the app and worker. [Setup and deployment](deployment.md).
+3. Deploy Trigger separately after preparing the OCR language asset. Check the production health task and an actual synthetic upload on the new worker. A successful web deploy does not update the worker.
+4. Use Workspace status to inspect your counts and queue. For failures, open the affected comparison's Quotations step. Retry only after resolving its stated cause; successful sources and corrections remain saved. Cancellation stops publication but does not delete the original.
+5. Monitor the dedicated Neon database's own storage and compute allowance. The new byte caps cover originals, **not** the full history/derived JSON/index footprint. Set `FIELDOPS_UPLOADS_ENABLED=false` in Vercel and redeploy to pause new cloud upload/finalization/retry admission; verify the signed-in status panel shows uploads paused. Existing jobs and signed tickets are unaffected. Delete unused comparisons while writes still work and allow cleanup to finish. Physical space may not shrink immediately. Do not solve capacity by upgrading.
+6. Back up settled work before upgrades with `npm run cloud:backup -- --owner=AUTH-USER-UUID --env-file=.env.fieldops.production.local --to=.fieldops/backups/NEW-NAME`. Verify and restore into a new local directory periodically. Backup copies contain unencrypted quotation data and have independent retention; an Excel workbook is not an application backup.
+7. Revoke a buyer through the persisted GitHub invitation. Every private request checks current invitation and managed-session state. Never expose runtime credentials, copy browser sessions into scripts, or enable unrestricted local mode on Vercel.
+
+## Remaining broad-release gates
+
+- Freeze a viable model/prompt/schema/parser candidate; complete the held-out extraction/matching/ambiguity/evidence benchmark with actual latency and usage. Retain unsuccessful probes and report missing provider usage as unknown.
+- Exercise two separate hosted identities and uninvited access through the real OAuth service. Automated two-user SQL tests are valuable, but not a substitute for that hosted check.
+- Add bounded history retention and database-growth admission that still permits deletion and recovery. Add persistent global token admission before broader concurrent AI access; current local counters are supplementary to the Free provider quota.
+- Verify broader permissioned quotation layouts, multilingual/OCR limits and the documented recovery paths. Universal document interpretation is not claimed.
+
+Do not describe the overall system as an unrestricted, production-ready AI service while these gates remain open. The personal parser/manual workflow has a narrower, demonstrable support boundary.

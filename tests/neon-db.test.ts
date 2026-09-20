@@ -30,6 +30,18 @@ describe("Neon HTTP query boundary with injected transport", () => {
     transport.transaction.mockRejectedValueOnce(new Error("connection failed: synthetic private URL and quotation text"));
     await expect(sqlQuery("select 1")).rejects.toMatchObject({ status: 503, code: "storage_unavailable", message: "Private storage is unavailable. Retry when the service is restored." });
   });
+  it.each([
+    ["comparison_document_limit", 429, "five quotations"],
+    ["workspace_comparison_limit", 429, "20-comparison"],
+    ["workspace_document_limit", 429, "50-original"],
+    ["workspace_storage_limit", 429, "100 MiB"],
+    ["project_capacity", 429, "shared pilot capacity"],
+    ["upload_expired", 410, "24 hours"],
+    ["file_size", 413, "20 MiB"],
+  ])("returns actionable, fixed %s recovery without private database details", async (code, status, recovery) => {
+    transport.transaction.mockRejectedValueOnce(Object.assign(new Error(code), { code: "P0001", detail: "private source filename and contents" }));
+    await expect(sqlQuery("select synthetic_private_value")).rejects.toMatchObject({ status, code, message: expect.stringContaining(recovery) });
+  });
   it("propagates a caller's maintenance cancellation to the actual HTTP signal", async () => {
     const controller = new AbortController();
     await sqlQuery("select 1", [], { signal: controller.signal });
