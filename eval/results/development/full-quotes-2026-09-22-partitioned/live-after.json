@@ -1,0 +1,1325 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-22-partitioned",
+  "phase": "after",
+  "mode": "live",
+  "pair": {
+    "mode": "live",
+    "split": "dev",
+    "selection": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+        "goldSha256": "a940f84a663cdaf4ccf15151f6bc3e7e87d726c3f923b6f7bc94c56729798461"
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+        "goldSha256": "47c8fd33b9de153de91d9e17ad8cebae6628bcd8ff55c7174775c7c6d183a9c1"
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+        "goldSha256": "7cc472c8f2cdc9fa97bfe230722f8789d251be54bef96a93521d0fedf814b0f9"
+      }
+    ],
+    "limits": {
+      "maxRequests": 24,
+      "maxReservedTokens": 170000,
+      "maxWaitMs": 600000
+    },
+    "metricVersion": "fieldops-development-1",
+    "synthetic": true
+  },
+  "baselineReference": {
+    "name": "full-quotes-2026-09-21-v2",
+    "report": "eval/results/development/full-quotes-2026-09-21-v2/live-before.json",
+    "sha256": "f1f383809cf3ba9503ac659bfc8af5e687fc209506b59728b35c9ee6aedbe70a",
+    "configurationHash": "ecad31806bbce4e4c9a0d3b5b361aa277d14a602590f12accc1ec0f94bfb5d62",
+    "measuredAt": "2026-09-21T15:05:39.146Z",
+    "model": "openai/gpt-oss-120b"
+  },
+  "startedAt": "2026-09-21T16:53:12.888Z",
+  "measuredAt": "2026-09-21T17:04:02.181Z",
+  "elapsedMs": 649291.9623,
+  "configuration": {
+    "promptVersion": "fieldops-extraction-6",
+    "model": "openai/gpt-oss-120b",
+    "chunkFailurePolicy": "retain_valid_chunks_v1",
+    "extractionTransport": "typed_fields_v2",
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "5d4c11c3d4439344c689a0e5f1b117e93cf8f20cd7cde7ca0b34310020755ac9"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "edc69592f99fd3cb1271114a122234a9f1617d0ac9b2f9e428f70e860cde24e7"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+      },
+      {
+        "file": "src/lib/ai/typed-transport.ts",
+        "sha256": "d3fd5a0718c4d00663fbb069368eae591a9838e9bab498d30e5f501685f5a575"
+      },
+      {
+        "file": "src/lib/ai/provider-schema.ts",
+        "sha256": "6eb17400b165c4abf73829b3ab2567cbb2bcc67abadc5b50cacccc02f08b7a21"
+      },
+      {
+        "file": "src/lib/ai/completeness.ts",
+        "sha256": "477e8d435750583b28be2395422569eee7051c2dff8c9df25eedf91e9d4522f1"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "7798073af91601fc4e4d1a9be640961b5ed89c54335ad6d3536dcfd6e0b9df74"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "39d9541d2c4c96fa550f976a30b31c988d765d5bc94f33b879d7642d763bcc40"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/readiness.ts",
+        "sha256": "b48ab3e1d5ec2940c3496b70ea3d89ace630fd1825a6585964db70ef1b7d8e28"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "36bb2dbe6d7aec321d8ec550c53863b00a572299d0e3bf3e65ce355c0098c3a8"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "089db63e534a63309c9165cc821862da4da32f2b93cee788de4dc01c1416481e"
+      },
+      {
+        "file": "src/lib/ai/partitioned-transport.ts",
+        "sha256": "6b2d69f017d76a9f815060fc775a15195ec36f9f531ae3a6f22d4926d6ae4d1c"
+      },
+      {
+        "file": "src/lib/ai/provider-error.ts",
+        "sha256": "40925831ccf9cbe850d5054d46c4f7c077eb42c433e5f8435594869ac2bacb8e"
+      }
+    ],
+    "sha256": "9617841d12b62e5c1b3b456e897e5426f801d2bbc3f4818695c4221257c0172c"
+  },
+  "configurationStableDuringRun": true,
+  "dataset": {
+    "requestedDocuments": 3,
+    "logicalItems": 18,
+    "annotatedFields": 140,
+    "formats": [
+      "text_pdf",
+      "text",
+      "csv"
+    ],
+    "synthetic": true,
+    "split": "dev",
+    "heldoutDocumentsRead": 0,
+    "heldoutModelCalls": 0
+  },
+  "completion": {
+    "completeDocuments": 0,
+    "partialDocuments": 2,
+    "rejectedDocuments": 1,
+    "parserFailures": 0,
+    "unattemptedDocuments": 0,
+    "halted": null
+  },
+  "fields": {
+    "statedFieldAccuracy": {
+      "numerator": 24,
+      "denominator": 138,
+      "value": 0.17391304347826086
+    },
+    "criticalFieldAccuracy": {
+      "numerator": 22,
+      "denominator": 129,
+      "value": 0.17054263565891473
+    },
+    "annotatedMissingStateAccuracy": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "lineItemPrecision": {
+      "numerator": 3,
+      "denominator": 3,
+      "value": 1
+    },
+    "lineItemRecall": {
+      "numerator": 3,
+      "denominator": 18,
+      "value": 0.16666666666666666
+    },
+    "annotatedReviewSignalRecall": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "sourceReferenceResolvability": {
+      "numerator": 25,
+      "denominator": 25,
+      "value": 1
+    },
+    "correctFieldLocationAgreement": {
+      "numerator": 24,
+      "denominator": 25,
+      "value": 0.96
+    }
+  },
+  "readiness": {
+    "passingDocuments": 0,
+    "requestedDocuments": 3,
+    "auditedOutputs": 2,
+    "correctCriticalFields": {
+      "numerator": 22,
+      "denominator": 129
+    },
+    "evidenceBackedCriticalFields": {
+      "numerator": 22,
+      "denominator": 129
+    },
+    "correctCriticalNonValueStates": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "sourceLinkedCriticalNonValueStates": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "completeExpectedItems": {
+      "numerator": 2,
+      "denominator": 18
+    },
+    "scope": "Separate selected-annotation quality gate; application complete/ready status and identifier-only row recall are insufficient. Rejected and unattempted documents do not pass and remain in the fixed quality denominators. Critical non-value states must agree without synthesizing absent containers; not_stated is absence of assertion, not verified absence. Source-linked non-value counts are separate diagnostics. No claim of unannotated semantic correctness or held-out reliability."
+  },
+  "missingStateAudit": {
+    "unsourcedMatchingStates": 0,
+    "scope": "Historical missing-state scoring is unchanged. A matching not-stated/not-applicable/ambiguous default without source evidence is not verified absence, especially after rejected sections. Inspect this diagnostic separately from accuracy."
+  },
+  "observedUsage": {
+    "dispatches": 11,
+    "reservedAttemptSlots": 22,
+    "reservedTokens": 158442,
+    "waitedMs": 599914,
+    "returnedResponses": 11,
+    "responsesWithoutUsage": 8,
+    "inputTokens": 10069,
+    "outputTokens": 3666,
+    "responseElapsedMs": 48117,
+    "failures": 8,
+    "rejections": 8,
+    "providerInvoiceUsd": null,
+    "scope": "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown."
+  },
+  "measurements": [
+    {
+      "id": "industrial-1",
+      "status": "rejected",
+      "parser": {
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      "parserElapsedMs": 752.906,
+      "errorCode": "invalid_output",
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 46,
+          "value": 0
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 43,
+          "value": 0
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemPrecision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemRecall": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Alder Industrial supplies",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "quotationNumber",
+            "expected": "INDUSTRIAL-1-26",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "date",
+            "expected": "2026-09-10",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.identifier",
+            "expected": "INDUSTRIAL-1",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.quantity",
+            "expected": "200",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.unitPrice",
+            "expected": "0.18",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.lineAmount",
+            "expected": "36.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.identifier",
+            "expected": "INDUSTRIAL-2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.quantity",
+            "expected": "3",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.unit",
+            "expected": "pack",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.unitPrice",
+            "expected": "24.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.lineAmount",
+            "expected": "72.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageSize",
+            "expected": "10",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageUnit",
+            "expected": "pair",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.identifier",
+            "expected": "INDUSTRIAL-3",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.quantity",
+            "expected": "5",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.unit",
+            "expected": "l",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.unitPrice",
+            "expected": "12.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.lineAmount",
+            "expected": "62.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-3.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.identifier",
+            "expected": "INDUSTRIAL-4",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.quantity",
+            "expected": "2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.unitPrice",
+            "expected": "34.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.lineAmount",
+            "expected": "69.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-4.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.identifier",
+            "expected": "INDUSTRIAL-5",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.quantity",
+            "expected": "2",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.unit",
+            "expected": "hour",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.unitPrice",
+            "expected": "80.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.lineAmount",
+            "expected": "160.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-5.billingBasis",
+            "expected": "hourly",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.identifier",
+            "expected": "INDUSTRIAL-6",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.quantity",
+            "expected": "1",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.unit",
+            "expected": "project",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.unitPrice",
+            "expected": "140.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.lineAmount",
+            "expected": "140.00",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "items.industrial-1-line-6.billingBasis",
+            "expected": "fixed_project",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "statedSubtotal",
+            "expected": "539.50",
+            "actual": null,
+            "state": "no_accepted_output"
+          },
+          {
+            "path": "statedTotal",
+            "expected": "615.31",
+            "actual": null,
+            "state": "no_accepted_output"
+          }
+        ],
+        "mappedItems": {}
+      },
+      "extractionElapsedMs": 195258.47499999998
+    },
+    {
+      "id": "translation-2",
+      "status": "partial",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 32,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 0.3550000000104774,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 9,
+          "denominator": 48,
+          "value": 0.1875
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 9,
+          "denominator": 45,
+          "value": 0.2
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 1,
+          "denominator": 1,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 1,
+          "denominator": 6,
+          "value": 0.16666666666666666
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 10,
+          "denominator": 10,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 9,
+          "denominator": 10,
+          "value": 0.9
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Beacon Translation services",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "quotationNumber",
+            "expected": "TRANSLATION-2-26",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "date",
+            "expected": "2026-09-10",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "items.translation-2-line-1.identifier",
+            "expected": "TRANSLATION-1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.quantity",
+            "expected": "1200",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.unit",
+            "expected": "word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.unitPrice",
+            "expected": "0.11",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.lineAmount",
+            "expected": "132.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.billingBasis",
+            "expected": "per_word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.identifier",
+            "expected": "TRANSLATION-2",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.quantity",
+            "expected": "1200",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.unit",
+            "expected": "word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.unitPrice",
+            "expected": "0.04",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.lineAmount",
+            "expected": "48.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.billingBasis",
+            "expected": "per_word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.identifier",
+            "expected": "TRANSLATION-3",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.quantity",
+            "expected": "4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.unit",
+            "expected": "hour",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.unitPrice",
+            "expected": "32.90",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.lineAmount",
+            "expected": "131.60",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-3.billingBasis",
+            "expected": "hourly",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.identifier",
+            "expected": "TRANSLATION-4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.quantity",
+            "expected": "1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.unit",
+            "expected": "project",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.unitPrice",
+            "expected": "84.60",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.lineAmount",
+            "expected": "84.60",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-4.billingBasis",
+            "expected": "fixed_project",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.identifier",
+            "expected": "TRANSLATION-5",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.quantity",
+            "expected": "1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.unit",
+            "expected": "project",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.unitPrice",
+            "expected": "56.40",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.lineAmount",
+            "expected": "56.40",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-5.billingBasis",
+            "expected": "fixed_project",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-6.unit",
+            "expected": "account",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "charges.0.amount",
+            "expected": null,
+            "actual": "55.96",
+            "state": "value"
+          }
+        ],
+        "mappedItems": {
+          "translation-2-line-6": "item-e22964a9e75a83647b8d"
+        }
+      },
+      "readiness": {
+        "version": "fieldops-readiness-2",
+        "passesSelectedAnnotationGate": false,
+        "applicationReady": false,
+        "parserComplete": true,
+        "fullItemRecall": {
+          "numerator": 1,
+          "denominator": 6,
+          "value": 0.16666666666666666
+        },
+        "completeExpectedItems": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "correctCriticalStatedFields": {
+          "numerator": 9,
+          "denominator": 45,
+          "value": 0.2
+        },
+        "evidenceBackedCriticalStatedFields": {
+          "numerator": 9,
+          "denominator": 45,
+          "value": 0.2
+        },
+        "correctCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceLinkedCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "unverifiedCriticalNonValueStates": 0,
+        "allFieldReferenceResolvability": {
+          "numerator": 19,
+          "denominator": 19,
+          "value": 1
+        },
+        "unsourcedStatedFields": 0,
+        "extraOrUnalignedItems": 0,
+        "unresolvedBlockingIssues": 20,
+        "originalSourcesPreserved": true,
+        "limitations": [
+          "This separate gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields.",
+          "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.",
+          "Critical non-value state agreement is separate from evidence. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence; matching unsourced states remain unverified. Non-value source linkage is diagnostic and is not required by this annotation gate. Never invent a charge or citation to satisfy it.",
+          "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.",
+          "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."
+        ]
+      },
+      "unsourcedMatchingMissingStates": 0,
+      "unresolvedIssues": 23,
+      "extractionElapsedMs": 256406.2056
+    },
+    {
+      "id": "office-2",
+      "status": "partial",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 11.70370000001276,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 15,
+          "denominator": 44,
+          "value": 0.3409090909090909
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 13,
+          "denominator": 41,
+          "value": 0.3170731707317073
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 2,
+          "denominator": 6,
+          "value": 0.3333333333333333
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 15,
+          "denominator": 15,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 15,
+          "denominator": 15,
+          "value": 1
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Beacon Office IT",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "items.office-2-line-3.identifier",
+            "expected": "OFFICE-3",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.quantity",
+            "expected": "4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.unitPrice",
+            "expected": "42.30",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.lineAmount",
+            "expected": "169.20",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.identifier",
+            "expected": "OFFICE-4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.quantity",
+            "expected": "100",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.unit",
+            "expected": "m",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.unitPrice",
+            "expected": "1.13",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.lineAmount",
+            "expected": "113.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.identifier",
+            "expected": "OFFICE-5",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.quantity",
+            "expected": "4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.unit",
+            "expected": "device",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.unitPrice",
+            "expected": "84.60",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.lineAmount",
+            "expected": "338.40",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-5.billingBasis",
+            "expected": "fixed_project",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.identifier",
+            "expected": "OFFICE-6",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.quantity",
+            "expected": "6",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.unit",
+            "expected": "hour",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.unitPrice",
+            "expected": "56.40",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.lineAmount",
+            "expected": "338.40",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-6.billingBasis",
+            "expected": "hourly",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "statedSubtotal",
+            "expected": "1899.00",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "statedTotal",
+            "expected": "2069.91",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "charges.0.amount",
+            "expected": null,
+            "actual": null,
+            "state": "missing"
+          }
+        ],
+        "mappedItems": {
+          "office-2-line-1": "item-000e51d25a9262df057d",
+          "office-2-line-2": "item-f93a2152caf383108686"
+        }
+      },
+      "readiness": {
+        "version": "fieldops-readiness-2",
+        "passesSelectedAnnotationGate": false,
+        "applicationReady": false,
+        "parserComplete": true,
+        "fullItemRecall": {
+          "numerator": 2,
+          "denominator": 6,
+          "value": 0.3333333333333333
+        },
+        "completeExpectedItems": {
+          "numerator": 2,
+          "denominator": 6,
+          "value": 0.3333333333333333
+        },
+        "correctCriticalStatedFields": {
+          "numerator": 13,
+          "denominator": 41,
+          "value": 0.3170731707317073
+        },
+        "evidenceBackedCriticalStatedFields": {
+          "numerator": 13,
+          "denominator": 41,
+          "value": 0.3170731707317073
+        },
+        "correctCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceLinkedCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "unverifiedCriticalNonValueStates": 0,
+        "allFieldReferenceResolvability": {
+          "numerator": 20,
+          "denominator": 20,
+          "value": 1
+        },
+        "unsourcedStatedFields": 0,
+        "extraOrUnalignedItems": 0,
+        "unresolvedBlockingIssues": 18,
+        "originalSourcesPreserved": true,
+        "limitations": [
+          "This separate gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields.",
+          "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.",
+          "Critical non-value state agreement is separate from evidence. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence; matching unsourced states remain unverified. Non-value source linkage is diagnostic and is not required by this annotation gate. Never invent a charge or citation to satisfy it.",
+          "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.",
+          "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."
+        ]
+      },
+      "unsourcedMatchingMissingStates": 0,
+      "unresolvedIssues": 19,
+      "extractionElapsedMs": 196843.96789999993
+    }
+  ],
+  "limitations": [
+    "Development-only adaptive evidence; no held-out or general supplier-format accuracy claim.",
+    "All complete selected documents are supplied; no cropped successful section is substituted for a quotation.",
+    "Field metrics include partial accepted output. Rejected attempted documents earn zero credit; unattempted documents are counted separately. Zero source/precision denominators mean unavailable.",
+    "Item alignment uses exact identifiers. Source reference resolvability and location agreement are narrower than independent semantic correctness.",
+    "Matching and arithmetic are not remeasured by this extraction-only cohort. No model matching calls are made.",
+    "A complete extraction status does not imply every field is correct or every review issue resolved. Inspect accuracy denominators and issues.",
+    "Code/runtime drift during execution invalidates a paired causal comparison and is exposed explicitly.",
+    "This executable imports no deployment client and makes no production writes. Its environment guard is defense in depth, not an audit of other simultaneously running processes."
+  ]
+}

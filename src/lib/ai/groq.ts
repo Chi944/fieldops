@@ -1,10 +1,15 @@
 import { createHash } from "node:crypto";
 import { extractionWireSchemaForTargets, expandExtraction } from "./transport";
+import { typedExtractionWireSchemaForTargets, expandTypedExtraction } from "./typed-transport";
+import { partitionedExtractionWireSchemaForTargets, expandPartitionedExtraction } from "./partitioned-transport";
+import { typedProviderSchema } from "./provider-schema";
+import { providerSchemaDiagnostic, ProviderSchemaError } from "./provider-error";
 import { strictSchema } from "./schema";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
 export type ChunkFailurePolicy = "reject_document" | "retain_valid_chunks_v1";
-export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5"; chunkFailurePolicy?: ChunkFailurePolicy; }
+export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2";
+export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7"; chunkFailurePolicy?: ChunkFailurePolicy; }
 export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; contentCharacters?: number; reasoningCharacters?: number; rejectedAt?: "transport"; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
@@ -13,7 +18,7 @@ export interface AICheckpoint {
   /** Optional private rejection journal. Never expose result.data in application logs. */
   reject?(key: string, result: AIResult, errorCode: ProcessingErrorCode, context?: { cached: boolean }): Promise<void>;
 }
-export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; chunkFailurePolicy?: ChunkFailurePolicy; }
+export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; chunkFailurePolicy?: ChunkFailurePolicy; extractionTransport?: ExtractionTransport; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
 export const PROMPT_VERSION = "fieldops-extraction-6";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
@@ -120,9 +125,14 @@ export function compactExtractionRequest(request: AIRequest): { request: AIReque
       return [key, restore(value)];
     }));
   }
+  const typedTransport = request.transport === "quotation-v6";
+  const partitionedTransport = request.transport === "quotation-v7";
   const quotationTransport = request.transport === "quotation-v4" || request.transport === "quotation-v5";
-  return { request: { ...request, user, ...(quotationTransport ? { schema: strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) } : {}) }, restore: data => {
+  const schema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
+  return { request: { ...request, user, schema }, restore: data => {
     const restored = restore(data);
+    if (partitionedTransport) return expandPartitionedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
+    if (typedTransport) return expandTypedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     return quotationTransport ? expandExtraction(restored, targets.map(source => source.id), context.map(source => source.id), { coveragePolicy: request.transport === "quotation-v5" ? "retain_partial" : "strict" }) : restored;
   } };
 }
@@ -167,6 +177,8 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
       if (options.signal?.aborted) throw new ProcessingError("cancelled", "Extraction cancelled. Saved parser and extraction chunks remain available.");
       if (error instanceof ProcessingError) throw error;
       const status = (error as { status?: number }).status;
+      const schemaDiagnostic = providerSchemaDiagnostic(error);
+      if (schemaDiagnostic) throw new ProviderSchemaError(schemaDiagnostic);
       const payload = (error as { error?: { error?: { code?: string; message?: unknown; failed_generation?: unknown }; code?: string; message?: unknown; failed_generation?: unknown } }).error;
       const validation = payload?.error ?? payload;
       if (status === 400 && validation?.code === "json_validate_failed" && typeof validation.failed_generation === "string") {

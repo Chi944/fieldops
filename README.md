@@ -58,6 +58,8 @@ The [21 September complete-quotation study](docs/ai-development-study-2026-09-21
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
 
+The [22 September follow-up](docs/ai-development-study-2026-09-22.md) adds source-completeness guards, a stricter annotation quality gate and reproducible rejection diagnostics. **428 tests and 10 browser workflows pass**, but the new contract regressed to **22/129 critical fields, 3/18 items and 0/3 complete quotations**. It remains a development-only experiment and is not promoted to the default. Passing application tests is separate from establishing complete-document AI reliability.
+
 ```powershell
 npm run typecheck
 npm run lint

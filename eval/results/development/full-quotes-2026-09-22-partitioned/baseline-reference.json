@@ -1,0 +1,8 @@
+{
+  "name": "full-quotes-2026-09-21-v2",
+  "report": "eval/results/development/full-quotes-2026-09-21-v2/live-before.json",
+  "sha256": "f1f383809cf3ba9503ac659bfc8af5e687fc209506b59728b35c9ee6aedbe70a",
+  "configurationHash": "ecad31806bbce4e4c9a0d3b5b361aa277d14a602590f12accc1ec0f94bfb5d62",
+  "measuredAt": "2026-09-21T15:05:39.146Z",
+  "model": "openai/gpt-oss-120b"
+}

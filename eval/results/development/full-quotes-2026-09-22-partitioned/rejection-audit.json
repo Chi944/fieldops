@@ -1,0 +1,878 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-22-partitioned",
+  "auditedAt": "2026-09-21T17:04:39.739Z",
+  "reportSha256": "652b677a9d01f541f7f55810e1bf40149bb4cd196d90080a27aa898b5dbb4d2a",
+  "auditCodeSha256": "7cc68a5d2b26c1b99378661b70818b1ecb0c5521fe23a6e3df48f642d5d1deb7",
+  "configurationHash": "9617841d12b62e5c1b3b456e897e5426f801d2bbc3f4818695c4221257c0172c",
+  "providerCalls": 0,
+  "acceptedOutputs": 0,
+  "checkpointWrites": 0,
+  "heldoutReads": 0,
+  "capturedRequests": 11,
+  "rejectedRecords": 8,
+  "providerRequestSchemaRejectedDocuments": 0,
+  "countsByStage": {
+    "provider_schema_rejected": 8
+  },
+  "countsByOutcome": {
+    "wire_schema_invalid": 8
+  },
+  "rejections": [
+    {
+      "documentId": "industrial-1",
+      "section": 2,
+      "requestSha256": "027d5fc3f5e087e3c98f02da319ab381bc9706f745d02096b8c8434bd1ed3e2e",
+      "rejectionSha256": "d7991106b65133804a40ea232ef05559b27b7dfb2f042859045eac3b61ec9ebb",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_type",
+          "path": "/items/0/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "label",
+            "itemSourceId",
+            "billingPeriod",
+            "appliesTo"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "label",
+            "itemSourceId",
+            "billingPeriod",
+            "appliesTo"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "translation-2",
+      "section": 2,
+      "requestSha256": "1e41cff479e02edb21faba0b04ca493bede9c46a95d55137e2241e7109379386",
+      "rejectionSha256": "366890523b0d3319be9c9f31a553b4b97cc8d289e0d38307a8c04812826e6d31",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_type",
+          "path": "/items/0/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/5",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/0/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/0/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/5",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/1/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/2/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/5",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/2/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/2/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2",
+          "unknownKeys": [
+            "itemSourceId",
+            "label"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 3,
+      "requestSha256": "2bd6f41b9690153a65576b9112f7da5de8dfc745f757893cfb4e8345fec3209a",
+      "rejectionSha256": "08b20628890559cd87bec5e2fdab8b268008cf8c6faf8a8576285152d419682e",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "itemSourceId"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "itemSourceId"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/excluded/0/sourceIds/0"
+        },
+        {
+          "code": "invalid_value",
+          "path": "/excluded/1/sourceIds/0"
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 1,
+      "requestSha256": "381270990c677e13eec18c622d1016dd1372bdceb57783ca55b93aabe01c30ef",
+      "rejectionSha256": "0beece5fd62925add3bfcb10abe8643cb79c2d3a25dd665c62082fa505be8814",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "appliesTo",
+            "billingPeriod",
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "appliesTo",
+            "billingPeriod",
+            "itemSourceId",
+            "label"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "office-2",
+      "section": 2,
+      "requestSha256": "46beb963a1fa57d7fbdfaa38b273a2b89720f5722d135c423ea0073eb154fcae",
+      "rejectionSha256": "38f982f71891336e33bf3e6f3c10221735d9f27a04304c270e3da81216860582",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/0/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/0/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/0/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "billingPeriod",
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/1/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "billingPeriod",
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/2/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/items/2/taxBasis"
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/2/tiers"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/2",
+          "unknownKeys": [
+            "billingPeriod",
+            "itemSourceId",
+            "label"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/excluded/0/sourceIds/0"
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 4,
+      "requestSha256": "968db61b55562844f72ace84007edca16e3b352ed2927a421173cf0b5114729b",
+      "rejectionSha256": "1f365e64e649a38cc82ffceb0d335149abfdb01b0326a663f428b9219dbce81d",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_value",
+          "path": "/terms/4/key"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/terms/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/charges/0/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/charges/0",
+          "unknownKeys": [
+            "discounts"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/charges/1/fields/numeric/1/key"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/charges/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/charges/1",
+          "unknownKeys": [
+            "discounts"
+          ]
+        }
+      ]
+    },
+    {
+      "documentId": "office-2",
+      "section": 3,
+      "requestSha256": "a3db99ea4fa5965a3204d18c93e34efb17d3b1c041fa93ce53efe4b40620dd74",
+      "rejectionSha256": "9ee3b8110724bf248fc9f40a30b1568234c8be423c8e3e3d657d2998de30078b",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "itemSourceId"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/charges/0/fields/numeric/0/key"
+        },
+        {
+          "code": "invalid_value",
+          "path": "/charges/0/fields/numeric/1/key"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/charges/0/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_value",
+          "path": "/charges/0/itemSourceId"
+        }
+      ]
+    },
+    {
+      "documentId": "translation-2",
+      "section": 1,
+      "requestSha256": "e24ee1ffe44b996776aca3006b328b9e161531a26fb9687af9ad812eac02785e",
+      "rejectionSha256": "df57871ac7839770d7fef80bbe93106669c808cac686e3231852629727c00531",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/quotation/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/0/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/5",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0/fields/text/6",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/0",
+          "unknownKeys": [
+            "label",
+            "itemSourceId",
+            "appliesTo",
+            "billingPeriod"
+          ]
+        },
+        {
+          "code": "invalid_type",
+          "path": "/items/1/sourceIds"
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/0",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/1",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/2",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/3",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/4",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/5",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1/fields/text/6",
+          "unknownKeys": [
+            "type"
+          ]
+        },
+        {
+          "code": "unrecognized_keys",
+          "path": "/items/1",
+          "unknownKeys": [
+            "label",
+            "itemSourceId",
+            "appliesTo",
+            "billingPeriod"
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Saved raw bodies are checked against the reconstructed partitioned wire schema; this does not accept, repair or replay an extraction.",
+    "A locally wire-valid response can still fail state, normalization, source-evidence or business validation; its specific cause is unavailable here.",
+    "Domain-stage records are already expanded and are not misvalidated as raw wire responses. Their recorded error category is retained; detailed cause is unavailable.",
+    "Provider schema rejection means the provider rejected generated output; request-schema rejection documents are counted separately from the finalized report.",
+    "Issue messages, received values, source aliases, citations and arbitrary unknown-key names are never published. Known structural names and bounded indices are allowed.",
+    "Diagnostics are limited to 100 issues per record, four nested union levels, 24 path components and 30 unknown-key names per issue; they are not exhaustive.",
+    "Records include cached rejections if present and need not equal fresh provider attempts. This audit does not remeasure usage or extraction accuracy."
+  ]
+}

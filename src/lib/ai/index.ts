@@ -8,6 +8,10 @@ import { ProcessingError, checkCancelled, progress } from "../processing/errors"
 import { requestAI, requireLiveAI, AIInterpretationError, type AIOptions, type AIResult, type RejectedAIUsage } from "./groq";
 import { extractionSchema, sectionFieldKeys, itemAttributeFieldKeys, strictSchema, type ExtractedChunk, type ExtractedField, type ExtractedAttribute } from "./schema";
 import { extractionInstruction } from "./transport";
+import { typedExtractionInstruction, typedExtractionWireSchemaForTargets } from "./typed-transport";
+import { partitionedExtractionInstruction, partitionedExtractionWireSchemaForTargets } from "./partitioned-transport";
+import { extractionCompletenessIssues } from "./completeness";
+import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
 export { extractionChunks, extractionContext } from "./chunks";
 export * from "./groq";
@@ -108,13 +112,16 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   let quotation = { ...emptyQuotation(parsed.documentId, parsed.filename), ...parsed, extractionVersion: options.extractionVersion ?? 1, status: "extracting" as const, isDemo: false } as Quotation;
   const chunks = extractionChunks(parsed); const usage: AIResult[] = [];
   const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
+  const typedTransport = options.extractionTransport === "typed_fields_v1";
+  const partitionedTransport = options.extractionTransport === "typed_fields_v2";
   const rejectedUsage: RejectedAIUsage[] = [], rejectedSources: string[] = [];
   for (let index = 0; index < chunks.length; index++) {
     await progress(options, "extracting", 35 + Math.round(index / chunks.length * 45), `Extracting quotation section ${index + 1} of ${chunks.length}`);
     const targets = chunks[index], context = extractionContext(parsed, targets);
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
     try {
-      const accepted = await requestAI({ purpose: "extraction", transport: "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: strictSchema(extractionSchema), system: extractionInstruction,
+      const requestSchema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : strictSchema(extractionSchema);
+      const accepted = await requestAI({ purpose: "extraction", transport: partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
         user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
         const validated = extractionSchema.safeParse(result.data);
         if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
@@ -140,6 +147,7 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   if (rejectedUsage.length) issue(quotation, "incomplete_extraction", "Some quotation sections were rejected. Blank fields are unconfirmed, not evidence that the supplier omitted them. Review the highlighted originals before relying on this partial interpretation.", [...new Set(rejectedSources)]);
   if (quotation.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
   await progress(options, "reconciling", 85, "Checking evidence, source coverage, and supplier arithmetic");
+  quotation.issues.push(...extractionCompletenessIssues(quotation, parsed));
   for (const unit of parsed.manifest.units) if (unit.status === "failed" || unit.status === "unsupported") issue(quotation, "incomplete_extraction", `${unit.label}: ${unit.message ?? "Source content was not fully read."}`);
   for (const warning of parsed.manifest.warnings) {
     if (/formula result unavailable/i.test(warning)) issue(quotation, "formula_unavailable", warning);

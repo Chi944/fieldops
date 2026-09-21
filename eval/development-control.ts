@@ -11,10 +11,11 @@ export interface DevelopmentOptions {
   maxRequests: number; maxReservedTokens: number; maxWaitMs: number; envFile?: ".env.ai.local";
   baselineName?: string;
   chunkFailurePolicy: "reject_document" | "retain_valid_chunks_v1";
+  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2";
 }
 export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   const values = new Map<string, string>(); let live = false;
-  const allowed = new Set(["--name", "--phase", "--split", "--documents", "--max-requests", "--max-reserved-tokens", "--max-wait-ms", "--env-file", "--mode", "--baseline-name", "--chunk-failure-policy"]);
+  const allowed = new Set(["--name", "--phase", "--split", "--documents", "--max-requests", "--max-reserved-tokens", "--max-wait-ms", "--env-file", "--mode", "--baseline-name", "--chunk-failure-policy", "--extraction-transport"]);
   for (let index = 0; index < args.length; index++) {
     const flag = args[index];
     if (flag === "--live" && !live) { live = true; continue; }
@@ -41,7 +42,10 @@ export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   const chunkFailurePolicy = values.get("--chunk-failure-policy") ?? "reject_document";
   if (!["reject_document", "retain_valid_chunks_v1"].includes(chunkFailurePolicy)) throw new Error("Use a supported explicit chunk failure policy.");
   if (chunkFailurePolicy !== "reject_document" && (!live || phase !== "after")) throw new Error("Retaining validated chunks requires an explicit live after phase.");
-  return { name, phase, live, documentIds, maxRequests: number("--max-requests", 24, 24), maxReservedTokens: number("--max-reserved-tokens", 170000, 170000), maxWaitMs: number("--max-wait-ms", 600000, 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}) };
+  const extractionTransport = values.get("--extraction-transport") ?? "legacy_v5";
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
+  if (extractionTransport !== "legacy_v5" && !live) throw new Error("Typed extraction transport requires an explicit live development run.");
+  return { name, phase, live, documentIds, maxRequests: number("--max-requests", 24, 24), maxReservedTokens: number("--max-reserved-tokens", 170000, 170000), maxWaitMs: number("--max-wait-ms", 600000, 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}) };
 }
 /** Diagnostic only: preserve historical scoring while exposing unconfirmed defaults. */
 export function unsourcedMissingStateAgreements(fixture: Pick<FixtureRecord, "fields">, quotation: Quotation, mappedItems: Record<string, string>): number {

@@ -80,3 +80,22 @@ Reports are exclusively created at `eval/results/development/<name>/<baseline|li
 Report complete, partial, rejected, parser-failed and unattempted documents separately against the requested cohort. Ready status is not accuracy: per-field, critical-field, row, annotated review-signal and source metrics retain explicit numerators and denominators. Partial accepted outputs can contribute field metrics; rejected attempted documents earn zero credit. Unattempted documents are separately counted, and zero precision/reference denominators mean unavailable. Returned usage without token data is counted separately, never presented as zero-cost certainty. Parser timing, document extraction elapsed time and returned-response time are different measurements. Journal failure/rejection counters describe different processing stages and can overlap; use document completion counts for the number of rejected quotations.
 
 This extraction runner does not measure matching quality, arithmetic correctness, production isolation or general supplier-format coverage. The published study includes a separate read-only production-isolation receipt. The runner's held-out reads and model calls remain zero; the ordinary offline regression suite separately inspects split metadata in the combined manifest. Preserve the immutable before failure report even if the after phase improves. Any later experiment needs a new name and an explicit scope/budget decision; changing an experiment label alone does not authorize additional model use.
+
+## Typed-contract follow-up
+
+The [22 September follow-up](ai-development-study-2026-09-22.md) records both `typed_fields_v1` and the subsequent `typed_fields_v2` experiment. Version 1 was rejected by the provider's union-schema implementation. Version 2 separates numeric/text collections to avoid those unions. The default remains `legacy_v5`; application callers do not enable either candidate. Both modes retain narrow excerpts, section-specific fields and precise decimal strings checked by the existing domain validators. The source-completeness safety guard applies to the default transport as well. Use the selected flag consistently in offline request capture and live evaluation:
+
+```powershell
+# Choose an unused name and obtain the original baseline as described above.
+$typedStudyName = 'typed-study-rerun-2026-09-23-a'
+npx tsx scripts/preflight-development.ts --name $typedStudyName --extraction-transport typed_fields_v2
+npm run eval:dev -- --name $typedStudyName --phase after --live --env-file .env.ai.local --baseline-name $studyRunName --chunk-failure-policy retain_valid_chunks_v1 --extraction-transport typed_fields_v2
+npx tsx scripts/compare-development.ts --name $typedStudyName
+# Offline, requires the finalized run and its ignored rejection/accepted journals.
+npx tsx scripts/audit-development-sections.ts --name $typedStudyName
+npx tsx scripts/audit-development-rejections.ts --name $typedStudyName
+```
+
+New reports include a separate selected-annotation readiness gate with fixed critical-field/item denominators, counting rejected and unattempted documents as failures. Historical field metrics remain unchanged. An application-ready quotation or identifier-only item recall is not sufficient to pass this gate. Inspect all material unannotated terms independently before making a broader reliability claim. No held-out fixture or gold value is supplied to extraction.
+
+Critical non-value states must agree as well: a source-linked invented shipping price still fails. Missing charge containers are not backfilled to satisfy expected states. A matching `not_stated` means absence of assertion, not independently verified absence; source-linked non-value counts are diagnostics separate from gate eligibility. Request-schema diagnostics contain only validated structural metadata, never provider messages, generations or quotation text. Earlier schema diagnostics made additional, explicitly recorded requests; the new error classification records the cause on the original failed request.

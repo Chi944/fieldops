@@ -48,6 +48,8 @@ A separate review found that deleting a comparison could wait behind a long glob
 
 ## Remaining work
 
+The [22 September follow-up](ai-development-study-2026-09-22.md) reproduced a false-completeness case: an interpretation retained an item identifier and description while omitting the visible quantity and prices. Counting the row alone hid that loss. A source-based guard now requires a retained value or ambiguity for explicitly labelled numeric details; it preserves the supplier's values and highlights missing interpretations. Review then found an overreach in the guard: a correctly extracted CSV `Total` footer looked like a missing item amount. The fix requires both an exact summary label and retained total evidence at the amount cell, while tests keep priced items named “Total” subject to the guard. These are observed, fixed software failures; passing those regressions does not establish complete AI extraction accuracy.
+
 The next release should collect permissioned, less regular quotations; independently verify a larger hold-out set; run real extraction and same-input AI-versus-baseline matching; and investigate the most consequential measured failures. More varied scan degradation, multilingual interpretation, graduated tiers and bundle equivalence need explicit support boundaries and additional evidence before expanding claims.
 
 The current value of the project is a connected, inspectable workflow and an honest measurement boundary: buyers can see the quotation, the interpretation, the calculation, and the unresolved question behind each decision.

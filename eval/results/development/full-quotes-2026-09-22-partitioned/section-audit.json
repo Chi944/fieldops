@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-22-partitioned",
+  "auditedAt": "2026-09-21T17:04:39.680Z",
+  "reportSha256": "652b677a9d01f541f7f55810e1bf40149bb4cd196d90080a27aa898b5dbb4d2a",
+  "journalSha256": "d3104c77ff428c7a75cde4a5a65bdac984854dd051d5d2d215c235bccca035f1",
+  "auditCodeSha256": "f15848ad585ae3bbd935d01dfe118be52859f122a2ec37f68df86591e60571bd",
+  "configurationHash": "9617841d12b62e5c1b3b456e897e5426f801d2bbc3f4818695c4221257c0172c",
+  "providerCalls": 0,
+  "heldoutReads": 0,
+  "documents": [
+    {
+      "id": "industrial-1",
+      "status": "rejected",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 4,
+        "rejectionEvents": 4,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 4,
+      "attemptedSections": null,
+      "validatedSections": null,
+      "rejectedSections": null,
+      "failedTargets": null,
+      "retainedOutputAvailable": false,
+      "limitation": "No returned quotation is available to attribute exact failed target sections. Fresh journal counts are preserved separately; request dispatches are not silently treated as unique sections."
+    },
+    {
+      "id": "translation-2",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "28af2518ea8683ccb57560e75dd9b004541f390eab54b14eeb5fbcf3c9878cf6",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 2,
+        "rejectionEvents": 2,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 4,
+      "attemptedSections": 4,
+      "validatedSections": 2,
+      "rejectedSections": 2,
+      "sectionCountsAgree": true,
+      "failedTargets": {
+        "numerator": 22,
+        "denominator": 32,
+        "allResolvable": true,
+        "exactPlannedSectionSets": true,
+        "allRemainBlocking": true,
+        "sections": [
+          {
+            "section": 1,
+            "targetCount": 12,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          },
+          {
+            "section": 2,
+            "targetCount": 10,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "retainedSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 40,
+        "statedFields": 19,
+        "references": 19,
+        "resolvable": 19,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 20,
+        "retainedValuesChecked": 1,
+        "explicitlyCoverageBlockedValues": 1,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "In-memory approved singleton groups isolate the existing coverage/evidence gate on each retained row. This is not a cross-supplier ranking or matching-quality test."
+      }
+    },
+    {
+      "id": "office-2",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "036e5f5a9264c6aa9d78bf49a352223a8b9adf1f52b51bfbb2c921093dbc3a2e",
+      "freshJournal": {
+        "dispatchReservations": 3,
+        "returnedResponses": 3,
+        "responsesWithoutUsage": 2,
+        "rejectionEvents": 2,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 3,
+      "attemptedSections": 3,
+      "validatedSections": 1,
+      "rejectedSections": 2,
+      "sectionCountsAgree": true,
+      "failedTargets": {
+        "numerator": 16,
+        "denominator": 27,
+        "allResolvable": true,
+        "exactPlannedSectionSets": true,
+        "allRemainBlocking": true,
+        "sections": [
+          {
+            "section": 2,
+            "targetCount": 9,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          },
+          {
+            "section": 3,
+            "targetCount": 7,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "2084b04593b5fccfd0f3dfaf024fd6dd926cf6530699327aa9228f48bab4644d",
+      "retainedSourceArraySha256": "2084b04593b5fccfd0f3dfaf024fd6dd926cf6530699327aa9228f48bab4644d",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 55,
+        "statedFields": 20,
+        "references": 20,
+        "resolvable": 20,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 18,
+        "retainedValuesChecked": 2,
+        "explicitlyCoverageBlockedValues": 2,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "In-memory approved singleton groups isolate the existing coverage/evidence gate on each retained row. This is not a cross-supplier ranking or matching-quality test."
+      }
+    }
+  ],
+  "limitations": [
+    "Counts describe section validation and partial availability, not proof of semantic extraction correctness.",
+    "Readonly context references are excluded from failed-target denominators. Field-reference resolvability does not prove that the source supports a claim.",
+    "Validated/rejected section counts come from returned quotation metadata and exact static issue-to-chunk checks; fresh journal dispatch/response counts are reported separately and include failures.",
+    "No raw quotations, supplier values or rejected replies are published by this audit.",
+    "No returned output means exact section attribution is unavailable; the audit does not infer it from response counts."
+  ]
+}

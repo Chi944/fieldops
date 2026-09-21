@@ -1,0 +1,40 @@
+{
+  "name": "full-quotes-2026-09-22-typed-final",
+  "recordedAt": "2026-09-21T16:31:28.471Z",
+  "outcome": "interrupted_after_request_rejection",
+  "includedInPairedFieldMetrics": false,
+  "cohort": [
+    "industrial-1",
+    "translation-2",
+    "office-2"
+  ],
+  "attemptedDocuments": [
+    "industrial-1"
+  ],
+  "remainingDocumentsUnattempted": [
+    "translation-2",
+    "office-2"
+  ],
+  "acceptedModelOutputs": 0,
+  "evaluationDispatches": 1,
+  "diagnosticDispatches": 1,
+  "diagnosticPurpose": "One identical first-section diagnostic captured the otherwise-sanitized provider error. No response was reused as an extraction or counted as a completed document.",
+  "reservedAttemptSlots": 4,
+  "estimatedReservedTokens": 28308,
+  "reportedTokenUsage": null,
+  "providerInvoiceUsd": null,
+  "diagnosticHttpStatus": 400,
+  "diagnosticElapsedMs": 200,
+  "schemaFailure": {
+    "code": "invalid_request_error",
+    "parameter": "response_format",
+    "path": "/definitions/__schema5/items/anyOf/0/properties/value/anyOf",
+    "kind": "anyOf",
+    "message": "invalid JSON schema for response_format: 'fieldops_schema_diagnostic': /definitions/__schema5/items/anyOf/0/properties/value/anyOf: anyOf branches must be disambiguated via a required discriminator (const/enum) or by key-set exclusion with additionalProperties:false"
+  },
+  "limitations": [
+    "The evaluation process was verified and stopped during quota pacing before another document request. Its original lock, plan and usage journal remain private and unchanged; they must not be cleared to restart the budget.",
+    "The one diagnostic request is explicitly additional to the interrupted run, within the declared candidate ceiling. Neither request returned an extraction or usage accounting.",
+    "HTTP request rejection is not a measured full-document extraction failure rate. No held-out or production model calls occurred."
+  ]
+}

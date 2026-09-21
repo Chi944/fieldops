@@ -11,10 +11,12 @@ import type { ParsedDocument, Quotation } from "../src/lib/domain/types";
 import { parserMetrics, scoreExtraction, scoreFailedExtraction, aggregateExtractionMetrics, type Fraction } from "../eval/metrics";
 import { assertDevelopmentEnvironment, assertDevelopmentIds, developmentRequestController, parseDevelopmentOptions, responseEvent, summarizeDevelopmentUsage, unsourcedMissingStateAgreements, type DevelopmentOptions, type DevelopmentEvent } from "../eval/development-control";
 import { errorCode } from "../eval/live-control";
+import { auditExtractionReadiness } from "../eval/readiness";
+import { ProviderSchemaError, type ProviderSchemaDiagnostic } from "../src/lib/ai/provider-error";
 
 const digest = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 const JSON_TEXT = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
-const FILES = ["package.json", "package-lock.json", "src/lib/ai/index.ts", "src/lib/ai/schema.ts", "src/lib/ai/groq.ts", "src/lib/ai/transport.ts", "src/lib/ai/chunks.ts", "src/lib/processing/index.ts", "src/lib/processing/ocr.ts", "src/lib/processing/errors.ts", "src/lib/domain/types.ts", "src/lib/domain/corrections.ts", "src/lib/domain/matching.ts", "src/lib/domain/calculate.ts", "src/lib/domain/numeric.ts", "src/lib/domain/billing.ts", "src/lib/domain/decisions.ts", "src/lib/domain/validation.ts", "eval/metrics.ts", "eval/live-control.ts", "eval/development-control.ts", "scripts/evaluate-development.ts"];
+const FILES = ["package.json", "package-lock.json", "src/lib/ai/index.ts", "src/lib/ai/schema.ts", "src/lib/ai/groq.ts", "src/lib/ai/transport.ts", "src/lib/ai/typed-transport.ts", "src/lib/ai/provider-schema.ts", "src/lib/ai/completeness.ts", "src/lib/ai/chunks.ts", "src/lib/processing/index.ts", "src/lib/processing/ocr.ts", "src/lib/processing/errors.ts", "src/lib/domain/types.ts", "src/lib/domain/corrections.ts", "src/lib/domain/matching.ts", "src/lib/domain/calculate.ts", "src/lib/domain/numeric.ts", "src/lib/domain/billing.ts", "src/lib/domain/decisions.ts", "src/lib/domain/validation.ts", "eval/metrics.ts", "eval/readiness.ts", "eval/live-control.ts", "eval/development-control.ts", "scripts/evaluate-development.ts"];
 type DevelopmentManifest = { version: string; rights: string; verification: string; split: "dev"; documents: FixtureRecord[]; robustness: [] };
 export async function readDevelopmentManifest(root: string): Promise<DevelopmentManifest> {
   // This runner never opens the combined gold, held-out records, or robustness files.
@@ -52,11 +54,11 @@ export async function sourceFile(root: string, fixture: FixtureRecord): Promise<
   if (digest(bytes) !== fixture.sha256 || bytes.length !== fixture.sizeBytes) throw new Error(`Development original hash mismatch: ${fixture.id}.`);
   return bytes;
 }
-export async function fingerprint(root: string, chunkFailurePolicy: DevelopmentOptions["chunkFailurePolicy"] = "reject_document") {
+export async function fingerprint(root: string, chunkFailurePolicy: DevelopmentOptions["chunkFailurePolicy"] = "reject_document", extractionTransport: DevelopmentOptions["extractionTransport"] = "legacy_v5") {
   let ocrSha256: string | null = null;
   try { ocrSha256 = digest(await readFile(path.join(ocrDataDirectory(), "eng.traineddata.gz"))); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  const files = await Promise.all(FILES.map(async file => ({ file, sha256: digest(await readFile(path.join(root, file))) })));
-  const identity = { promptVersion: PROMPT_VERSION, model: liveAIConfiguration().model, chunkFailurePolicy, runtime: { node: process.version, platform: process.platform, architecture: process.arch, ocrSha256 }, files };
+  const files = await Promise.all([...FILES, "src/lib/ai/partitioned-transport.ts", "src/lib/ai/provider-error.ts"].map(async file => ({ file, sha256: digest(await readFile(path.join(root, file))) })));
+  const identity = { promptVersion: PROMPT_VERSION, model: liveAIConfiguration().model, chunkFailurePolicy, extractionTransport, runtime: { node: process.version, platform: process.platform, architecture: process.arch, ocrSha256 }, files };
   return { ...identity, sha256: digest(JSON.stringify(identity)) };
 }
 async function optionalJson<T>(filename: string): Promise<T | null> { try { return JSON.parse(await readFile(filename, "utf8")) as T; } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; } }
@@ -74,7 +76,7 @@ const display = (metric: Fraction) => metric.value === null ? `unavailable (${me
 
 export async function evaluateDevelopment(options: DevelopmentOptions, root = process.cwd()) {
   // Revalidate callers as well as CLI flags before credentials, original bytes or models.
-  const checked = parseDevelopmentOptions(["--name", options.name, "--phase", options.phase, "--documents", options.documentIds.join(","), "--max-requests", String(options.maxRequests), "--max-reserved-tokens", String(options.maxReservedTokens), "--max-wait-ms", String(options.maxWaitMs), "--chunk-failure-policy", options.chunkFailurePolicy ?? "reject_document", ...(options.live ? ["--live"] : []), ...(options.envFile ? ["--env-file", options.envFile] : []), ...(options.baselineName ? ["--baseline-name", options.baselineName] : [])]);
+  const checked = parseDevelopmentOptions(["--name", options.name, "--phase", options.phase, "--documents", options.documentIds.join(","), "--max-requests", String(options.maxRequests), "--max-reserved-tokens", String(options.maxReservedTokens), "--max-wait-ms", String(options.maxWaitMs), "--chunk-failure-policy", options.chunkFailurePolicy ?? "reject_document", "--extraction-transport", options.extractionTransport ?? "legacy_v5", ...(options.live ? ["--live"] : []), ...(options.envFile ? ["--env-file", options.envFile] : []), ...(options.baselineName ? ["--baseline-name", options.baselineName] : [])]);
   assertDevelopmentEnvironment(process.env);
   const manifest = await readDevelopmentManifest(root);
   const fixtures = checked.documentIds.map(id => { const fixture = manifest.documents.find(document => document.id === id); if (!fixture) throw new Error("Selected development original is missing."); return fixture; });
@@ -83,7 +85,7 @@ export async function evaluateDevelopment(options: DevelopmentOptions, root = pr
   const reportPath = path.join(publicDirectory, `${mode}-${checked.phase}.json`);
   try { await access(reportPath); throw new Error("This named phase already has an immutable report; use a new experiment name."); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
   if (checked.live) await loadDevelopmentEnvironment(root, checked.envFile);
-  const identity = await fingerprint(root, checked.chunkFailurePolicy);
+  const identity = await fingerprint(root, checked.chunkFailurePolicy, checked.extractionTransport);
   const selection = fixtures.map(fixture => ({ id: fixture.id, format: fixture.format, sha256: fixture.sha256, goldSha256: digest(JSON.stringify(fixture)) }));
   const limits = { maxRequests: checked.maxRequests, maxReservedTokens: checked.maxReservedTokens, maxWaitMs: checked.maxWaitMs };
   const pair = { mode, split: "dev", selection, limits, metricVersion: "fieldops-development-1", synthetic: true };
@@ -139,7 +141,7 @@ export async function evaluateDevelopment(options: DevelopmentOptions, root = pr
       },
     };
     const controller = developmentRequestController({ limits, events, persist, request: (request, context) => requestAI(request, { ...context, checkpoint }) });
-    type Measurement = { id: string; status: "not_attempted" | "parser_failed" | "parsed_only" | "rejected" | "partial" | "complete"; errorCode?: string; parser?: ReturnType<typeof parserMetrics>; parserElapsedMs?: number; extractionElapsedMs?: number; score?: ReturnType<typeof scoreExtraction>; unresolvedIssues?: number; unsourcedMatchingMissingStates?: number };
+    type Measurement = { id: string; status: "not_attempted" | "parser_failed" | "parsed_only" | "rejected" | "partial" | "complete"; errorCode?: string; schemaDiagnostic?: ProviderSchemaDiagnostic; parser?: ReturnType<typeof parserMetrics>; parserElapsedMs?: number; extractionElapsedMs?: number; score?: ReturnType<typeof scoreExtraction>; readiness?: ReturnType<typeof auditExtractionReadiness>; unresolvedIssues?: number; unsourcedMatchingMissingStates?: number };
     const measurements: Measurement[] = [];
     const startedAt = new Date().toISOString(), started = performance.now();
     for (let index = 0; index < fixtures.length; index++) {
@@ -156,18 +158,19 @@ export async function evaluateDevelopment(options: DevelopmentOptions, root = pr
         // Always revalidate request checkpoints; never bypass validation with a saved quotation.
         // Structural assignment also permits original-implementation worktree
         // reproduction: legacy AIOptions ignores this additional optional field.
-        const extractionOptions = { checkpoint, request: controller.request, chunkFailurePolicy: checked.chunkFailurePolicy };
+        const extractionOptions = { checkpoint, request: controller.request, chunkFailurePolicy: checked.chunkFailurePolicy, extractionTransport: checked.extractionTransport };
         const quotation: Quotation = await extractQuotation(parsed, extractionOptions);
         measurement.status = quotation.status === "ready" && quotation.manifest.complete ? "complete" : "partial";
         measurement.score = scoreExtraction(fixture, quotation, parsed);
+        measurement.readiness = auditExtractionReadiness(fixture, quotation, parsed);
         measurement.unsourcedMatchingMissingStates = unsourcedMissingStateAgreements(fixture, quotation, measurement.score.mappedItems);
         measurement.unresolvedIssues = quotation.issues.filter(issue => !issue.resolved).length;
         await writeImmutableJson(path.join(privateDirectory, "outputs", `${fixture.id}-${Date.now()}.json`), quotation);
-      } catch (error) { measurement.status = "rejected"; measurement.errorCode = errorCode(error); measurement.score = scoreFailedExtraction(fixture); }
+      } catch (error) { measurement.status = "rejected"; measurement.errorCode = errorCode(error); if (error instanceof ProviderSchemaError) measurement.schemaDiagnostic = error.diagnostic; measurement.score = scoreFailedExtraction(fixture); }
       measurement.extractionElapsedMs = performance.now() - extractionStart;
       console.log(`${fixture.id}: ${measurement.status}${measurement.errorCode ? ` (${measurement.errorCode})` : ""}`);
     }
-    const finalIdentity = await fingerprint(root, checked.chunkFailurePolicy);
+    const finalIdentity = await fingerprint(root, checked.chunkFailurePolicy, checked.extractionTransport);
     const report = {
       version: 1, name: checked.name, phase: checked.phase, mode, pair, ...(baselineReference ? { baselineReference } : {}),
       startedAt, measuredAt: new Date().toISOString(), elapsedMs: performance.now() - started,
@@ -175,13 +178,20 @@ export async function evaluateDevelopment(options: DevelopmentOptions, root = pr
       dataset: { requestedDocuments: fixtures.length, logicalItems: fixtures.reduce((sum, fixture) => sum + fixture.quotation.items.length, 0), annotatedFields: fixtures.reduce((sum, fixture) => sum + fixture.fields.length, 0), formats: selection.map(document => document.format), synthetic: true, split: "dev", heldoutDocumentsRead: 0, heldoutModelCalls: 0 },
       completion: { completeDocuments: measurements.filter(measurement => measurement.status === "complete").length, partialDocuments: measurements.filter(measurement => measurement.status === "partial").length, rejectedDocuments: measurements.filter(measurement => measurement.status === "rejected").length, parserFailures: measurements.filter(measurement => measurement.status === "parser_failed").length, unattemptedDocuments: measurements.filter(measurement => measurement.status === "not_attempted").length, halted: controller.halt },
       fields: checked.live ? aggregateExtractionMetrics(measurements.flatMap(measurement => measurement.score ? [measurement.score] : [])) : null,
+      readiness: { passingDocuments: measurements.filter(measurement => measurement.readiness?.passesSelectedAnnotationGate).length, requestedDocuments: fixtures.length, auditedOutputs: measurements.filter(measurement => measurement.readiness).length,
+        correctCriticalFields: { numerator: measurements.reduce((sum, measurement) => sum + (measurement.readiness?.correctCriticalStatedFields.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state === "value").length, 0) },
+        evidenceBackedCriticalFields: { numerator: measurements.reduce((sum, measurement) => sum + (measurement.readiness?.evidenceBackedCriticalStatedFields.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state === "value").length, 0) },
+        correctCriticalNonValueStates: { numerator: measurements.reduce((sum, measurement) => sum + (measurement.readiness?.correctCriticalNonValueStates.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state !== "value").length, 0) },
+        sourceLinkedCriticalNonValueStates: { numerator: measurements.reduce((sum, measurement) => sum + (measurement.readiness?.sourceLinkedCriticalNonValueStates.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state !== "value").length, 0) },
+        completeExpectedItems: { numerator: measurements.reduce((sum, measurement) => sum + (measurement.readiness?.completeExpectedItems.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.quotation.items.length, 0) },
+        scope: "Separate selected-annotation quality gate; application complete/ready status and identifier-only row recall are insufficient. Rejected and unattempted documents do not pass and remain in the fixed quality denominators. Critical non-value states must agree without synthesizing absent containers; not_stated is absence of assertion, not verified absence. Source-linked non-value counts are separate diagnostics. No claim of unannotated semantic correctness or held-out reliability." },
       missingStateAudit: { unsourcedMatchingStates: measurements.reduce((sum, measurement) => sum + (measurement.unsourcedMatchingMissingStates ?? 0), 0), scope: "Historical missing-state scoring is unchanged. A matching not-stated/not-applicable/ambiguous default without source evidence is not verified absence, especially after rejected sections. Inspect this diagnostic separately from accuracy." },
       observedUsage: summarizeDevelopmentUsage(events), measurements,
       limitations: ["Development-only adaptive evidence; no held-out or general supplier-format accuracy claim.", "All complete selected documents are supplied; no cropped successful section is substituted for a quotation.", "Field metrics include partial accepted output. Rejected attempted documents earn zero credit; unattempted documents are counted separately. Zero source/precision denominators mean unavailable.", "Item alignment uses exact identifiers. Source reference resolvability and location agreement are narrower than independent semantic correctness.", "Matching and arithmetic are not remeasured by this extraction-only cohort. No model matching calls are made.", "A complete extraction status does not imply every field is correct or every review issue resolved. Inspect accuracy denominators and issues.", "Code/runtime drift during execution invalidates a paired causal comparison and is exposed explicitly.", "This executable imports no deployment client and makes no production writes. Its environment guard is defense in depth, not an audit of other simultaneously running processes."],
     };
     await writeImmutableJson(reportPath, report);
     const markdown = `# ${checked.name}: ${mode} ${checked.phase}\n\nMeasured ${report.measuredAt}. Three-part identity: named phase, selected source/gold hashes and configuration SHA-256 \`${identity.sha256}\`. Code stable during run: ${report.configurationStableDuringRun}.\n\n${fixtures.length} complete synthetic development originals; ${report.dataset.logicalItems} logical items; ${report.dataset.annotatedFields} field assertions. Held-out reads/model calls: 0/0.\n\n| Document | Result | Parser ms | Extraction ms |\n|---|---|---:|---:|\n${measurements.map(measurement => `| ${measurement.id} | ${measurement.status}${measurement.errorCode ? `: ${measurement.errorCode}` : ""} | ${Math.round(measurement.parserElapsedMs ?? 0)} | ${measurement.extractionElapsedMs === undefined ? "not run" : Math.round(measurement.extractionElapsedMs)} |`).join("\n")}\n\nComplete ${report.completion.completeDocuments}/${fixtures.length}; partial ${report.completion.partialDocuments}; rejected ${report.completion.rejectedDocuments}; unattempted ${report.completion.unattemptedDocuments}. ${checked.live ? "Complete means the application accepted coverage; accuracy is scored separately." : "Offline parser run; no AI extraction was performed."}\n\n${report.fields ? `| Extraction measurement | Result |\n|---|---|\n${Object.entries(report.fields).map(([key, metric]) => `| ${key} | ${display(metric)} |`).join("\n")}\n\n` : ""}Returned responses ${report.observedUsage.returnedResponses}, without usage ${report.observedUsage.responsesWithoutUsage}; known input/output tokens ${report.observedUsage.inputTokens}/${report.observedUsage.outputTokens}. Reserved attempt slots ${report.observedUsage.reservedAttemptSlots}/${limits.maxRequests}, estimated tokens ${report.observedUsage.reservedTokens}/${limits.maxReservedTokens}. ${report.observedUsage.scope}\n\n${report.limitations.map(limitation => `- ${limitation}`).join("\n")}\n\n[Machine-readable report](${mode}-${checked.phase}.json). Existing public benchmark and latest reports are unchanged.\n`;
-    const policyNote = `\nChunk failure policy: \`${checked.chunkFailurePolicy}\`. Retaining valid chunks measures partial availability; it does not imply complete extraction or improved model generation. Annotated matching missing states without source evidence: ${report.missingStateAudit.unsourcedMatchingStates}. ${report.missingStateAudit.scope}\n`;
+    const policyNote = `\nExtraction transport: \`${checked.extractionTransport}\`. Chunk failure policy: \`${checked.chunkFailurePolicy}\`. Retaining valid chunks measures partial availability; it does not imply complete extraction or improved model generation. Annotated matching missing states without source evidence: ${report.missingStateAudit.unsourcedMatchingStates}. ${report.missingStateAudit.scope}\n\nSelected-annotation quality gate: ${report.readiness.passingDocuments}/${report.readiness.requestedDocuments} documents pass; ${report.readiness.auditedOutputs} outputs audited. ${report.readiness.scope}\n`;
     await writeFile(path.join(publicDirectory, `${mode}-${checked.phase}.md`), markdown + policyNote + (baselineReference ? `\nOriginal baseline: [${baselineReference.name}](../${baselineReference.name}/live-before.json), measured ${baselineReference.measuredAt}; report SHA-256 \`${baselineReference.sha256}\`. The baseline was referenced without rerunning or copying it.\n` : ""), { flag: "wx" });
     console.log(`Immutable development report: eval/results/development/${checked.name}/${mode}-${checked.phase}.json`);
     return report;
