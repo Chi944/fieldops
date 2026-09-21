@@ -74,4 +74,19 @@ describe("separate fixed-denominator extraction readiness audit", () => {
     const result = auditExtractionReadiness(expected, actual, parsed);
     expect(result.correctCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 }); expect(result.passesSelectedAnnotationGate).toBe(false);
   });
+  it("rejects a tax amount that numerically matches expected shipping on a shared summary source", () => {
+    const { expected, actual, parsed } = fixture();
+    const source = { ...structuredClone(parsed.sources[0]), id: "summary", text: "Shipping 10; tax 10", box: { x: 40, y: 120, width: 250, height: 20 } };
+    parsed.sources.push(source); actual.sources = structuredClone(parsed.sources);
+    expected.quotation.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: field("10", [source.id]), currency: absent() }];
+    expected.fields.push({ path: "charges.0.amount", state: "value", value: "10", critical: true, sourceKey: "shipping" });
+    expected.fieldLocations["charges.0.amount"] = [structuredClone(source)];
+    actual.charges = [{ id: "tax", kind: "tax", label: "Tax", appliesTo: "quotation", amount: field("10", [source.id]), currency: absent() }];
+    expect(scoreExtraction(expected, actual, parsed).criticalFieldAccuracy).toMatchObject({ numerator: 5, denominator: 5 });
+    const result = auditExtractionReadiness(expected, actual, parsed);
+    expect(result.version).toBe("fieldops-readiness-3");
+    expect(result.correctCriticalStatedFields).toMatchObject({ numerator: 4, denominator: 5 });
+    expect(result.evidenceBackedCriticalStatedFields).toMatchObject({ numerator: 4, denominator: 5 });
+    expect(result.passesSelectedAnnotationGate).toBe(false);
+  });
 });

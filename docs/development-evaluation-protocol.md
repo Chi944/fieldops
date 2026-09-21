@@ -83,6 +83,8 @@ This extraction runner does not measure matching quality, arithmetic correctness
 
 ## Typed-contract follow-up
 
+The published partitioned live measurement and its offline audits used code snapshot `ae4a65a` (all 28 fingerprinted blobs match that commit). Reproduce that historical candidate in a separate checkout at that revision. Later commits contain readiness gate v3, a separately tested charge-kind guard; they do not rewrite the measured gate-v2 output. Using current code creates a new configuration and experiment, not an exact reproduction of the historical gate. Historical audits deliberately reject a differing runtime fingerprint.
+
 The [22 September follow-up](ai-development-study-2026-09-22.md) records both `typed_fields_v1` and the subsequent `typed_fields_v2` experiment. Version 1 was rejected by the provider's union-schema implementation. Version 2 separates numeric/text collections to avoid those unions. The default remains `legacy_v5`; application callers do not enable either candidate. Both modes retain narrow excerpts, section-specific fields and precise decimal strings checked by the existing domain validators. The source-completeness safety guard applies to the default transport as well. Use the selected flag consistently in offline request capture and live evaluation:
 
 ```powershell
