@@ -24,14 +24,40 @@ export function pricedRow(row: SourceSpan[]): boolean {
   return row[0]?.kind === "sheet" && row.filter(source => /^\s*[-+]?\d[\d., '\u00a0\u202f]*(?:\s*\[formula:.*)?\s*$/.test(source.text)).length >= 2 && row.some(source => /[a-z]/i.test(source.text)) && !/^\s*(?:sub\s*total|grand total|tax|vat|gst|shipping)\b/i.test(text);
 }
 
+function commercialSummary(row: SourceSpan[]): boolean {
+  return /^(?:sub\s*total|grand total|quoted total|total amount|shipping|freight|tax\b|vat\b|gst\b|payment\b|valid (?:until|for)\b|lead time\b|delivery terms\b)/i.test(row.map(source => source.text).join(" ").trim());
+}
+
+/** Explicit item starts keep following scope/package/MOQ rows with their anchor.
+ * This is a batching boundary, not a claim that arbitrary prose is one item. */
+function extractionBlocks(parsed: ParsedDocument): { rows: SourceSpan[][]; item: boolean }[] {
+  const result: { rows: SourceSpan[][]; item: boolean }[] = [];
+  let current: SourceSpan[][] = [];
+  const flush = () => { if (current.length) { result.push({ rows: current, item: true }); current = []; } };
+  for (const row of rows(parsed)) {
+    const text = row.map(source => source.text).join(" ").trim();
+    const anchor = /^\d+[.)]\s+\S/.test(text) || /\|\s*(?:ID|SKU)\b\s*(?:[:=]\s*)?\S+/i.test(text);
+    const summary = commercialSummary(row);
+    const changedSheet = current.length && current[0][0]?.sheet !== row[0]?.sheet;
+    if (anchor || summary || changedSheet) flush();
+    if (anchor && !summary) current = [row];
+    else if (current.length) current.push(row);
+    else result.push({ rows: [row], item: false });
+  }
+  flush();
+  return result;
+}
+
 export function extractionChunks(parsed: ParsedDocument, maxCharacters = 1400): SourceSpan[][] {
   const chunks: SourceSpan[][] = []; let current: SourceSpan[] = []; let characters = 0, priced = 0;
-  for (const row of rows(parsed)) {
-    const size = JSON.stringify(row.map(sourceRecord)).length, candidate = pricedRow(row) ? 1 : 0;
-    const commercialSummary = /^(?:sub\s*total|grand total|quoted total|total amount|shipping|freight|tax\b|vat\b|gst\b|payment\b|valid (?:until|for)\b|lead time\b|delivery terms\b)/i.test(row.map(source => source.text).join(" ").trim());
-    if (size > maxCharacters) throw new ProcessingError("limit_exceeded", "A quotation row or paragraph is too large for the free extraction budget. Split long text into shorter lines or upload a smaller table.");
-    if (current.length && (characters + size > maxCharacters || priced + candidate > 3 || (priced > 0 && commercialSummary))) { chunks.push(current); current = []; characters = 0; priced = 0; }
-    current.push(...row); characters += size; priced += candidate;
+  for (const block of extractionBlocks(parsed)) {
+    const size = block.rows.reduce((sum, row) => sum + JSON.stringify(row.map(sourceRecord)).length, 0);
+    const candidate = block.item || pricedRow(block.rows[0]) ? 1 : 0;
+    if (size > maxCharacters) throw new ProcessingError("limit_exceeded", block.item
+      ? "An identified quotation item and its continuation text exceed the free extraction budget. Upload a smaller section or enter its details manually."
+      : "A quotation row or paragraph is too large for the free extraction budget. Split long text into shorter lines or upload a smaller table.");
+    if (current.length && (characters + size > maxCharacters || priced + candidate > 3 || (priced > 0 && commercialSummary(block.rows[0])))) { chunks.push(current); current = []; characters = 0; priced = 0; }
+    current.push(...block.rows.flat()); characters += size; priced += candidate;
   }
   if (current.length) chunks.push(current);
   return chunks;

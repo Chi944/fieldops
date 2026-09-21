@@ -46,7 +46,12 @@ export interface Quotation {
   items: QuoteItem[]; charges: Charge[]; terms: CommercialTerms; attributes: Attribute[];
   sources: SourceSpan[]; issues: ReviewIssue[]; manifest: ParseManifest;
   extractionVersion: number; sourceUrl?: string; originalText?: string; isDemo: boolean;
-  supersedesId?: string; extractedAt?: string; model?: string; usage?: { inputTokens: number; outputTokens: number; costUsd: string | null; elapsedMs: number };
+  supersedesId?: string; extractedAt?: string; model?: string; usage?: {
+    inputTokens: number; outputTokens: number; costUsd: string | null; elapsedMs: number;
+    /** Known response metadata only: unavailable usage is excluded and accepted checkpoints may be reused. This is not fresh-run billing. */
+    scope?: "accepted_and_rejected_response_metadata"; unavailableUsageResponses?: number;
+    acceptedSections?: number; rejectedSections?: number; cachedRejectedResponses?: number;
+  };
 }
 export interface Correction { id: string; quotationId: string; path: string; before: FieldValue; after: FieldValue; author: string; createdAt: string; reason: string; baseVersion: number; operation?: "add_item" | "edit"; }
 export type MatchClassification = "equivalent" | "alternative" | "not_comparable";

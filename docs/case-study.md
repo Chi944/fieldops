@@ -26,6 +26,8 @@ The recall loss is informative: a third supplier's incompatible alternative make
 
 Small real Groq extraction probes now provide measured latency and token usage; multi-item development probes also exposed provider-rejected structures. These limited results do not establish broad field accuracy, AI matching or live prompt-injection resistance. The live evaluator preserves rejected outputs privately, counts failed documents, records exact configuration/source hashes and keeps held-out data separate. See the [measured report](evaluation-report.md) and the [independent gold review](../eval/gold-review.md) for current results and the exact review scope.
 
+The subsequent [complete-quotation development study](ai-development-study-2026-09-21.md) used three fixed full originals and retained every failed candidate. The original baseline returned no usable quotations. The final opt-in recovery returned two partial quotations containing 6/18 identified items and 42/129 critical fields; complete extraction remained 0/3. These are availability measurements on three synthetic development documents, not a held-out accuracy claim. Production AI remained disabled.
+
 ## A substantive failure and its fix
 
 A test requested 20 units from a supplier selling boxes of 12. Two boxes cost 48.00, but the first implementation displayed surplus as `3.999999999999999999999999999999999999996`.
@@ -35,6 +37,8 @@ The code used a precise decimal library, yet it divided demand by package size f
 The fix calculates delivered contents first: `2 × 12 = 24`, then subtracts original demand: `24 − 20 = 4`. The regression test also asserts the monetary result, explicit buyer acceptance, and rejection of fractional or insufficient pack orders. This was an observed failing test followed by a passing correction, not a hypothetical failure or a model benchmark claim. [Failure notes](failure-notes.md) record the details.
 
 Independent review found another class of problem: some gold fields had correct normalized values but unsuitable raw evidence, including an ISO date used as raw text where the source spelled out the month. The corrected fixtures retain the normalized date and the actual source wording separately. This illustrates why checking that a source ID exists is only one part of evidence reliability.
+
+The complete-document study exposed a separate availability failure: a later rejected model section discarded the document's earlier validated sections. It also found a chunk boundary that separated a minimum-order continuation from its priced item. Keeping that item together and clarifying the model contract did not produce complete quotations. An explicit development-only recovery option then isolated rejected sections, preserved only atomically validated fields, and attached unresolved issues to every failed target source. All six retained prices remained blocked from recommendations. Invalid decimal values, fabricated excerpts and malformed JSON still fail validation. This fixes loss of validated work while leaving the larger extraction reliability problem visible; the application default remains fail-fast.
 
 ## An observed hosted integration failure
 

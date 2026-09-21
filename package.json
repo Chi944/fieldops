@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "eval": "tsx scripts/evaluate.ts",
+    "eval:dev": "tsx scripts/evaluate-development.ts",
     "fixtures": "tsx scripts/generate-fixtures.ts",
     "predev": "node scripts/prepare-assets.mjs",
     "prebuild": "node scripts/prepare-assets.mjs"

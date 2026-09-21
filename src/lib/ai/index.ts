@@ -5,7 +5,7 @@ import { D } from "../domain/numeric";
 import { reconcileQuotation } from "../domain/validation";
 import { itemCompatibility } from "../domain/matching";
 import { ProcessingError, checkCancelled, progress } from "../processing/errors";
-import { requestAI, requireLiveAI, type AIOptions, type AIResult } from "./groq";
+import { requestAI, requireLiveAI, AIInterpretationError, type AIOptions, type AIResult, type RejectedAIUsage } from "./groq";
 import { extractionSchema, sectionFieldKeys, itemAttributeFieldKeys, strictSchema, type ExtractedChunk, type ExtractedField, type ExtractedAttribute } from "./schema";
 import { extractionInstruction } from "./transport";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
@@ -107,23 +107,37 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   if (parsed.sources.some(source => source.documentId !== parsed.documentId) || new Set(parsed.sources.map(source => source.id)).size !== parsed.sources.length) throw new ProcessingError("invalid_evidence", "Source ownership or source identifiers are invalid.");
   let quotation = { ...emptyQuotation(parsed.documentId, parsed.filename), ...parsed, extractionVersion: options.extractionVersion ?? 1, status: "extracting" as const, isDemo: false } as Quotation;
   const chunks = extractionChunks(parsed); const usage: AIResult[] = [];
+  const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
+  const rejectedUsage: RejectedAIUsage[] = [], rejectedSources: string[] = [];
   for (let index = 0; index < chunks.length; index++) {
     await progress(options, "extracting", 35 + Math.round(index / chunks.length * 45), `Extracting quotation section ${index + 1} of ${chunks.length}`);
     const targets = chunks[index], context = extractionContext(parsed, targets);
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
-    const accepted = await requestAI({ purpose: "extraction", transport: "quotation-v4", schema: strictSchema(extractionSchema), system: extractionInstruction,
-      user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
-      const validated = extractionSchema.safeParse(result.data);
-      if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
-      // Integration can reject after applying earlier fields. Keep that tentative
-      // state isolated so invalid cached responses cannot pollute a fresh retry.
-      const candidate = structuredClone(quotation);
-      integrateChunk(candidate, validated.data, sourceMap);
-      if (candidate.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
-      return { quotation: candidate, result };
-    });
-    quotation = accepted.quotation; usage.push(accepted.result);
+    try {
+      const accepted = await requestAI({ purpose: "extraction", transport: "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: strictSchema(extractionSchema), system: extractionInstruction,
+        user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
+        const validated = extractionSchema.safeParse(result.data);
+        if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
+        // Integration can reject after applying earlier fields. Keep that tentative
+        // state isolated so invalid cached responses cannot pollute a fresh retry.
+        const candidate = structuredClone(quotation);
+        integrateChunk(candidate, validated.data, sourceMap);
+        if (candidate.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
+        return { quotation: candidate, result };
+      });
+      quotation = accepted.quotation; usage.push(accepted.result);
+    } catch (error) {
+      checkCancelled(options.signal);
+      if (!retainValid || !(error instanceof AIInterpretationError) || !["invalid_output", "invalid_evidence"].includes(error.code)) throw error;
+      // The tentative candidate was never committed. Quarantine the entire
+      // response, not individual fields, and retain every failed target for review.
+      const sourceIds = targets.map(source => source.id);
+      issue(quotation, "incomplete_extraction", `Section ${index + 1} of ${chunks.length} failed interpretation validation (${error.code}). Its model response was discarded. Review every highlighted source section manually.`, sourceIds);
+      rejectedSources.push(...sourceIds); rejectedUsage.push(error.usage);
+    }
   }
+  if (rejectedUsage.length && !usage.length) throw new ProcessingError("invalid_output", "No quotation section passed validation. No usable interpretation was returned; all original sources remain available for manual review.");
+  if (rejectedUsage.length) issue(quotation, "incomplete_extraction", "Some quotation sections were rejected. Blank fields are unconfirmed, not evidence that the supplier omitted them. Review the highlighted originals before relying on this partial interpretation.", [...new Set(rejectedSources)]);
   if (quotation.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
   await progress(options, "reconciling", 85, "Checking evidence, source coverage, and supplier arithmetic");
   for (const unit of parsed.manifest.units) if (unit.status === "failed" || unit.status === "unsupported") issue(quotation, "incomplete_extraction", `${unit.label}: ${unit.message ?? "Source content was not fully read."}`);
@@ -139,6 +153,11 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   }
   quotation.extractedAt = new Date().toISOString(); quotation.model = usage[0]?.model;
   quotation.usage = { inputTokens: usage.reduce((sum, item) => sum + item.inputTokens, 0), outputTokens: usage.reduce((sum, item) => sum + item.outputTokens, 0), elapsedMs: usage.reduce((sum, item) => sum + item.elapsedMs, 0), costUsd: usage.every(item => item.costUsd === "0") ? "0" : null };
+  if (rejectedUsage.length) {
+    const responses = [...usage, ...rejectedUsage], known = responses.filter(response => response.usageAvailable === true);
+    quotation.usage = { inputTokens: known.reduce((sum, response) => sum + response.inputTokens, 0), outputTokens: known.reduce((sum, response) => sum + response.outputTokens, 0), elapsedMs: responses.reduce((sum, response) => sum + response.elapsedMs, 0), costUsd: known.length === responses.length && known.every(response => response.costUsd === "0") ? "0" : null,
+      scope: "accepted_and_rejected_response_metadata", unavailableUsageResponses: responses.length - known.length, acceptedSections: usage.length, rejectedSections: rejectedUsage.length, cachedRejectedResponses: rejectedUsage.filter(response => response.cached).length };
+  }
   return reconcileQuotation(quotation);
 }
 
@@ -222,6 +241,12 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
   for (const coverage of chunk.coverage) {
     if (!sources.has(coverage.sourceId) || covered.has(coverage.sourceId)) throw new ProcessingError("invalid_evidence", "The model returned invalid source coverage references.");
     covered.add(coverage.sourceId);
+    if (coverage.disposition === "uninterpreted") {
+      const message = coverage.reason || "Interpretation coverage is incomplete. Review this source for omitted quotation details.";
+      const existing = quotation.issues.find(value => value.code === "incomplete_extraction" && value.message === message && !value.resolved);
+      if (existing) existing.sourceIds = [...new Set([...existing.sourceIds, coverage.sourceId])];
+      else issue(quotation, "incomplete_extraction", message, [coverage.sourceId]);
+    }
     if (coverage.disposition === "unreadable" || (["used", "continuation", "terms"].includes(coverage.disposition) && !referenced.has(coverage.sourceId))) issue(quotation, "incomplete_extraction", coverage.reason || "A source row was not fully interpreted.", [coverage.sourceId]);
     const text = sources.get(coverage.sourceId)!.text;
     const possiblePrice = /(?:[$€£¥]\s*\d|\d+[.,]\d{2}\b|\b(?:unit\s*price|line\s*(?:amount|total)|price|amount|rate)\s*[:=]?\s*(?:[A-Z]{3}\s*)?\d)/i.test(text);

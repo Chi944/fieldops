@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-21-availability",
+  "measuredAt": "2026-09-21T15:42:48.675Z",
+  "mode": "offline_request_capture",
+  "providerCalls": 0,
+  "modelOutputs": 0,
+  "heldoutReads": 0,
+  "configuration": {
+    "promptVersion": "fieldops-extraction-6",
+    "model": "openai/gpt-oss-120b",
+    "chunkFailurePolicy": "retain_valid_chunks_v1",
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "b811aef259cc68a8d33a418bc7524da0611f30292355170f5f469ad82e3cb326"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "c36f9037d89e2f0128f9814a21a1636420e1c826b0ec215cd3c6d1f7a1e6ce9b"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "7798073af91601fc4e4d1a9be640961b5ed89c54335ad6d3536dcfd6e0b9df74"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "39d9541d2c4c96fa550f976a30b31c988d765d5bc94f33b879d7642d763bcc40"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "37590c8bf529b63c3021ff203ef8d5f40a64503d0b676d8e928bb9a68b5c68ad"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "ba6177b37f71a2604df9c7c9652d9ec588d61b7eb167175586d5877a66710cf3"
+      }
+    ],
+    "sha256": "b5448cc538925c184d12991c31eff9d51cce0fb2b4293d846c34028b2831f203"
+  },
+  "configurationStableDuringRun": true,
+  "documents": [
+    {
+      "id": "industrial-1",
+      "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+      "parserComplete": true,
+      "sourceCount": 40,
+      "plannedChunks": 4,
+      "capturedRequests": [
+        {
+          "section": 1,
+          "targetSourceCount": 13,
+          "contextSourceCount": 0,
+          "attemptSlots": 2,
+          "reservedTokens": 14156
+        },
+        {
+          "section": 2,
+          "targetSourceCount": 13,
+          "contextSourceCount": 1,
+          "attemptSlots": 2,
+          "reservedTokens": 14150
+        },
+        {
+          "section": 3,
+          "targetSourceCount": 6,
+          "contextSourceCount": 2,
+          "attemptSlots": 2,
+          "reservedTokens": 13898
+        },
+        {
+          "section": 4,
+          "targetSourceCount": 8,
+          "contextSourceCount": 2,
+          "attemptSlots": 2,
+          "reservedTokens": 13940
+        }
+      ]
+    },
+    {
+      "id": "translation-2",
+      "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+      "parserComplete": true,
+      "sourceCount": 32,
+      "plannedChunks": 4,
+      "capturedRequests": [
+        {
+          "section": 1,
+          "targetSourceCount": 12,
+          "contextSourceCount": 0,
+          "attemptSlots": 2,
+          "reservedTokens": 13962
+        },
+        {
+          "section": 2,
+          "targetSourceCount": 10,
+          "contextSourceCount": 1,
+          "attemptSlots": 2,
+          "reservedTokens": 13936
+        },
+        {
+          "section": 3,
+          "targetSourceCount": 3,
+          "contextSourceCount": 1,
+          "attemptSlots": 2,
+          "reservedTokens": 13580
+        },
+        {
+          "section": 4,
+          "targetSourceCount": 7,
+          "contextSourceCount": 1,
+          "attemptSlots": 2,
+          "reservedTokens": 13754
+        }
+      ]
+    },
+    {
+      "id": "office-2",
+      "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+      "parserComplete": true,
+      "sourceCount": 27,
+      "plannedChunks": 3,
+      "capturedRequests": [
+        {
+          "section": 1,
+          "targetSourceCount": 11,
+          "contextSourceCount": 0,
+          "attemptSlots": 2,
+          "reservedTokens": 14144
+        },
+        {
+          "section": 2,
+          "targetSourceCount": 9,
+          "contextSourceCount": 2,
+          "attemptSlots": 2,
+          "reservedTokens": 14216
+        },
+        {
+          "section": 3,
+          "targetSourceCount": 7,
+          "contextSourceCount": 2,
+          "attemptSlots": 2,
+          "reservedTokens": 14170
+        }
+      ]
+    }
+  ],
+  "reservation": {
+    "requests": 11,
+    "attemptSlots": 22,
+    "estimatedTokens": 153906,
+    "nominalPacingMs": 600000,
+    "maxSingleAttemptEstimatedTokens": 7108
+  },
+  "limits": {
+    "attemptSlots": 24,
+    "estimatedTokens": 170000,
+    "totalWaitingMs": 600000,
+    "singleAttemptEstimatedTokens": 7500
+  },
+  "fits": true,
+  "limitation": "This captures actual application requests using explicitly labelled schema-invalid test responses for every chunk. They are not model results. It measures parser traversal and estimated reservations, not model schema acceptance, AI accuracy or available account quota. Unexpected provider quota or retries still consume the fixed live budget."
+}

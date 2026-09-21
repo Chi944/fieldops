@@ -1,0 +1,86 @@
+{
+  "checkedAt": "2026-09-21T15:26:06.190Z",
+  "auditCodePath": "scripts/check-development-gold.ts",
+  "auditCodeSha256": "d4d5352b3c2d76e6863e4538a550b0969fd9130dcd43b2240beb36231b134139",
+  "documents": [
+    {
+      "documentId": "industrial-1",
+      "originalHashVerified": true,
+      "items": 6,
+      "quantity": {
+        "checked": 6,
+        "matched": 6
+      },
+      "unitPrice": {
+        "checked": 6,
+        "matched": 6
+      },
+      "minimumOrder": {
+        "statedChecked": 1,
+        "statedMatched": 1,
+        "notStatedChecked": 5,
+        "notStatedMatched": 5
+      },
+      "failures": [],
+      "passed": true
+    },
+    {
+      "documentId": "translation-2",
+      "originalHashVerified": true,
+      "items": 6,
+      "quantity": {
+        "checked": 6,
+        "matched": 6
+      },
+      "unitPrice": {
+        "checked": 6,
+        "matched": 6
+      },
+      "minimumOrder": {
+        "statedChecked": 1,
+        "statedMatched": 1,
+        "notStatedChecked": 5,
+        "notStatedMatched": 5
+      },
+      "failures": [],
+      "passed": true
+    },
+    {
+      "documentId": "office-2",
+      "originalHashVerified": true,
+      "items": 6,
+      "quantity": {
+        "checked": 6,
+        "matched": 6
+      },
+      "unitPrice": {
+        "checked": 6,
+        "matched": 6
+      },
+      "minimumOrder": {
+        "statedChecked": 1,
+        "statedMatched": 1,
+        "notStatedChecked": 5,
+        "notStatedMatched": 5
+      },
+      "failures": [],
+      "passed": true
+    }
+  ],
+  "totals": {
+    "quantities": 18,
+    "prices": 18,
+    "statedMoq": 3,
+    "absentMoq": 15
+  },
+  "expectedScope": true,
+  "passed": true,
+  "method": "Independent label-based numeric audit of exactly three authored original files against development-only gold. PDF text is decoded directly with PDF.js, CSV content records with csv-parse, and the text file as UTF-8; no application extraction or model is invoked. Gold item identifiers align rows; the original Quantity, Unit price and MOQ labels supply numerical values.",
+  "limitations": [
+    "Not a human visual review or full semantic gold validation.",
+    "Shares PDF.js and csv-parse libraries with the application, but does not call its parsing or AI extraction code.",
+    "Only 18 quantities, 18 unit prices, three stated minimum orders and 15 absent minimum orders are checked. Description, scope, commercial terms, currency, units, totals and matching labels are outside this audit.",
+    "The label and row-boundary rules are deliberately limited to these authored originals; they are not a general quotation interpreter.",
+    "Reads the separate development gold and three fixed development originals only. No held-out original or combined gold file is read."
+  ]
+}

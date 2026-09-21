@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-09-21T15:55:10.289Z",
+  "beforeAt": "2026-09-21T14:53:51.787Z",
+  "configurationChecks": [
+    {
+      "file": ".env.fieldops.production.local",
+      "unchanged": true
+    },
+    {
+      "file": ".env.trigger.production.local",
+      "unchanged": true
+    },
+    {
+      "file": "trigger.config.ts",
+      "unchanged": true
+    },
+    {
+      "file": "vercel.json",
+      "unchanged": true
+    }
+  ],
+  "production": {
+    "http": 200,
+    "mode": "cloud",
+    "processingMode": "parse_only",
+    "canExtract": false
+  },
+  "passed": true,
+  "scope": "Read-only public runtime status and local production configuration equality checks. No production inference, worker dispatch, configuration write or deployment was performed by this development study. Secret values and their hashes are not published."
+}
