@@ -89,7 +89,7 @@ The [read-only isolation check](../eval/results/development/full-quotes-2026-09-
 
 ## Verification and interpretation
 
-The final candidate passed **354 tests across 44 files**, including six real PostgreSQL concurrency tests, in 41.76 seconds. TypeScript, ESLint, the Next.js production build and the runtime dependency audit passed. All **10 browser workflows passed in 50.6 seconds** against an isolated local production build with AI disabled. Those browser checks establish workflow regression coverage, not live AI correctness.
+The final candidate passed **354 tests across 44 files**, including six real PostgreSQL concurrency tests, in 41.76 seconds. TypeScript, ESLint, the Next.js production build and the runtime dependency audit passed. All **10 browser workflows passed in 50.6 seconds** against an isolated local production build with AI disabled. [Clean Linux CI](https://github.com/Chi944/fieldops/actions/runs/35623261333) subsequently passed the audit, type/lint checks, tests, production build and browser workflows at code commit `5bcc5de`. Those browser checks establish workflow regression coverage, not live AI correctness.
 
 The new section-isolation regressions exercise valid → rejected → valid sections, tentative-field rollback, source-linked export warnings, blocked price ranking, operational-error propagation, cancellation during journaling, checkpoint separation and missing usage. Existing raw excerpt, numeric, currency, tax and malformed-response checks remain active. A response-validation marker carries only usage metadata; storage failures cannot obtain partial-recovery behavior merely by sharing an error code.
 
