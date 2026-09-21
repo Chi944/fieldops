@@ -85,7 +85,7 @@ All 11 planned requests ran; four sections validated and seven responses were re
 
 Known usage totals **95,620 tokens**, excluding three responses without usage. The four formal phases represent 12 document attempts over **three distinct originals**. No provider invoice was measured. The configured account remained Free; no paid fallback, purchase, provisioning or billing change was made.
 
-The [read-only isolation check](../eval/results/development/full-quotes-2026-09-21-availability/production-isolation.json) confirmed unchanged local production/worker configuration files and hosted HTTP 200 status with `processingMode=parse_only`, `canExtract=false`. Production `main` remained `660382b`. Results and code are prepared on a separate review branch; no production worker or AI integration was enabled by this study.
+The [read-only isolation check](../eval/results/development/full-quotes-2026-09-21-availability/production-isolation.json) confirmed unchanged local production/worker configuration files and hosted HTTP 200 status with `processingMode=parse_only`, `canExtract=false`. Production `main` remained `660382b`. Results and code were published in [draft PR #1](https://github.com/Chi944/fieldops/pull/1) on a separate review branch; no production worker or AI integration was enabled by this study.
 
 ## Verification and interpretation
 
