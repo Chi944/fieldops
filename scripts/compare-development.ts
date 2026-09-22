@@ -4,6 +4,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { writeImmutableJson, type evaluateDevelopment } from "./evaluate-development";
 import { EXTRACTION_METRICS, type Fraction } from "../eval/metrics";
+import { assertComparableModelConfigurations, MODEL_STUDY_METRIC_VERSION } from "../eval/model-study-control";
 
 type Report = Awaited<ReturnType<typeof evaluateDevelopment>>;
 const format = (metric: Fraction) => metric.value === null ? `unavailable (${metric.numerator}/${metric.denominator})` : `${(metric.value * 100).toFixed(1)}% (${metric.numerator}/${metric.denominator})`;
@@ -13,9 +14,14 @@ export function compareDevelopmentReports(before: Report, after: Report, baselin
   if (!namesAgree || before.phase !== "before" || after.phase !== "after" || before.mode !== "live" || after.mode !== "live" || JSON.stringify(before.pair) !== JSON.stringify(after.pair)) throw new Error("Comparison requires matching immutable live before/after reports with the same cohort and limits.");
   if (!before.configurationStableDuringRun || !after.configurationStableDuringRun) throw new Error("A phase changed configuration during execution; a valid paired comparison cannot be generated.");
   if (before.dataset.split !== "dev" || after.dataset.split !== "dev" || before.dataset.heldoutModelCalls || after.dataset.heldoutModelCalls || !before.fields || !after.fields) throw new Error("Only development extraction measurements may be compared.");
+  const modelStudy = before.pair.comparisonKind === "model";
+  if (modelStudy) {
+    if (referenced || before.pair.metricVersion !== MODEL_STUDY_METRIC_VERSION || after.pair.comparisonKind !== "model") throw new Error("Model comparison requires a new paired study without a referenced baseline.");
+    assertComparableModelConfigurations(before.configuration, after.configuration);
+  } else if (before.configuration.model !== after.configuration.model) throw new Error("Changing models requires explicit model comparison mode.");
   const fileHashes = new Map(before.configuration.files.map(file => [file.file, file.sha256]));
   return {
-    version: 1, name: after.name, comparedAt: new Date().toISOString(), pair: before.pair, ...(referenced ? { baselineReference: referenced } : {}),
+    version: modelStudy ? 2 : 1, name: after.name, comparedAt: new Date().toISOString(), pair: before.pair, ...(referenced ? { baselineReference: referenced } : {}),
     configurations: { before: before.configuration.sha256, after: after.configuration.sha256, beforeModel: before.configuration.model, afterModel: after.configuration.model, beforeChunkFailurePolicy: before.configuration.chunkFailurePolicy ?? "reject_document", afterChunkFailurePolicy: after.configuration.chunkFailurePolicy ?? "reject_document", beforeExtractionTransport: before.configuration.extractionTransport ?? "legacy_v5", afterExtractionTransport: after.configuration.extractionTransport ?? "legacy_v5", changedFiles: after.configuration.files.filter(file => fileHashes.get(file.file) !== file.sha256).map(file => file.file) },
     readiness: { before: before.readiness ?? null, after: after.readiness ?? null, scope: "New selected-annotation gate is unavailable for historical reports; never backfill an unmeasured pass." },
     completion: { before: before.completion, after: after.completion, requestedDocuments: before.dataset.requestedDocuments },
@@ -24,7 +30,7 @@ export function compareDevelopmentReports(before: Report, after: Report, baselin
     observedUsage: { before: before.observedUsage, after: after.observedUsage },
     missingStateAudit: { before: before.missingStateAudit ?? null, after: after.missingStateAudit ?? null },
     elapsedMs: { before: before.elapsedMs, after: after.elapsedMs },
-    limitations: ["Adaptive development comparison of the same small synthetic cohort; no held-out measurement or causal guarantee.", "Inspect all changed configuration files, including any harness changes, before attributing a difference to the model implementation.", "Document acceptance, partial output and correctness are separate. Rejected attempts retain zero recall credit; unattempted documents remain explicit.", "Precision/source denominators depend on returned output; unavailable denominators have no numeric improvement score.", "Elapsed time includes deliberate quota pacing and cannot establish production latency. Usage totals exclude unavailable response usage; no provider invoice is measured.", "The separate interrupted harness preflight is excluded from both phases and their metrics."],
+    limitations: ["Adaptive development comparison of the same small synthetic cohort; no held-out measurement or causal guarantee.", ...(modelStudy ? ["Pipeline, runtime, originals, annotations and phase budgets are identical. Model and explicitly recorded reasoning profile differ. Sequential phases may occur on separate UTC days; provider conditions are not controlled.", "This version gives rejected and unattempted documents zero recall credit in the full fixed cohort. It does not rewrite or directly equate historical metrics that omitted unattempted recall denominators."] : ["Inspect all changed configuration files, including any harness changes, before attributing a difference to the model implementation."]), "Document acceptance, partial output and correctness are separate. Rejected attempts retain zero recall credit; unattempted documents remain explicit.", "Precision/source denominators depend on returned output; unavailable denominators have no numeric improvement score.", "Elapsed time includes deliberate quota pacing and cannot establish production latency. Usage totals exclude unavailable response usage; no provider invoice is measured.", "The separate interrupted harness preflight is excluded from both phases and their metrics."],
   };
 }
 export async function writeDevelopmentComparison(name: string, root = process.cwd()) {

@@ -3,19 +3,26 @@ import { errorCode } from "./live-control";
 import type { Quotation } from "../src/lib/domain/types";
 import { resolveField } from "../src/lib/domain/corrections";
 import type { FixtureRecord } from "../scripts/generate-fixtures";
+import { scoreFailedExtraction } from "./metrics";
 
 export const DEVELOPMENT_IDS = ["industrial-1", "industrial-2", "industrial-3", "office-1", "office-2", "office-3", "event-1", "event-2", "event-3", "translation-1", "translation-2", "translation-3"] as const;
 export const PAIRED_COHORT = ["industrial-1", "translation-2", "office-2"];
+/** New study protocol only: historical reports keep their original scoring. */
+export function unattemptedDevelopmentScore(fixture: FixtureRecord, comparisonKind?: "model") {
+  return comparisonKind === "model" ? scoreFailedExtraction(fixture) : undefined;
+}
 export interface DevelopmentOptions {
   name: string; phase: "before" | "after"; live: boolean; documentIds: string[];
   maxRequests: number; maxReservedTokens: number; maxWaitMs: number; envFile?: ".env.ai.local";
   baselineName?: string;
+  comparisonKind?: "model";
+  model?: "openai/gpt-oss-120b" | "qwen/qwen3.8-27b";
   chunkFailurePolicy: "reject_document" | "retain_valid_chunks_v1";
-  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1";
+  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1" | "focused_fields_v1";
 }
 export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   const values = new Map<string, string>(); let live = false;
-  const allowed = new Set(["--name", "--phase", "--split", "--documents", "--max-requests", "--max-reserved-tokens", "--max-wait-ms", "--env-file", "--mode", "--baseline-name", "--chunk-failure-policy", "--extraction-transport"]);
+  const allowed = new Set(["--name", "--phase", "--split", "--documents", "--max-requests", "--max-reserved-tokens", "--max-wait-ms", "--env-file", "--mode", "--baseline-name", "--chunk-failure-policy", "--extraction-transport", "--comparison-kind", "--model"]);
   for (let index = 0; index < args.length; index++) {
     const flag = args[index];
     if (flag === "--live" && !live) { live = true; continue; }
@@ -39,13 +46,18 @@ export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   if (!live && envFile) throw new Error("Offline runs do not load credentials.");
   const baselineName = values.get("--baseline-name");
   if (baselineName !== undefined && (!live || phase !== "after" || baselineName === name || !/^[a-z][a-z0-9-]{2,63}$/.test(baselineName))) throw new Error("--baseline-name requires a different existing experiment name and a live after phase.");
+  const comparisonKind = values.get("--comparison-kind"), model = values.get("--model");
+  if (comparisonKind !== undefined && comparisonKind !== "model") throw new Error("Only explicit model comparison is supported.");
+  if (comparisonKind === "model" && (!live || baselineName || !["openai/gpt-oss-120b", "qwen/qwen3.8-27b"].includes(model ?? "") || JSON.stringify(documentIds) !== JSON.stringify(PAIRED_COHORT))) throw new Error("Model comparison requires live mode, an allowlisted explicit model, the complete fixed cohort, and no referenced baseline.");
+  if (model !== undefined && comparisonKind !== "model") throw new Error("--model requires explicit --comparison-kind model.");
   const chunkFailurePolicy = values.get("--chunk-failure-policy") ?? "reject_document";
   if (!["reject_document", "retain_valid_chunks_v1"].includes(chunkFailurePolicy)) throw new Error("Use a supported explicit chunk failure policy.");
-  if (chunkFailurePolicy !== "reject_document" && (!live || phase !== "after")) throw new Error("Retaining validated chunks requires an explicit live after phase.");
+  if (chunkFailurePolicy !== "reject_document" && (!live || (phase !== "after" && comparisonKind !== "model"))) throw new Error("Retaining validated chunks requires an explicit live after phase or model study.");
   const extractionTransport = values.get("--extraction-transport") ?? "legacy_v5";
-  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
   if (extractionTransport !== "legacy_v5" && !live) throw new Error("Typed extraction transport requires an explicit live development run.");
-  return { name, phase, live, documentIds, maxRequests: number("--max-requests", 24, 24), maxReservedTokens: number("--max-reserved-tokens", 170000, 170000), maxWaitMs: number("--max-wait-ms", 600000, 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}) };
+  const study = comparisonKind === "model";
+  return { name, phase, live, documentIds, maxRequests: number("--max-requests", study ? 12 : 24, study ? 12 : 24), maxReservedTokens: number("--max-reserved-tokens", study ? 60000 : 170000, study ? 60000 : 170000), maxWaitMs: number("--max-wait-ms", study ? 720000 : 600000, study ? 720000 : 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}), ...(study ? { comparisonKind: "model" as const, model: model as DevelopmentOptions["model"] } : {}) };
 }
 /** Diagnostic only: preserve historical scoring while exposing unconfirmed defaults. */
 export function unsourcedMissingStateAgreements(fixture: Pick<FixtureRecord, "fields">, quotation: Quotation, mappedItems: Record<string, string>): number {
@@ -61,7 +73,7 @@ export function assertDevelopmentIds(ids: string[]): void {
   if (!ids.length || new Set(ids).size !== ids.length || ids.some(id => !(DEVELOPMENT_IDS as readonly string[]).includes(id))) throw new Error("Every selected document must be a unique, allowlisted development ID.");
 }
 export function assertDevelopmentEnvironment(environment: Record<string, string | undefined>): void {
-  const forbidden = Object.keys(environment).filter(key => environment[key] && (/^(?:NEON_|TRIGGER_|VERCEL|SUPABASE_|NEXT_PUBLIC_SUPABASE_)/.test(key) || ["DATABASE_URL", "FIELDOPS_DATABASE_URL", "NODE_OPTIONS", "NODE_PRELOAD", "GROQ_BASE_URL"].includes(key)));
+  const forbidden = Object.keys(environment).filter(key => environment[key] && (/^(?:NEON_|TRIGGER_|VERCEL|AWS_|SUPABASE_|NEXT_PUBLIC_SUPABASE_)/.test(key) || ["DATABASE_URL", "FIELDOPS_DATABASE_URL", "NODE_OPTIONS", "NODE_PRELOAD", "GROQ_BASE_URL"].includes(key)));
   if (environment.NODE_ENV === "production" || forbidden.length) throw new Error("Development evaluation requires a clean local shell without production, cloud or Node preload configuration.");
 }
 export interface DevelopmentEvent {
@@ -69,13 +81,14 @@ export interface DevelopmentEvent {
   at: string; documentId?: string; code?: string; cached?: boolean;
   attemptSlots?: number; reservedTokens?: number; waitMs?: number;
   inputTokens?: number; outputTokens?: number; elapsedMs?: number; usageAvailable?: boolean; costUsd?: string | null; model?: string;
+  sharedAllocationId?: string;
 }
 /** Estimates mirror the compact application wire request. Two slots cover its one transient retry. */
-export function requestReservation(request: AIRequest) {
+export function requestReservation(request: AIRequest, maxTransportAttempts: 1 | 2 = 2) {
   const wire = compactExtractionRequest(request).request;
   const estimatedInput = Math.ceil((wire.system.length + wire.user.length + JSON.stringify(wire.schema).length) / 3);
   if (!Number.isSafeInteger(request.maxOutputTokens) || request.maxOutputTokens < 1) throw new Error("Invalid output token reservation.");
-  return { attemptSlots: 2, reservedTokens: 2 * (estimatedInput + request.maxOutputTokens) };
+  return { attemptSlots: maxTransportAttempts, reservedTokens: maxTransportAttempts * (estimatedInput + request.maxOutputTokens) };
 }
 export function summarizeDevelopmentUsage(events: DevelopmentEvent[]) {
   const responses = events.filter(event => event.kind === "response");
@@ -102,6 +115,9 @@ export function developmentRequestController(options: {
   events: DevelopmentEvent[]; request: AIRequestFunction; persist(event: DevelopmentEvent): Promise<void>;
   wait?: (milliseconds: number) => Promise<void>;
   now?: () => number;
+  maxTransportAttempts?: 1 | 2;
+  lastSharedActivity?: () => string | undefined;
+  retryQuota?: boolean;
 }) {
   let halted: string | null = null;
   const halt = (code: string): never => { halted = code; throw Object.assign(new Error("Development evaluation paused at its configured boundary."), { code }); };
@@ -111,13 +127,14 @@ export function developmentRequestController(options: {
     if (input.purpose !== "extraction") return halt("development_scope");
     if (halted) return halt(halted);
     for (;;) {
-      const usage = summarizeDevelopmentUsage(options.events), reservation = requestReservation(input);
+      const usage = summarizeDevelopmentUsage(options.events), reservation = requestReservation(input, options.maxTransportAttempts);
       if (usage.reservedAttemptSlots + reservation.attemptSlots > options.limits.maxRequests || usage.reservedTokens + reservation.reservedTokens > options.limits.maxReservedTokens || usage.inputTokens + usage.outputTokens >= options.limits.maxReservedTokens) return halt("evaluation_budget");
       // A reservation precedes SDK initialization and actual provider dispatch.
       // Pace from settlement, which is safely after the provider's quota window
       // began; use the reservation only when interruption left no known outcome.
       const lastActivity = [...options.events].reverse().find(event => ["reservation", "response", "failure"].includes(event.kind));
-      const remaining = lastActivity ? Math.max(0, 60000 - (now() - Date.parse(lastActivity.at))) : 0;
+      const activity = Math.max(lastActivity ? Date.parse(lastActivity.at) : 0, options.lastSharedActivity?.() ? Date.parse(options.lastSharedActivity()!) : 0);
+      const remaining = activity ? Math.max(0, 60000 - (now() - activity)) : 0;
       if (remaining > 60000 || !Number.isFinite(remaining)) return halt("evaluation_clock");
       if (remaining > 0) {
         if (usage.waitedMs + remaining > options.limits.maxWaitMs) return halt("evaluation_wait_budget");
@@ -134,7 +151,7 @@ export function developmentRequestController(options: {
         const code = errorCode(error), delay = (error as { retryAfterMs?: unknown })?.retryAfterMs;
         await record({ kind: "failure", at: new Date(now()).toISOString(), code });
         const waitMs = typeof delay === "number" && Number.isFinite(delay) ? Math.max(1000, delay) : 60000;
-        if (code === "quota" && waitMs <= 60000 && summarizeDevelopmentUsage(options.events).waitedMs + waitMs <= options.limits.maxWaitMs) {
+        if (options.retryQuota !== false && code === "quota" && waitMs <= 60000 && summarizeDevelopmentUsage(options.events).waitedMs + waitMs <= options.limits.maxWaitMs) {
           await record({ kind: "quota_wait", at: new Date().toISOString(), waitMs });
           await (options.wait ?? (ms => new Promise(resolve => setTimeout(resolve, ms))))(waitMs);
           continue;

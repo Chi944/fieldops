@@ -10,7 +10,7 @@ const redirectedEndpoint = "https://synthetic-endpoint.invalid/private-test-valu
 
 beforeEach(() => {
   for (const key of Object.keys(process.env)) {
-    if (/^(?:NEON_|TRIGGER_|VERCEL|SUPABASE_|NEXT_PUBLIC_SUPABASE_)/.test(key) || ["DATABASE_URL", "FIELDOPS_DATABASE_URL", "NODE_OPTIONS", "NODE_PRELOAD", "GROQ_BASE_URL"].includes(key)) vi.stubEnv(key, "");
+    if (/^(?:NEON_|TRIGGER_|VERCEL|AWS_|SUPABASE_|NEXT_PUBLIC_SUPABASE_)/.test(key) || ["DATABASE_URL", "FIELDOPS_DATABASE_URL", "NODE_OPTIONS", "NODE_PRELOAD", "GROQ_BASE_URL"].includes(key)) vi.stubEnv(key, "");
   }
   vi.stubEnv("NODE_ENV", "test");
   vi.stubEnv("FIELDOPS_PROCESSING_MODE", "parse_only");
@@ -24,6 +24,22 @@ afterEach(async () => {
 });
 
 describe("development evaluation uses only the official Groq endpoint", () => {
+  it("rejects inherited and file-contained AWS markers before either model or credential loading", async () => {
+    vi.stubEnv("AWS_EXECUTION_ENV", "synthetic-cloud-marker");
+    await expect(loadDevelopmentEnvironment("not-a-real-test-root", ".env.ai.local", "openai/gpt-oss-120b")).rejects.toThrow("clean local shell");
+    vi.stubEnv("AWS_EXECUTION_ENV", "");
+    const directory = await mkdtemp(path.join(os.tmpdir(), "fieldops-eval-cloud-")); directories.push(directory);
+    await writeFile(path.join(directory, ".env.ai.local"), "AWS_ACCESS_KEY_ID=TEST-ONLY\nGROQ_API_KEY=TEST-ONLY\n");
+    await expect(loadDevelopmentEnvironment(directory, ".env.ai.local", "qwen/qwen3.8-27b")).rejects.toThrow("clean local shell");
+    expect(process.env.GROQ_API_KEY).toBe("");
+  });
+  it("applies explicit allowlisted model selection after the dedicated environment file", async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "fieldops-eval-model-")); directories.push(directory);
+    await writeFile(path.join(directory, ".env.ai.local"), "GROQ_API_KEY=SYNTHETIC-NO-CALL\nGROQ_MODEL=openai/gpt-oss-120b\nGROQ_FREE_TIER_CONFIRMED=true\nGROQ_ZDR_CONFIRMED=true\nFIELDOPS_PROCESSING_MODE=ai\n");
+    vi.stubEnv("GROQ_MODEL", "openai/gpt-oss-120b");
+    await loadDevelopmentEnvironment(directory, ".env.ai.local", "qwen/qwen3.8-27b");
+    expect(process.env.GROQ_MODEL).toBe("qwen/qwen3.8-27b");
+  });
   it("rejects an inherited SDK endpoint override before loading credentials", async () => {
     expect(() => assertDevelopmentEnvironment({ GROQ_BASE_URL: redirectedEndpoint })).toThrow("clean local shell");
     vi.stubEnv("GROQ_BASE_URL", redirectedEndpoint);

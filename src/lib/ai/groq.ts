@@ -3,14 +3,15 @@ import { extractionWireSchemaForTargets, expandExtraction } from "./transport";
 import { typedExtractionWireSchemaForTargets, expandTypedExtraction } from "./typed-transport";
 import { partitionedExtractionWireSchemaForTargets, expandPartitionedExtraction } from "./partitioned-transport";
 import { factExtractionWireSchemaForTargets, expandFactExtraction, factProviderSchema } from "./fact-transport";
+import { focusedExtractionWireSchema, focusedProviderSchema, expandFocusedExtraction } from "./focused-transport";
 import { typedProviderSchema } from "./provider-schema";
 import { providerSchemaDiagnostic, ProviderSchemaError } from "./provider-error";
 import { strictSchema } from "./schema";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
 export type ChunkFailurePolicy = "reject_document" | "retain_valid_chunks_v1";
-export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1";
-export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7" | "quotation-v8"; chunkFailurePolicy?: ChunkFailurePolicy; }
+export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1" | "focused_fields_v1";
+export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7" | "quotation-v8" | "quotation-v9"; chunkFailurePolicy?: ChunkFailurePolicy; }
 export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; contentCharacters?: number; reasoningCharacters?: number; rejectedAt?: "transport"; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
@@ -19,23 +20,39 @@ export interface AICheckpoint {
   /** Optional private rejection journal. Never expose result.data in application logs. */
   reject?(key: string, result: AIResult, errorCode: ProcessingErrorCode, context?: { cached: boolean }): Promise<void>;
 }
-export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; chunkFailurePolicy?: ChunkFailurePolicy; extractionTransport?: ExtractionTransport; }
+export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; chunkFailurePolicy?: ChunkFailurePolicy; extractionTransport?: ExtractionTransport; allowPreviewModel?: boolean; maxTransportAttempts?: 1 | 2; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
+export const PREVIEW_MODEL = "qwen/qwen3.8-27b";
 export const PROMPT_VERSION = "fieldops-extraction-6";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
+type ModelOptions = Pick<AIOptions, "allowPreviewModel">;
+export function groqModelProfile(model: string): { version: string; reasoning_effort: "low" | "none"; reasoning_format?: "hidden" } {
+  if (MODELS.has(model)) return { version: "gpt-oss-low-v1", reasoning_effort: "low" };
+  if (model === PREVIEW_MODEL) return { version: "qwen3.8-none-hidden-v1", reasoning_effort: "none", reasoning_format: "hidden" };
+  throw new AIUnavailableError("The configured model has no supported request profile.");
+}
+function previewModelReason(model: string, options: ModelOptions): string | null {
+  if (model !== PREVIEW_MODEL) return null;
+  if (options.allowPreviewModel !== true) return "The Qwen preview model requires an explicit local development opt-in. The application default remains GPT-OSS.";
+  const cloudOrOverride = Object.keys(process.env).some(key => process.env[key] && (/^(?:NEON_|TRIGGER_|VERCEL|AWS_|SUPABASE_|NEXT_PUBLIC_SUPABASE_)/.test(key) || ["DATABASE_URL", "FIELDOPS_DATABASE_URL", "NODE_OPTIONS", "NODE_PRELOAD", "GROQ_BASE_URL"].includes(key)));
+  if (process.env.NODE_ENV === "production" || cloudOrOverride) return "The Qwen preview model is restricted to a clean local development process without cloud, production, endpoint override or Node preload configuration.";
+  return null;
+}
 // One request at a time. Provider quota remains authoritative across deployed workers.
 let pending: Promise<unknown> = Promise.resolve();
 let quotaWindow = 0; let windowReservation = 0; let dailyDate = ""; let dailyReservation = 0;
-export function liveAIConfiguration(): { ready: boolean; model: string; reason: string | null } {
+export function liveAIConfiguration(options: ModelOptions = {}): { ready: boolean; model: string; reason: string | null } {
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
   if (process.env.FIELDOPS_PROCESSING_MODE !== "ai") return { ready: false, model, reason: "AI interpretation is disabled. Set FIELDOPS_PROCESSING_MODE=ai only when intentionally enabling the configured free integration." };
   if (!process.env.GROQ_API_KEY) return { ready: false, model, reason: "GROQ_API_KEY is missing. Demo fixtures are available; live extraction has not run." };
   if (process.env.GROQ_FREE_TIER_CONFIRMED !== "true") return { ready: false, model, reason: "Confirm the Groq account is on its Free Plan with GROQ_FREE_TIER_CONFIRMED=true. Paid accounts and paid fallback are not supported." };
   if (process.env.GROQ_ZDR_CONFIRMED !== "true") return { ready: false, model, reason: "Enable Zero Data Retention in Groq Data Controls, then set GROQ_ZDR_CONFIRMED=true before uploading private documents." };
-  if (!MODELS.has(model)) return { ready: false, model, reason: "GROQ_MODEL must be an explicitly supported free-tier structured-output model: openai/gpt-oss-120b or openai/gpt-oss-20b." };
+  const previewReason = previewModelReason(model, options);
+  if (previewReason) return { ready: false, model, reason: previewReason };
+  if (!MODELS.has(model) && model !== PREVIEW_MODEL) return { ready: false, model, reason: "GROQ_MODEL must be an explicitly supported free-tier structured-output model: openai/gpt-oss-120b or openai/gpt-oss-20b. Qwen preview is available only through explicit local development opt-in." };
   return { ready: true, model, reason: null };
 }
-export function requireLiveAI(): void { const configuration = liveAIConfiguration(); if (!configuration.ready) throw new AIUnavailableError(configuration.reason ?? undefined); }
+export function requireLiveAI(options: ModelOptions = {}): void { const configuration = liveAIConfiguration(options); if (!configuration.ready) throw new AIUnavailableError(configuration.reason ?? undefined); }
 
 class RejectedResponse extends ProcessingError {
   readonly result: AIResult;
@@ -59,7 +76,11 @@ function interpretationFailure(error: unknown, result: AIResult, cached: boolean
 export async function requestAI<T = AIResult>(request: AIRequest, options: AIOptions = {}, validate?: (result: AIResult) => T | Promise<T>): Promise<T> {
   checkCancelled(options.signal);
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
-  const key = createHash("sha256").update(JSON.stringify({ version: PROMPT_VERSION, model, request })).digest("hex");
+  const previewReason = previewModelReason(model, options);
+  if (previewReason) throw new AIUnavailableError(previewReason);
+  // Historical GPT-OSS checkpoint keys stay byte-for-byte unchanged. Preview
+  // results are bound to their explicit, model-specific reasoning profile.
+  const key = createHash("sha256").update(JSON.stringify({ version: PROMPT_VERSION, model, request, ...(model === PREVIEW_MODEL ? { modelProfile: groqModelProfile(model).version } : {}) })).digest("hex");
   // Raw transport requests are never successful checkpoints. Domain callers must
   // validate schema, evidence and integration before an answer becomes resumable.
   const checkpoint = validate ? options.checkpoint : undefined;
@@ -105,7 +126,7 @@ async function enqueue<T>(operation: () => Promise<T>): Promise<T> {
 /** Short transport aliases reduce repeated citation tokens; stored IDs stay parser-owned. */
 export function compactExtractionRequest(request: AIRequest): { request: AIRequest; restore(data: unknown): unknown } {
   if (request.purpose !== "extraction") return { request, restore: data => data };
-  let body: { sources?: { id: string; [key: string]: unknown }[]; context?: { id: string; [key: string]: unknown }[] };
+  let body: { task?: "document" | "items"; sources?: { id: string; [key: string]: unknown }[]; context?: { id: string; [key: string]: unknown }[] };
   try { body = JSON.parse(request.user); } catch { return { request, restore: data => data }; }
   if (!Array.isArray(body.sources)) return { request, restore: data => data };
   const targets = body.sources, context = body.context ?? [];
@@ -129,10 +150,20 @@ export function compactExtractionRequest(request: AIRequest): { request: AIReque
   const typedTransport = request.transport === "quotation-v6";
   const partitionedTransport = request.transport === "quotation-v7";
   const factTransport = request.transport === "quotation-v8";
+  const focusedTransport = request.transport === "quotation-v9";
+  if (focusedTransport && body.task !== "items" && body.task !== "document") throw new ProcessingError("invalid_output", "The focused extraction task kind is missing or invalid.");
+  const kind = body.task ?? "document";
+  const slotMap = new Map<string, string[]>();
+  if (focusedTransport) for (const source of targets) {
+    if (typeof source.slot === "string") slotMap.set(source.slot, [...(slotMap.get(source.slot) ?? []), source.id]);
+  }
+  const slots = [...slotMap].map(([id, sourceIds]) => ({ id, sourceIds }));
+  const structuralHeaderIds = targets.filter(source => source.structuralHeader === true).map(source => source.id);
   const quotationTransport = request.transport === "quotation-v4" || request.transport === "quotation-v5";
-  const schema = factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
+  const schema = focusedTransport ? focusedProviderSchema(focusedExtractionWireSchema(kind, slots.map(slot => slot.id), all.map(source => aliases.get(source.id)!))) : factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
   return { request: { ...request, user, schema }, restore: data => {
     const restored = restore(data);
+    if (focusedTransport) return expandFocusedExtraction(restored, { kind, targetIds: targets.map(source => source.id), contextIds: context.map(source => source.id), slots, structuralHeaderIds });
     if (factTransport) return expandFactExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     if (partitionedTransport) return expandPartitionedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     if (typedTransport) return expandTypedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
@@ -151,18 +182,20 @@ function reserveQuota(tokens: number): void {
 }
 
 async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIResult> {
-  requireLiveAI(); checkCancelled(options.signal);
-  const configuration = liveAIConfiguration();
+  requireLiveAI(options); checkCancelled(options.signal);
+  const configuration = liveAIConfiguration(options);
+  const { reasoning_effort, reasoning_format } = groqModelProfile(configuration.model);
   const Groq = (await import("groq-sdk")).default;
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY, maxRetries: 0, timeout: 45000 });
   const wire = compactExtractionRequest(request);
   const estimatedInput = Math.ceil((wire.request.system.length + wire.request.user.length + JSON.stringify(wire.request.schema).length) / 3);
   reserveQuota(estimatedInput + request.maxOutputTokens);
   const started = Date.now();
-  for (let attempt = 0; attempt < 2; attempt++) {
+  const maxAttempts = options.maxTransportAttempts === 1 ? 1 : 2;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     checkCancelled(options.signal);
     try {
-      const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: wire.request.system }, { role: "user", content: wire.request.user }], reasoning_effort: "low", temperature: 0,
+      const response = await bounded(client.chat.completions.create({ model: configuration.model, messages: [{ role: "system", content: wire.request.system }, { role: "user", content: wire.request.user }], reasoning_effort, ...(reasoning_format ? { reasoning_format } : {}), temperature: 0,
         max_completion_tokens: request.maxOutputTokens, response_format: { type: "json_schema", json_schema: { name: `fieldops_${request.purpose}_${createHash("sha256").update(JSON.stringify(wire.request.schema)).digest("hex").slice(0, 12)}`, strict: true, schema: wire.request.schema } } }, { signal: options.signal }), 45000, options.signal);
       const choice = response.choices[0];
       const result: AIResult = { data: choice?.message.content ?? null, model: configuration.model, inputTokens: response.usage?.prompt_tokens ?? 0, outputTokens: response.usage?.completion_tokens ?? 0, usageAvailable: !!response.usage, costUsd: response.usage ? "0" : null, elapsedMs: Date.now() - started, finishReason: choice?.finish_reason ?? "missing", contentCharacters: choice?.message.content?.length ?? 0, reasoningCharacters: choice?.message.reasoning?.length ?? 0 };
@@ -194,7 +227,7 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
         throw new ProcessingError("quota", "The Groq free-tier quota is currently exhausted. Processing will resume from saved chunks after quota reset; no paid fallback is used.", true, retryAfterMs);
       }
       if (status === 401 || status === 403) throw new AIUnavailableError("The Groq key is invalid or the configured model is unavailable to this account. Check your Free Plan key and model permissions.");
-      if (attempt === 0 && (status === undefined || status >= 500)) {
+      if (attempt + 1 < maxAttempts && (status === undefined || status >= 500)) {
         // Retry only transient transport failures, and reserve their worst-case usage too.
         reserveQuota(estimatedInput + request.maxOutputTokens);
         continue;

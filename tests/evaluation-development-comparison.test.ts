@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { compareDevelopmentReports } from "../scripts/compare-development";
+import { MODEL_STUDY_METRIC_VERSION } from "../eval/model-study-control";
 
 type Report = Parameters<typeof compareDevelopmentReports>[0];
 // The immutable, synthetic-only before report is historical evidence. Changes below
@@ -11,6 +12,17 @@ async function beforeReport(): Promise<Report> {
   return JSON.parse(await readFile(path.join(process.cwd(), "eval/results/development/full-quotes-2026-09-21-v2/live-before.json"), "utf8")) as Report;
 }
 describe("immutable development before/after comparison", () => {
+  it("compares explicit models only when pipeline files and runtime remain identical", async () => {
+    const before = await beforeReport();
+    before.pair = { ...before.pair, comparisonKind: "model", metricVersion: MODEL_STUDY_METRIC_VERSION, models: ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"], maxTransportAttempts: 1 };
+    before.configuration.model = "openai/gpt-oss-120b";
+    const after = structuredClone(before); after.phase = "after"; after.configuration.model = "qwen/qwen3.8-27b";
+    expect(compareDevelopmentReports(before, after)).toMatchObject({ version: 2, configurations: { changedFiles: [] } });
+    const changedCode = structuredClone(after); changedCode.configuration.files[0].sha256 = "changed";
+    expect(() => compareDevelopmentReports(before, changedCode)).toThrow("otherwise identical");
+    const changedRuntime = structuredClone(after); changedRuntime.configuration.runtime.node = "other";
+    expect(() => compareDevelopmentReports(before, changedRuntime)).toThrow("otherwise identical");
+  });
   it("keeps actual denominators and does not turn an unavailable before precision into numeric improvement", async () => {
     const before = await beforeReport(), after = structuredClone(before);
     after.phase = "after";
@@ -36,6 +48,8 @@ describe("immutable development before/after comparison", () => {
     expect(() => compareDevelopmentReports(before, unstable)).toThrow("changed configuration");
     const outside = structuredClone(after); outside.dataset.heldoutModelCalls = 1;
     expect(() => compareDevelopmentReports(before, outside)).toThrow("Only development");
+    const modelDrift = structuredClone(after); modelDrift.configuration.model = "qwen/qwen3.8-27b";
+    expect(() => compareDevelopmentReports(before, modelDrift)).toThrow("explicit model comparison");
   });
   it("references the original baseline under its exact hash without relabeling its measurement as a new run", async () => {
     const bytes = await readFile(path.join(process.cwd(), "eval/results/development/full-quotes-2026-09-21-v2/live-before.json"));
