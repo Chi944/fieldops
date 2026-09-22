@@ -9,7 +9,7 @@ import { fingerprint, readDevelopmentManifest, sourceFile, writeImmutableJson } 
 export async function preflightDevelopment(name: string, root = process.cwd(), extractionTransport: DevelopmentOptions["extractionTransport"] = "legacy_v5") {
   if (!/^[a-z][a-z0-9-]{2,63}$/.test(name)) throw new Error("Use a fresh development experiment name.");
   assertDevelopmentEnvironment(process.env);
-  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2"].includes(extractionTransport)) throw new Error("Unknown extraction transport.");
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1"].includes(extractionTransport)) throw new Error("Unknown extraction transport.");
   const policy = "retain_valid_chunks_v1" as const;
   const configuration = await fingerprint(root, policy, extractionTransport);
   const manifest = await readDevelopmentManifest(root);

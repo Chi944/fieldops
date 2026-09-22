@@ -10,6 +10,7 @@ import { extractionSchema, sectionFieldKeys, itemAttributeFieldKeys, strictSchem
 import { extractionInstruction } from "./transport";
 import { typedExtractionInstruction, typedExtractionWireSchemaForTargets } from "./typed-transport";
 import { partitionedExtractionInstruction, partitionedExtractionWireSchemaForTargets } from "./partitioned-transport";
+import { factExtractionInstruction, factExtractionWireSchemaForTargets, factProviderSchema } from "./fact-transport";
 import { extractionCompletenessIssues } from "./completeness";
 import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
@@ -24,6 +25,10 @@ const termKeys = new Set<string>(sectionFieldKeys.terms);
 const itemKeys = new Set<string>(sectionFieldKeys.item);
 const normalizeEvidence = (value: string): string => value.replace(/\s+/g, " ").trim();
 const decimalPattern = /^-?\d+(?:\.\d+)?$/;
+type TierEvidence = ExtractedChunk["items"][number]["tiers"];
+const tierMaximumKey = /^tier\.[A-Za-z][A-Za-z0-9_-]{0,31}\.max$/;
+const unsignedLiteral = "\\d+(?:(?:[.,]\\d+)|(?:[ '\\u00a0\\u202f]\\d{3}(?!\\d)))*";
+const tierRangeClause = new RegExp(`^\\s*(${unsignedLiteral})\\s*[-\\u2013\\u2014]\\s*(${unsignedLiteral})(?:\\s+at\\s+(${unsignedLiteral}))?\\s*$`, "i");
 /** Plausible literal normalizations only; this does not prove the field's meaning. */
 function hasNumericEvidence(value: string, raw: string): boolean {
   const tokens = raw.match(/-?\d+(?:(?:[.,]\d+)|(?:[ '\u00a0\u202f]\d{3}(?!\d)))*/g) ?? [];
@@ -39,6 +44,15 @@ function hasNumericEvidence(value: string, raw: string): boolean {
     if (/^-?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(compact)) forms.push(compact.replace(/\./g, "").replace(",", "."));
     return forms.some(candidate => decimalPattern.test(candidate) && new D(candidate).eq(value));
   });
+}
+/** A tier maximum is the upper endpoint of this exact, same-item tier clause.
+ * The ordinary numeric parser still treats standalone minus signs as negatives. */
+function hasTierRangeEvidence(field: ExtractedAttribute, tiers: TierEvidence, sources: Map<string, SourceSpan>): boolean {
+  const range = field.raw?.match(tierRangeClause);
+  if (!range || field.type !== "decimal" || !field.value || !hasNumericEvidence(field.value, range[2])) return false;
+  return tiers.some(tier => tier.max !== null && tier.unit.trim() !== "" && new D(tier.min).gte(0) && new D(tier.max).gte(tier.min) && new D(tier.max).eq(field.value!) && new D(tier.unitPrice).gte(0)
+    && hasNumericEvidence(tier.min, range[1]) && hasNumericEvidence(tier.max, range[2]) && (range[3] === undefined || hasNumericEvidence(tier.unitPrice, range[3]))
+    && field.sourceIds.some(id => tier.sourceIds.includes(id) && normalizeEvidence(sources.get(id)!.text).includes(normalizeEvidence(field.raw!))));
 }
 function hasCurrencyEvidence(value: string, raw: string): boolean {
   if (new RegExp(`\\b${value}\\b`, "i").test(raw)) return true;
@@ -63,7 +77,7 @@ function assertSources(ids: string[], sources: Map<string, SourceSpan>, requireS
   if (requireSome && ids.length === 0) throw new ProcessingError("invalid_evidence", "The model returned a stated value without source evidence. Review the source or retry the failed section.");
   if (new Set(ids).size !== ids.length || ids.some(id => !sources.has(id))) throw new ProcessingError("invalid_evidence", "The model returned a source reference outside this document section. The result was rejected.");
 }
-function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<string, SourceSpan>, typedAttribute = false): FieldValue {
+function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<string, SourceSpan>, typedAttribute = false, tierEvidence: TierEvidence = []): FieldValue {
   if ((field.state === "value") !== (field.value !== null)) throw new ProcessingError("invalid_output", "The model returned an inconsistent field state and value.");
   assertSources(field.sourceIds, sources, field.state !== "not_stated");
   if (field.state !== "not_stated") {
@@ -72,7 +86,11 @@ function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<s
     if (!cited.includes(normalizeEvidence(field.raw))) throw new ProcessingError("invalid_evidence", "A model source excerpt could not be found in its cited source. The result was rejected.");
   }
   if (field.state === "value" && (decimalKeys.has(field.key) || (typedAttribute && field.type === "decimal")) && !decimalPattern.test(field.value!)) throw new ProcessingError("invalid_output", "A model monetary or quantity value was not a precise decimal string.");
-  if (field.state === "value" && (decimalKeys.has(field.key) || (typedAttribute && field.type === "decimal")) && !hasNumericEvidence(field.value!, field.raw ?? "")) throw new ProcessingError("invalid_evidence", "An extracted numeric value does not occur in its cited excerpt. Review the number or retry; calculated model values were rejected.");
+  if (field.state === "value" && (decimalKeys.has(field.key) || (typedAttribute && field.type === "decimal"))) {
+    const tierRange = typedAttribute && tierMaximumKey.test(field.key) && /[-\u2013\u2014]/.test(field.raw ?? "");
+    const supported = tierRange ? hasTierRangeEvidence(field, tierEvidence, sources) : hasNumericEvidence(field.value!, field.raw ?? "");
+    if (!supported) throw new ProcessingError("invalid_evidence", "An extracted numeric value does not occur in its cited excerpt. Review the number or retry; calculated model values were rejected.");
+  }
   if (field.state === "value" && field.key === "taxRate" && !hasTaxRateEvidence(field.value!, field.sourceIds.map(id => sources.get(id)!.text).join(" "))) throw new ProcessingError("invalid_evidence", "The extracted percentage is not explicitly attached to tax, VAT or GST in its source. A tax amount or unrelated discount is not a tax rate.");
   if (field.state === "value" && field.key === "currency" && !/^[A-Z]{3}$/.test(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid currency code. Currency must be explicitly stated and use its three-letter code.");
   if (field.state === "value" && field.key === "currency" && !hasCurrencyEvidence(field.value!, field.raw ?? "")) throw new ProcessingError("invalid_evidence", "The extracted currency is not supported by an explicit code or unambiguous currency name in its excerpt. A bare currency symbol needs review.");
@@ -82,8 +100,8 @@ function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<s
   if (field.state === "value" && typedAttribute && field.type === "boolean" && !["true", "false"].includes(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid typed boolean attribute.");
   return { state: field.state, value: field.value, raw: field.raw, sourceIds: [...field.sourceIds], origin: "supplier" };
 }
-function attributes(fields: ExtractedAttribute[], sources: Map<string, SourceSpan>): Attribute[] {
-  return fields.map(attribute => ({ key: attribute.key, label: attribute.label, type: attribute.type, value: convertField(attribute, sources, true), ...(attribute.unit ? { unit: attribute.unit } : {}) }));
+function attributes(fields: ExtractedAttribute[], sources: Map<string, SourceSpan>, tierEvidence: TierEvidence = []): Attribute[] {
+  return fields.map(attribute => ({ key: attribute.key, label: attribute.label, type: attribute.type, value: convertField(attribute, sources, true, tierEvidence), ...(attribute.unit ? { unit: attribute.unit } : {}) }));
 }
 function issue(quotation: Quotation, code: ReviewIssue["code"], message: string, sourceIds: string[] = [], fieldPath?: string): void {
   quotation.issues.push({ id: `issue-${identifier(`${quotation.id}:${code}:${message}:${fieldPath}`)}`, code, severity: code === "incomplete_extraction" ? "error" : "warning", message, documentId: quotation.documentId, sourceIds, resolved: false, ...(fieldPath ? { fieldPath } : {}) });
@@ -114,14 +132,16 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
   const typedTransport = options.extractionTransport === "typed_fields_v1";
   const partitionedTransport = options.extractionTransport === "typed_fields_v2";
+  const factTransport = options.extractionTransport === "fact_ledger_v1";
   const rejectedUsage: RejectedAIUsage[] = [], rejectedSources: string[] = [];
   for (let index = 0; index < chunks.length; index++) {
     await progress(options, "extracting", 35 + Math.round(index / chunks.length * 45), `Extracting quotation section ${index + 1} of ${chunks.length}`);
     const targets = chunks[index], context = extractionContext(parsed, targets);
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
     try {
-      const requestSchema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : strictSchema(extractionSchema);
-      const accepted = await requestAI({ purpose: "extraction", transport: partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
+      const targetIds = targets.map(source => source.id), knownIds = [...targets, ...context].map(source => source.id);
+      const requestSchema = factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
+      const accepted = await requestAI({ purpose: "extraction", transport: factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
         user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
         const validated = extractionSchema.safeParse(result.data);
         if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
@@ -199,6 +219,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
       if (quantity?.unit) applyFields(item as unknown as Record<string, unknown>, [{ ...quantity, key: unitKey, label: unitKey, type: "text", value: quantity.unit, raw: quantity.unit, unit: null }], itemKeys, sources, quotation, `items.${item.id}.`);
     }
     if (quotation.items.some(existing => [...existing.description.sourceIds, ...existing.identifier.sourceIds].some(source => [...item.description.sourceIds, ...item.identifier.sourceIds].includes(source)))) throw new ProcessingError("invalid_output", "The model assigned one source row to multiple line items. Review or retry the section.");
+    const tierEvidence: TierEvidence = [];
     for (const tier of candidate.tiers) {
       assertSources(tier.sourceIds, sources);
       const values = [tier.min, tier.unitPrice, ...(tier.max === null ? [] : [tier.max])];
@@ -211,6 +232,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
         : tier.basis === "graduated" ? /\b(?:graduated|marginal|incremental)\b|\b(?:first|next)\s+\d+\s+units\b/i.test(evidence) : false;
       const explicitOpenEnd = tier.max !== null || /\d\s*\+|\b(?:and (?:above|over)|or more|at least|minimum)\b|>=|\u2265/i.test(evidence);
       if (!explicitBasis || !explicitOpenEnd) issue(quotation, "unverified_evidence", "Confirm the quantity tier's pricing basis and upper bound from the original quotation before using it in a recommendation.", tier.sourceIds, `items.${item.id}.tiers`);
+      else tierEvidence.push(tier);
     }
     if (candidate.discount) {
       const discount = candidate.discount;
@@ -227,7 +249,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
       if (!explicitKind || !explicitBasis || !(discount.alreadyIncluded ? included : notIncluded)) issue(quotation, "unverified_evidence", "Confirm the discount type, the amount it applies to, and whether quoted prices already include it before using it in a recommendation.", discount.sourceIds, `items.${item.id}.discount`);
     }
     item.tiers = candidate.tiers; item.discount = candidate.discount;
-    item.attributes = attributes([...candidate.attributes, ...optionalText.map(field => ({ ...field, label: field.key === "specification" ? "Specifications" : "Package contents", type: "text" as const, unit: null }))], sources);
+    item.attributes = attributes([...candidate.attributes, ...optionalText.map(field => ({ ...field, label: field.key === "specification" ? "Specifications" : "Package contents", type: "text" as const, unit: null }))], sources, tierEvidence);
     quotation.items.push(item);
   }
   for (const charge of chunk.charges) {

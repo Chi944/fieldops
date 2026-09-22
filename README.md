@@ -60,6 +60,8 @@ The [measured evaluation](docs/evaluation-report.md) distinguishes parser covera
 
 The [22 September follow-up](docs/ai-development-study-2026-09-22.md) adds source-completeness guards, a stricter annotation quality gate and reproducible rejection diagnostics. **429 tests and 10 browser workflows pass**, but the new contract regressed to **22/129 critical fields, 3/18 items and 0/3 complete quotations**. It remains a development-only experiment and is not promoted to the default. Passing application tests is separate from establishing complete-document AI reliability.
 
+The [23 September release study](docs/release-study-2026-09-23.md) preserves a failed live experiment and two separate offline corrections. The latest replay of the same saved responses **without model calls** retains three partial quotations, **47/129 correct critical fields and 7/18 aligned expected items**, compared with 6/129 and 1/18 in the original live run. Complete extraction and the annotation gate remain **0/3**; all **10 retained comparison rows** stay blocked. This is post-hoc development evidence, not a fresh model result, semantic matching benchmark or permission to enable hosted AI.
+
 ```powershell
 npm run typecheck
 npm run lint

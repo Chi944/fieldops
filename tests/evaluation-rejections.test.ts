@@ -5,6 +5,15 @@ const attributes = () => ({ decimal: [], text: [] });
 const wire = () => ({ supplier: [], quotation: { numeric: [], text: [] }, terms: [], attributes: attributes(), items: [], charges: [], excluded: [{ sourceIds: ["s0"], disposition: "header", reason: "SYNTHETIC PRIVATE REASON" }], uncertainties: [] });
 const rejected = (data: unknown, finishReason = "stop") => ({ code: "invalid_output", cached: false, result: { data, finishReason, rejectedAt: "transport", usageAvailable: false } });
 describe("offline saved-rejection diagnostics", () => {
+  it("uses the recorded fact schema and never leaks fact values or unexpected property names", () => {
+    const data = { facts: [{ section: "supplier", entity: "document", key: "name", type: "text", state: "value", value: "PRIVATE NAME", raw: "PRIVATE NAME", sourceIds: ["s0"] }], excluded: [], uncertainties: [] };
+    expect(diagnoseRejectedRecord(rejected(data), ["s0"], ["s0"], "fact_ledger_v1").outcome).toBe("wire_schema_valid_cause_unavailable");
+    Object.assign(data.facts[0], { "PRIVATE PROPERTY": "PRIVATE CONTENT" });
+    const result = diagnoseRejectedRecord(rejected(data), ["s0"], ["s0"], "fact_ledger_v1");
+    expect(result.outcome).toBe("wire_schema_invalid");
+    expect(result.issues).toContainEqual({ code: "unrecognized_keys", path: "/facts/0", unknownKeys: ["[redacted]"] });
+    expect(JSON.stringify(result)).not.toContain("PRIVATE");
+  });
   it("separates malformed generated JSON from provider rejection with a locally valid wire shape", () => {
     const malformed = diagnoseRejectedRecord(rejected('{"PRIVATE UNFINISHED', "provider_schema_rejected"), ["s0"], ["s0"]);
     expect(malformed.stage).toBe("provider_schema_rejected"); expect(malformed.outcome).toBe("malformed_json"); expect(JSON.stringify(malformed)).not.toContain("PRIVATE");
@@ -38,6 +47,7 @@ describe("offline saved-rejection diagnostics", () => {
   it("fails closed on incomplete, non-development, changed or wrong-transport report metadata", () => {
     const report = { name: "synthetic-audit", phase: "after", mode: "live", configurationStableDuringRun: true, configuration: { extractionTransport: "typed_fields_v2", chunkFailurePolicy: "retain_valid_chunks_v1" }, dataset: { split: "dev", requestedDocuments: 3, heldoutDocumentsRead: 0, heldoutModelCalls: 0 }, pair: { selection: ["industrial-1", "translation-2", "office-2"].map(id => ({ id })) } };
     expect(() => assertRejectionAuditReport(report, report.name)).not.toThrow();
+    expect(() => assertRejectionAuditReport({ ...report, configuration: { ...report.configuration, extractionTransport: "fact_ledger_v1" } }, report.name)).not.toThrow();
     expect(() => assertRejectionAuditReport({ ...report, configurationStableDuringRun: false }, report.name)).toThrow();
     expect(() => assertRejectionAuditReport({ ...report, dataset: { ...report.dataset, split: "not-dev" } }, report.name)).toThrow();
     expect(() => assertRejectionAuditReport({ ...report, configuration: { ...report.configuration, extractionTransport: "legacy_v5" } }, report.name)).toThrow();

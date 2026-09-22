@@ -2,14 +2,15 @@ import { createHash } from "node:crypto";
 import { extractionWireSchemaForTargets, expandExtraction } from "./transport";
 import { typedExtractionWireSchemaForTargets, expandTypedExtraction } from "./typed-transport";
 import { partitionedExtractionWireSchemaForTargets, expandPartitionedExtraction } from "./partitioned-transport";
+import { factExtractionWireSchemaForTargets, expandFactExtraction, factProviderSchema } from "./fact-transport";
 import { typedProviderSchema } from "./provider-schema";
 import { providerSchemaDiagnostic, ProviderSchemaError } from "./provider-error";
 import { strictSchema } from "./schema";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
 export type ChunkFailurePolicy = "reject_document" | "retain_valid_chunks_v1";
-export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2";
-export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7"; chunkFailurePolicy?: ChunkFailurePolicy; }
+export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1";
+export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7" | "quotation-v8"; chunkFailurePolicy?: ChunkFailurePolicy; }
 export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; contentCharacters?: number; reasoningCharacters?: number; rejectedAt?: "transport"; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
@@ -127,10 +128,12 @@ export function compactExtractionRequest(request: AIRequest): { request: AIReque
   }
   const typedTransport = request.transport === "quotation-v6";
   const partitionedTransport = request.transport === "quotation-v7";
+  const factTransport = request.transport === "quotation-v8";
   const quotationTransport = request.transport === "quotation-v4" || request.transport === "quotation-v5";
-  const schema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
+  const schema = factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
   return { request: { ...request, user, schema }, restore: data => {
     const restored = restore(data);
+    if (factTransport) return expandFactExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     if (partitionedTransport) return expandPartitionedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     if (typedTransport) return expandTypedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
     return quotationTransport ? expandExtraction(restored, targets.map(source => source.id), context.map(source => source.id), { coveragePolicy: request.transport === "quotation-v5" ? "retain_partial" : "strict" }) : restored;

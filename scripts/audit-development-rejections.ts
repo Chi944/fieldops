@@ -3,6 +3,7 @@ import { readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { partitionedExtractionWireSchemaForTargets } from "../src/lib/ai/partitioned-transport";
+import { factExtractionWireSchemaForTargets } from "../src/lib/ai/fact-transport";
 import { extractQuotation, extractionChunks } from "../src/lib/ai";
 import { AIInterpretationError, compactExtractionRequest, PROMPT_VERSION, type AIRequest } from "../src/lib/ai/groq";
 import { parseDocument, ProcessingError } from "../src/lib/processing";
@@ -14,6 +15,7 @@ const sha = (value: string | Buffer) => createHash("sha256").update(value).diges
 const record = (value: unknown): Record<string, unknown> | null => value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 const staticNames = new Set(["supplier", "quotation", "terms", "items", "charges", "attributes", "excluded", "uncertainties", "numeric", "text", "decimal", "fields", "sourceIds", "sourceId", "itemSourceId", "kind", "taxBasis", "tiers", "discounts", "discount", "type", "unit", "label", "key", "value", "raw", "state", "billingPeriod", "appliesTo", "disposition", "reason", "message", "min", "max", "unitPrice", "basis", "alreadyIncluded", "coverage", "description", "identifier", "quantity", "lineAmount"]);
 const issueCodes = new Set(["invalid_type", "too_big", "too_small", "invalid_format", "not_multiple_of", "unrecognized_keys", "invalid_union", "invalid_key", "invalid_element", "invalid_value", "custom"]);
+for (const key of ["facts", "section", "entity"]) staticNames.add(key);
 const processingCodes = new Set(["invalid_output", "invalid_evidence", "model_error", "limit_exceeded", "timeout", "quota", "cancelled", "ai_unavailable"]);
 export interface SafeSchemaIssue { code: string; path: string; unknownKeys?: string[]; }
 interface RejectionAuditEntry { documentId: string; section: number; requestSha256: string; rejectionSha256: string; stage: string; outcome: string; issues: SafeSchemaIssue[]; recordedErrorCode?: string; cached?: boolean; usageAvailable?: boolean; }
@@ -41,7 +43,7 @@ export function sanitizeSchemaIssues(issues: unknown[]): SafeSchemaIssue[] {
 /** Offline inspection only. Passing wire validation never accepts a response,
  * repairs it, replays domain integration or writes a successful checkpoint.
  */
-export function diagnoseRejectedRecord(value: unknown, targetAliases: string[], knownAliases: string[]) {
+export function diagnoseRejectedRecord(value: unknown, targetAliases: string[], knownAliases: string[], transport: "typed_fields_v2" | "fact_ledger_v1" = "typed_fields_v2") {
   const rejection = record(value), result = record(rejection?.result);
   const code = typeof rejection?.code === "string" && processingCodes.has(rejection.code) ? rejection.code : "unclassified";
   const metadata = { recordedErrorCode: code, cached: rejection?.cached === true, usageAvailable: result?.usageAvailable === true };
@@ -55,14 +57,14 @@ export function diagnoseRejectedRecord(value: unknown, targetAliases: string[], 
     if (data.length > 1024 * 1024) return { ...metadata, stage, outcome: "raw_payload_over_audit_limit", issues: [] as SafeSchemaIssue[] };
     try { data = JSON.parse(data); } catch { return { ...metadata, stage, outcome: "malformed_json", issues: [] as SafeSchemaIssue[] }; }
   }
-  const checked = partitionedExtractionWireSchemaForTargets(targetAliases, knownAliases).safeParse(data);
+  const checked = (transport === "fact_ledger_v1" ? factExtractionWireSchemaForTargets(targetAliases, knownAliases) : partitionedExtractionWireSchemaForTargets(targetAliases, knownAliases)).safeParse(data);
   return { ...metadata, stage, outcome: checked.success ? "wire_schema_valid_cause_unavailable" : "wire_schema_invalid", issues: checked.success ? [] : sanitizeSchemaIssues(checked.error.issues) };
 }
 
 export function assertRejectionAuditReport(value: unknown, name: string): asserts value is Report {
   const report = record(value), configuration = record(report?.configuration), dataset = record(report?.dataset), pair = record(report?.pair);
   const selection = Array.isArray(pair?.selection) ? pair.selection : [];
-  if (report?.name !== name || report.phase !== "after" || report.mode !== "live" || report.configurationStableDuringRun !== true || configuration?.extractionTransport !== "typed_fields_v2" || configuration.chunkFailurePolicy !== "retain_valid_chunks_v1" || dataset?.split !== "dev" || dataset.requestedDocuments !== PAIRED_COHORT.length || dataset.heldoutDocumentsRead !== 0 || dataset.heldoutModelCalls !== 0 || JSON.stringify(selection.map(document => record(document)?.id)) !== JSON.stringify(PAIRED_COHORT)) throw new Error("A finalized, stable typed-fields-v2 retention report for the fixed development cohort is required.");
+  if (report?.name !== name || report.phase !== "after" || report.mode !== "live" || report.configurationStableDuringRun !== true || !["typed_fields_v2", "fact_ledger_v1"].includes(String(configuration?.extractionTransport)) || configuration?.chunkFailurePolicy !== "retain_valid_chunks_v1" || dataset?.split !== "dev" || dataset.requestedDocuments !== PAIRED_COHORT.length || dataset.heldoutDocumentsRead !== 0 || dataset.heldoutModelCalls !== 0 || JSON.stringify(selection.map(document => record(document)?.id)) !== JSON.stringify(PAIRED_COHORT)) throw new Error("A finalized, stable supported-transport retention report for the fixed development cohort is required.");
 }
 async function readExact(filename: string, maximumBytes = 2 * 1024 * 1024): Promise<Buffer> {
   if (await realpath(filename) !== filename) throw new Error("Audit inputs must not redirect outside their fixed paths.");
@@ -78,7 +80,8 @@ export async function auditDevelopmentRejections(name: string, root = process.cw
   try { reportBytes = await readExact(reportPath); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") throw new Error("The after report is not finalized. This audit stops without polling."); throw error; }
   let report: unknown; try { report = JSON.parse(reportBytes.toString("utf8")); } catch { throw new Error("The finalized report is not valid JSON."); }
   assertRejectionAuditReport(report, name);
-  if ((await fingerprint(root, "retain_valid_chunks_v1", "typed_fields_v2")).sha256 !== report.configuration.sha256) throw new Error("Current source/runtime differs from the finalized report. Restore the recorded configuration before this audit.");
+  const transport = report.configuration.extractionTransport as "typed_fields_v2" | "fact_ledger_v1";
+  if ((await fingerprint(root, "retain_valid_chunks_v1", transport)).sha256 !== report.configuration.sha256) throw new Error("Current source/runtime differs from the finalized report. Restore the recorded configuration before this audit.");
   const manifest = await readDevelopmentManifest(root);
   const captured = new Map<string, { documentId: string; section: number; targetAliases: string[]; knownAliases: string[] }>();
   for (const id of PAIRED_COHORT) {
@@ -87,7 +90,7 @@ export async function auditDevelopmentRejections(name: string, root = process.cw
     const parsed = await parseDocument({ documentId: id, filename: path.basename(fixture.path), bytes: await sourceFile(root, fixture) });
     let count = 0;
     const request = async (original: AIRequest): Promise<never> => {
-      if (original.transport !== "quotation-v7") throw new Error("The captured request is not the recorded partitioned transport.");
+      if (original.transport !== (transport === "fact_ledger_v1" ? "quotation-v8" : "quotation-v7")) throw new Error("The captured request is not the recorded transport.");
       const key = sha(JSON.stringify({ version: PROMPT_VERSION, model: report.configuration.model, request: original }));
       const wire = compactExtractionRequest(original).request;
       const body = JSON.parse(wire.user) as { section: number; sources: { id: string }[]; context?: { id: string }[] };
@@ -97,7 +100,7 @@ export async function auditDevelopmentRejections(name: string, root = process.cw
       // successful fake output, provider request or checkpoint is created.
       throw new AIInterpretationError(new ProcessingError("invalid_output", "Injected audit request capture; no provider call."), { data: null, model: "INJECTED-AUDIT-NO-PROVIDER", inputTokens: 0, outputTokens: 0, elapsedMs: 0, costUsd: null, usageAvailable: false }, false);
     };
-    try { await extractQuotation(parsed, { request, extractionTransport: "typed_fields_v2", chunkFailurePolicy: "retain_valid_chunks_v1" }); throw new Error("Audit capture unexpectedly returned an interpretation."); }
+    try { await extractQuotation(parsed, { request, extractionTransport: transport, chunkFailurePolicy: "retain_valid_chunks_v1" }); throw new Error("Audit capture unexpectedly returned an interpretation."); }
     catch (error) { if (!(error instanceof ProcessingError) || error.code !== "invalid_output") throw error; }
     if (count !== extractionChunks(parsed).length) throw new Error("Audit capture did not traverse every planned request.");
   }
@@ -114,12 +117,12 @@ export async function auditDevelopmentRejections(name: string, root = process.cw
     let value: unknown;
     try { value = JSON.parse(bytes.toString("utf8")); }
     catch { rejections.push({ documentId: request.documentId, section: request.section, requestSha256: match[1], rejectionSha256: sha(bytes), stage: "unavailable", outcome: "record_malformed_json", issues: [] as SafeSchemaIssue[] }); continue; }
-    rejections.push({ documentId: request.documentId, section: request.section, requestSha256: match[1], rejectionSha256: sha(bytes), ...diagnoseRejectedRecord(value, request.targetAliases, request.knownAliases) });
+    rejections.push({ documentId: request.documentId, section: request.section, requestSha256: match[1], rejectionSha256: sha(bytes), ...diagnoseRejectedRecord(value, request.targetAliases, request.knownAliases, transport) });
   }
-  if ((await fingerprint(root, "retain_valid_chunks_v1", "typed_fields_v2")).sha256 !== report.configuration.sha256) throw new Error("Configuration changed during the offline audit; no result was written.");
+  if ((await fingerprint(root, "retain_valid_chunks_v1", transport)).sha256 !== report.configuration.sha256) throw new Error("Configuration changed during the offline audit; no result was written.");
   const counts = (key: "stage" | "outcome") => Object.fromEntries([...new Set(rejections.map(rejection => rejection[key]))].sort().map(value => [value, rejections.filter(rejection => rejection[key] === value).length]));
   const audit = { version: 1, name, auditedAt: new Date().toISOString(), reportSha256: sha(reportBytes), auditCodeSha256: sha(await readFile(fileURLToPath(import.meta.url))), configurationHash: report.configuration.sha256, providerCalls: 0, acceptedOutputs: 0, checkpointWrites: 0, heldoutReads: 0, capturedRequests: captured.size, rejectedRecords: rejections.length, providerRequestSchemaRejectedDocuments: report.measurements.filter(document => document.schemaDiagnostic).length, countsByStage: counts("stage"), countsByOutcome: counts("outcome"), rejections,
-    limitations: ["Saved raw bodies are checked against the reconstructed partitioned wire schema; this does not accept, repair or replay an extraction.", "A locally wire-valid response can still fail state, normalization, source-evidence or business validation; its specific cause is unavailable here.", "Domain-stage records are already expanded and are not misvalidated as raw wire responses. Their recorded error category is retained; detailed cause is unavailable.", "Provider schema rejection means the provider rejected generated output; request-schema rejection documents are counted separately from the finalized report.", "Issue messages, received values, source aliases, citations and arbitrary unknown-key names are never published. Known structural names and bounded indices are allowed.", "Diagnostics are limited to 100 issues per record, four nested union levels, 24 path components and 30 unknown-key names per issue; they are not exhaustive.", "Records include cached rejections if present and need not equal fresh provider attempts. This audit does not remeasure usage or extraction accuracy."] };
+    limitations: ["Saved raw bodies are checked against the reconstructed recorded wire schema; this does not accept, repair or replay an extraction.", "A locally wire-valid response can still fail state, normalization, source-evidence or business validation; its specific cause is unavailable here.", "Domain-stage records are already expanded and are not misvalidated as raw wire responses. Their recorded error category is retained; detailed cause is unavailable.", "Provider schema rejection means the provider rejected generated output; request-schema rejection documents are counted separately from the finalized report.", "Issue messages, received values, source aliases, citations and arbitrary unknown-key names are never published. Known structural names and bounded indices are allowed.", "Diagnostics are limited to 100 issues per record, four nested union levels, 24 path components and 30 unknown-key names per issue; they are not exhaustive.", "Records include cached rejections if present and need not equal fresh provider attempts. This audit does not remeasure usage or extraction accuracy."] };
   await writeImmutableJson(path.join(directory, "rejection-audit.json"), audit);
   await writeFile(path.join(directory, "rejection-audit.md"), `# Offline rejection audit\n\nReport SHA-256: \`${audit.reportSha256}\`. Audit code SHA-256: \`${audit.auditCodeSha256}\`. No model calls, accepted outputs, checkpoint writes or held-out reads.\n\n${audit.rejectedRecords} saved rejection records matched ${audit.capturedRequests} reconstructed requests.\n\n| Outcome | Records |\n|---|---:|\n${Object.entries(audit.countsByOutcome).map(([outcome, count]) => `| ${outcome} | ${count} |`).join("\n")}\n\n${audit.limitations.map(limitation => `- ${limitation}`).join("\n")}\n\n[Sanitized diagnostic JSON](rejection-audit.json).\n`, { flag: "wx" });
   return audit;

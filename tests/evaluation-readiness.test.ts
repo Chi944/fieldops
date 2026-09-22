@@ -16,12 +16,28 @@ function fixture() {
 }
 function missingShippingFixture() {
   const result = fixture();
-  const source = { ...structuredClone(result.parsed.sources[0]), id: "shipping-source", text: "Shipping not stated", box: { x: 40, y: 120, width: 250, height: 20 } };
+  const source = { ...structuredClone(result.parsed.sources[0]), id: "shipping-source", text: "Currency USD; Shipping not stated", box: { x: 40, y: 120, width: 250, height: 20 } };
   result.parsed.sources.push(source); result.actual.sources = structuredClone(result.parsed.sources);
-  result.expected.quotation.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: absent(), currency: absent() }];
+  result.expected.quotation.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: absent(), currency: field("USD", [source.id]) }];
   result.expected.fields.push({ path: "charges.0.amount", state: "not_stated", value: null, critical: true, sourceKey: "shipping" });
   result.expected.fieldLocations["charges.0.amount"] = [structuredClone(source)];
   return { ...result, source };
+}
+function statedChargesFixture() {
+  const result = fixture();
+  const amounts = ["10", "5"], kinds = ["shipping", "tax"] as const;
+  result.expected.quotation.charges = kinds.map((kind, index) => {
+    const source = { ...structuredClone(result.parsed.sources[0]), id: `parser-${kind}`, text: `${kind} USD ${amounts[index]}`, box: { x: 40, y: 120 + index * 40, width: 250, height: 20 } };
+    // Gold and parser source IDs deliberately differ; recorded locations align.
+    const goldSource = { ...structuredClone(source), id: `gold-${kind}` };
+    result.parsed.sources.push(source); result.expected.quotation.sources.push(goldSource);
+    result.expected.fields.push({ path: `charges.${index}.amount`, state: "value", value: amounts[index], critical: true, sourceKey: kind });
+    result.expected.fieldLocations[`charges.${index}.amount`] = [goldSource];
+    return { id: `gold-${kind}`, kind, label: kind, appliesTo: "quotation", amount: field(amounts[index], [goldSource.id]), currency: field("USD", [goldSource.id]) };
+  });
+  result.actual.sources = structuredClone(result.parsed.sources);
+  result.actual.charges = [...result.expected.quotation.charges].reverse().map(charge => ({ ...structuredClone(charge), id: `actual-${charge.kind}`, amount: field(charge.amount.value!, [`parser-${charge.kind}`]), currency: field("USD", [`parser-${charge.kind}`]) }));
+  return result;
 }
 describe("separate fixed-denominator extraction readiness audit", () => {
   it("passes correct annotated items with preserved precise sources", () => {
@@ -53,19 +69,21 @@ describe("separate fixed-denominator extraction readiness audit", () => {
   });
   it("rejects a source-linked invented shipping amount even when every stated critical field is correct", () => {
     const { expected, actual, parsed, source } = missingShippingFixture();
-    actual.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: field("10", [source.id]), currency: absent() }];
+    actual.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: field("10", [source.id]), currency: field("USD", [source.id]) }];
     const result = auditExtractionReadiness(expected, actual, parsed);
     expect(result.evidenceBackedCriticalStatedFields.value).toBe(1);
     expect(result.correctCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 });
     expect(result.passesSelectedAnnotationGate).toBe(false);
   });
-  it("does not backfill missing containers and reports matching not-stated assertions as unverified", () => {
+  it("does not backfill missing containers or use source-free not-stated amounts as charge identity", () => {
     const { expected, actual, parsed } = missingShippingFixture();
     const missing = auditExtractionReadiness(expected, actual, parsed);
     expect(actual.charges).toEqual([]); expect(missing.correctCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 }); expect(missing.passesSelectedAnnotationGate).toBe(false);
     actual.charges = structuredClone(expected.quotation.charges);
     const defaultState = auditExtractionReadiness(expected, actual, parsed);
-    expect(defaultState.correctCriticalNonValueStates).toMatchObject({ numerator: 1, denominator: 1 }); expect(defaultState.sourceLinkedCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 }); expect(defaultState.unverifiedCriticalNonValueStates).toBe(1); expect(defaultState.passesSelectedAnnotationGate).toBe(true);
+    expect(defaultState.correctCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 }); expect(defaultState.sourceLinkedCriticalNonValueStates).toMatchObject({ numerator: 0, denominator: 1 }); expect(defaultState.chargeAlignment.coverage).toMatchObject({ numerator: 0, denominator: 1 }); expect(defaultState.passesSelectedAnnotationGate).toBe(false);
+    expect(defaultState.chargeAlignment.entries[0].reason).toBe("missing_or_invalid_evidence");
+    expect(defaultState.limitations.join(" ")).toContain("Source-free not-stated charges intentionally remain unresolved");
   });
   it("does not mistake another kind of charge's not-stated amount for the expected shipping state", () => {
     const { expected, actual, parsed } = missingShippingFixture();
@@ -78,15 +96,50 @@ describe("separate fixed-denominator extraction readiness audit", () => {
     const { expected, actual, parsed } = fixture();
     const source = { ...structuredClone(parsed.sources[0]), id: "summary", text: "Shipping 10; tax 10", box: { x: 40, y: 120, width: 250, height: 20 } };
     parsed.sources.push(source); actual.sources = structuredClone(parsed.sources);
-    expected.quotation.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: field("10", [source.id]), currency: absent() }];
+    expected.quotation.charges = [{ id: "shipping", kind: "shipping", label: "Shipping", appliesTo: "quotation", amount: field("10", [source.id]), currency: field("USD", [source.id]) }];
     expected.fields.push({ path: "charges.0.amount", state: "value", value: "10", critical: true, sourceKey: "shipping" });
     expected.fieldLocations["charges.0.amount"] = [structuredClone(source)];
-    actual.charges = [{ id: "tax", kind: "tax", label: "Tax", appliesTo: "quotation", amount: field("10", [source.id]), currency: absent() }];
+    actual.charges = [{ id: "tax", kind: "tax", label: "Tax", appliesTo: "quotation", amount: field("10", [source.id]), currency: field("USD", [source.id]) }];
     expect(scoreExtraction(expected, actual, parsed).criticalFieldAccuracy).toMatchObject({ numerator: 5, denominator: 5 });
     const result = auditExtractionReadiness(expected, actual, parsed);
-    expect(result.version).toBe("fieldops-readiness-3");
+    expect(result.version).toBe("fieldops-readiness-4");
     expect(result.correctCriticalStatedFields).toMatchObject({ numerator: 4, denominator: 5 });
     expect(result.evidenceBackedCriticalStatedFields).toMatchObject({ numerator: 4, denominator: 5 });
     expect(result.passesSelectedAnnotationGate).toBe(false);
+  });
+  it("scores reordered charges by commercial context and location while preserving historical positional metrics", () => {
+    const { expected, actual, parsed } = statedChargesFixture();
+    const historical = scoreExtraction(expected, actual, parsed);
+    expect(historical.criticalFieldAccuracy).toMatchObject({ numerator: 4, denominator: 6 });
+    const result = auditExtractionReadiness(expected, actual, parsed);
+    expect(result.chargeAlignment.mappedChargeIndices).toEqual({ "0": 1, "1": 0 });
+    expect(result.correctCriticalStatedFields).toMatchObject({ numerator: 6, denominator: 6 });
+    expect(result.evidenceBackedCriticalStatedFields).toMatchObject({ numerator: 6, denominator: 6 });
+    expect(result.passesSelectedAnnotationGate).toBe(true);
+    expect(scoreExtraction(expected, actual, parsed)).toEqual(historical);
+  });
+  it.each(["scope", "currency", "billing period"] as const)("rejects a numerically correct charge with conflicting %s and keeps its critical denominator", conflict => {
+    const { expected, actual, parsed } = statedChargesFixture();
+    const shipping = actual.charges.find(charge => charge.kind === "shipping")!;
+    if (conflict === "scope") { shipping.appliesTo = "item"; shipping.itemId = actual.items[0].id; }
+    if (conflict === "currency") shipping.currency.value = "EUR";
+    if (conflict === "billing period") shipping.billingPeriod = "monthly";
+    const result = auditExtractionReadiness(expected, actual, parsed);
+    expect(result.chargeAlignment.mappedChargeIndices).toEqual({ "1": 0 });
+    expect(result.correctCriticalStatedFields).toMatchObject({ numerator: 5, denominator: 6 });
+    expect(result.evidenceBackedCriticalStatedFields).toMatchObject({ numerator: 5, denominator: 6 });
+    expect(result.passesSelectedAnnotationGate).toBe(false);
+  });
+  it("uses the independent item mapping for item-scoped charges after item and charge IDs change", () => {
+    const { expected, actual, parsed } = statedChargesFixture();
+    expected.quotation.charges[0].appliesTo = "item"; expected.quotation.charges[0].itemId = "item";
+    actual.items[0].id = "extracted-item";
+    const shipping = actual.charges.find(charge => charge.kind === "shipping")!;
+    shipping.appliesTo = "item"; shipping.itemId = "extracted-item";
+    const result = auditExtractionReadiness(expected, actual, parsed);
+    expect(result.chargeAlignment.mappedChargeIndices).toEqual({ "0": 1, "1": 0 });
+    expect(result.passesSelectedAnnotationGate).toBe(true);
+    shipping.itemId = "unmatched-item";
+    expect(auditExtractionReadiness(expected, actual, parsed).passesSelectedAnnotationGate).toBe(false);
   });
 });

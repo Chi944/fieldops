@@ -16,7 +16,7 @@ import { ProviderSchemaError, type ProviderSchemaDiagnostic } from "../src/lib/a
 
 const digest = (value: string | Buffer) => createHash("sha256").update(value).digest("hex");
 const JSON_TEXT = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
-const FILES = ["package.json", "package-lock.json", "src/lib/ai/index.ts", "src/lib/ai/schema.ts", "src/lib/ai/groq.ts", "src/lib/ai/transport.ts", "src/lib/ai/typed-transport.ts", "src/lib/ai/provider-schema.ts", "src/lib/ai/completeness.ts", "src/lib/ai/chunks.ts", "src/lib/processing/index.ts", "src/lib/processing/ocr.ts", "src/lib/processing/errors.ts", "src/lib/domain/types.ts", "src/lib/domain/corrections.ts", "src/lib/domain/matching.ts", "src/lib/domain/calculate.ts", "src/lib/domain/numeric.ts", "src/lib/domain/billing.ts", "src/lib/domain/decisions.ts", "src/lib/domain/validation.ts", "eval/metrics.ts", "eval/readiness.ts", "eval/live-control.ts", "eval/development-control.ts", "scripts/evaluate-development.ts"];
+const FILES = ["package.json", "package-lock.json", "src/lib/ai/index.ts", "src/lib/ai/schema.ts", "src/lib/ai/groq.ts", "src/lib/ai/transport.ts", "src/lib/ai/typed-transport.ts", "src/lib/ai/provider-schema.ts", "src/lib/ai/completeness.ts", "src/lib/ai/chunks.ts", "src/lib/processing/index.ts", "src/lib/processing/ocr.ts", "src/lib/processing/errors.ts", "src/lib/domain/types.ts", "src/lib/domain/corrections.ts", "src/lib/domain/matching.ts", "src/lib/domain/calculate.ts", "src/lib/domain/numeric.ts", "src/lib/domain/billing.ts", "src/lib/domain/decisions.ts", "src/lib/domain/validation.ts", "eval/metrics.ts", "eval/readiness.ts", "eval/charge-alignment.ts", "eval/live-control.ts", "eval/development-control.ts", "scripts/evaluate-development.ts"];
 type DevelopmentManifest = { version: string; rights: string; verification: string; split: "dev"; documents: FixtureRecord[]; robustness: [] };
 export async function readDevelopmentManifest(root: string): Promise<DevelopmentManifest> {
   // This runner never opens the combined gold, held-out records, or robustness files.
@@ -57,7 +57,7 @@ export async function sourceFile(root: string, fixture: FixtureRecord): Promise<
 export async function fingerprint(root: string, chunkFailurePolicy: DevelopmentOptions["chunkFailurePolicy"] = "reject_document", extractionTransport: DevelopmentOptions["extractionTransport"] = "legacy_v5") {
   let ocrSha256: string | null = null;
   try { ocrSha256 = digest(await readFile(path.join(ocrDataDirectory(), "eng.traineddata.gz"))); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  const files = await Promise.all([...FILES, "src/lib/ai/partitioned-transport.ts", "src/lib/ai/provider-error.ts"].map(async file => ({ file, sha256: digest(await readFile(path.join(root, file))) })));
+  const files = await Promise.all([...FILES, "src/lib/ai/partitioned-transport.ts", "src/lib/ai/provider-error.ts", "src/lib/ai/fact-transport.ts"].map(async file => ({ file, sha256: digest(await readFile(path.join(root, file))) })));
   const identity = { promptVersion: PROMPT_VERSION, model: liveAIConfiguration().model, chunkFailurePolicy, extractionTransport, runtime: { node: process.version, platform: process.platform, architecture: process.arch, ocrSha256 }, files };
   return { ...identity, sha256: digest(JSON.stringify(identity)) };
 }
