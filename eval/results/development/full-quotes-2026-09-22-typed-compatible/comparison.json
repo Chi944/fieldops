@@ -1,0 +1,2412 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-22-typed-compatible",
+  "comparedAt": "2026-09-21T16:45:06.803Z",
+  "pair": {
+    "mode": "live",
+    "split": "dev",
+    "selection": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+        "goldSha256": "a940f84a663cdaf4ccf15151f6bc3e7e87d726c3f923b6f7bc94c56729798461"
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+        "goldSha256": "47c8fd33b9de153de91d9e17ad8cebae6628bcd8ff55c7174775c7c6d183a9c1"
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+        "goldSha256": "7cc472c8f2cdc9fa97bfe230722f8789d251be54bef96a93521d0fedf814b0f9"
+      }
+    ],
+    "limits": {
+      "maxRequests": 24,
+      "maxReservedTokens": 170000,
+      "maxWaitMs": 600000
+    },
+    "metricVersion": "fieldops-development-1",
+    "synthetic": true
+  },
+  "baselineReference": {
+    "name": "full-quotes-2026-09-21-v2",
+    "report": "eval/results/development/full-quotes-2026-09-21-v2/live-before.json",
+    "sha256": "f1f383809cf3ba9503ac659bfc8af5e687fc209506b59728b35c9ee6aedbe70a",
+    "configurationHash": "ecad31806bbce4e4c9a0d3b5b361aa277d14a602590f12accc1ec0f94bfb5d62",
+    "measuredAt": "2026-09-21T15:05:39.146Z",
+    "model": "openai/gpt-oss-120b"
+  },
+  "configurations": {
+    "before": "ecad31806bbce4e4c9a0d3b5b361aa277d14a602590f12accc1ec0f94bfb5d62",
+    "after": "a84b5f91a643a2cf202fbc9bcc5f9b0085d005fa5e8a668aa67c318c9e53697c",
+    "beforeModel": "openai/gpt-oss-120b",
+    "afterModel": "openai/gpt-oss-120b",
+    "beforeChunkFailurePolicy": "reject_document",
+    "afterChunkFailurePolicy": "retain_valid_chunks_v1",
+    "beforeExtractionTransport": "legacy_v5",
+    "afterExtractionTransport": "typed_fields_v1",
+    "changedFiles": [
+      "package.json",
+      "src/lib/ai/index.ts",
+      "src/lib/ai/schema.ts",
+      "src/lib/ai/groq.ts",
+      "src/lib/ai/transport.ts",
+      "src/lib/ai/typed-transport.ts",
+      "src/lib/ai/provider-schema.ts",
+      "src/lib/ai/completeness.ts",
+      "src/lib/ai/chunks.ts",
+      "src/lib/domain/types.ts",
+      "eval/readiness.ts",
+      "eval/development-control.ts",
+      "scripts/evaluate-development.ts"
+    ]
+  },
+  "readiness": {
+    "before": null,
+    "after": {
+      "passingDocuments": 0,
+      "requestedDocuments": 3,
+      "auditedOutputs": 0,
+      "correctCriticalFields": {
+        "numerator": 0,
+        "denominator": 129
+      },
+      "evidenceBackedCriticalFields": {
+        "numerator": 0,
+        "denominator": 129
+      },
+      "correctCriticalNonValueStates": {
+        "numerator": 0,
+        "denominator": 2
+      },
+      "sourceLinkedCriticalNonValueStates": {
+        "numerator": 0,
+        "denominator": 2
+      },
+      "completeExpectedItems": {
+        "numerator": 0,
+        "denominator": 18
+      },
+      "scope": "Separate selected-annotation quality gate; application complete/ready status and identifier-only row recall are insufficient. Rejected and unattempted documents do not pass and remain in the fixed quality denominators. Critical non-value states must agree without synthesizing absent containers; not_stated is absence of assertion, not verified absence. Source-linked non-value counts are separate diagnostics. No claim of unannotated semantic correctness or held-out reliability."
+    },
+    "scope": "New selected-annotation gate is unavailable for historical reports; never backfill an unmeasured pass."
+  },
+  "completion": {
+    "before": {
+      "completeDocuments": 0,
+      "partialDocuments": 0,
+      "rejectedDocuments": 3,
+      "parserFailures": 0,
+      "unattemptedDocuments": 0,
+      "halted": null
+    },
+    "after": {
+      "completeDocuments": 0,
+      "partialDocuments": 0,
+      "rejectedDocuments": 3,
+      "parserFailures": 0,
+      "unattemptedDocuments": 0,
+      "halted": null
+    },
+    "requestedDocuments": 3
+  },
+  "metrics": [
+    {
+      "key": "statedFieldAccuracy",
+      "before": {
+        "numerator": 0,
+        "denominator": 138,
+        "value": 0
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 138,
+        "value": 0
+      },
+      "percentagePointChange": 0
+    },
+    {
+      "key": "criticalFieldAccuracy",
+      "before": {
+        "numerator": 0,
+        "denominator": 129,
+        "value": 0
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 129,
+        "value": 0
+      },
+      "percentagePointChange": 0
+    },
+    {
+      "key": "annotatedMissingStateAccuracy",
+      "before": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "percentagePointChange": 0
+    },
+    {
+      "key": "lineItemPrecision",
+      "before": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "percentagePointChange": null
+    },
+    {
+      "key": "lineItemRecall",
+      "before": {
+        "numerator": 0,
+        "denominator": 18,
+        "value": 0
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 18,
+        "value": 0
+      },
+      "percentagePointChange": 0
+    },
+    {
+      "key": "annotatedReviewSignalRecall",
+      "before": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 2,
+        "value": 0
+      },
+      "percentagePointChange": 0
+    },
+    {
+      "key": "sourceReferenceResolvability",
+      "before": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "percentagePointChange": null
+    },
+    {
+      "key": "correctFieldLocationAgreement",
+      "before": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "after": {
+        "numerator": 0,
+        "denominator": 0,
+        "value": null
+      },
+      "percentagePointChange": null
+    }
+  ],
+  "documents": [
+    {
+      "id": "industrial-1",
+      "before": {
+        "id": "industrial-1",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 2,
+          "parsedUnits": 2,
+          "sourceCount": 40,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 40,
+            "denominator": 40,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 40,
+            "denominator": 40,
+            "value": 1
+          }
+        },
+        "parserElapsedMs": 916.5053,
+        "errorCode": "invalid_output",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 46,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 43,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Alder Industrial supplies",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "INDUSTRIAL-1-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.identifier",
+              "expected": "INDUSTRIAL-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.quantity",
+              "expected": "200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.unitPrice",
+              "expected": "0.18",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.lineAmount",
+              "expected": "36.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.identifier",
+              "expected": "INDUSTRIAL-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.quantity",
+              "expected": "3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.unit",
+              "expected": "pack",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.unitPrice",
+              "expected": "24.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.lineAmount",
+              "expected": "72.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.packageSize",
+              "expected": "10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.packageUnit",
+              "expected": "pair",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.identifier",
+              "expected": "INDUSTRIAL-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.quantity",
+              "expected": "5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.unit",
+              "expected": "l",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.unitPrice",
+              "expected": "12.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.lineAmount",
+              "expected": "62.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.identifier",
+              "expected": "INDUSTRIAL-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.quantity",
+              "expected": "2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.unitPrice",
+              "expected": "34.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.lineAmount",
+              "expected": "69.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.identifier",
+              "expected": "INDUSTRIAL-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.quantity",
+              "expected": "2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.unitPrice",
+              "expected": "80.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.lineAmount",
+              "expected": "160.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.identifier",
+              "expected": "INDUSTRIAL-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.unitPrice",
+              "expected": "140.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.lineAmount",
+              "expected": "140.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "539.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "615.31",
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 66715.78640000001
+      },
+      "after": {
+        "id": "industrial-1",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 2,
+          "parsedUnits": 2,
+          "sourceCount": 40,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 40,
+            "denominator": 40,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 40,
+            "denominator": 40,
+            "value": 1
+          }
+        },
+        "parserElapsedMs": 776.1724999999999,
+        "errorCode": "model_error",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 46,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 43,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Alder Industrial supplies",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "INDUSTRIAL-1-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.identifier",
+              "expected": "INDUSTRIAL-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.quantity",
+              "expected": "200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.unitPrice",
+              "expected": "0.18",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.lineAmount",
+              "expected": "36.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.identifier",
+              "expected": "INDUSTRIAL-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.quantity",
+              "expected": "3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.unit",
+              "expected": "pack",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.unitPrice",
+              "expected": "24.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.lineAmount",
+              "expected": "72.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.packageSize",
+              "expected": "10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-2.packageUnit",
+              "expected": "pair",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.identifier",
+              "expected": "INDUSTRIAL-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.quantity",
+              "expected": "5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.unit",
+              "expected": "l",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.unitPrice",
+              "expected": "12.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.lineAmount",
+              "expected": "62.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.identifier",
+              "expected": "INDUSTRIAL-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.quantity",
+              "expected": "2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.unitPrice",
+              "expected": "34.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.lineAmount",
+              "expected": "69.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.identifier",
+              "expected": "INDUSTRIAL-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.quantity",
+              "expected": "2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.unitPrice",
+              "expected": "80.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.lineAmount",
+              "expected": "160.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-5.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.identifier",
+              "expected": "INDUSTRIAL-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.unitPrice",
+              "expected": "140.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.lineAmount",
+              "expected": "140.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.industrial-1-line-6.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "539.50",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "615.31",
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 291.0652
+      }
+    },
+    {
+      "id": "translation-2",
+      "before": {
+        "id": "translation-2",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 1,
+          "parsedUnits": 1,
+          "sourceCount": 32,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 32,
+            "denominator": 32,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          }
+        },
+        "parserElapsedMs": 0.5858999999909429,
+        "errorCode": "invalid_output",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 48,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 45,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Beacon Translation services",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "TRANSLATION-2-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.identifier",
+              "expected": "TRANSLATION-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.quantity",
+              "expected": "1200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.unit",
+              "expected": "word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.unitPrice",
+              "expected": "0.11",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.lineAmount",
+              "expected": "132.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.billingBasis",
+              "expected": "per_word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.identifier",
+              "expected": "TRANSLATION-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.quantity",
+              "expected": "1200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.unit",
+              "expected": "word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.unitPrice",
+              "expected": "0.04",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.lineAmount",
+              "expected": "48.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.billingBasis",
+              "expected": "per_word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.identifier",
+              "expected": "TRANSLATION-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.unitPrice",
+              "expected": "32.90",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.lineAmount",
+              "expected": "131.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.identifier",
+              "expected": "TRANSLATION-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.unitPrice",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.lineAmount",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.identifier",
+              "expected": "TRANSLATION-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.unitPrice",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.lineAmount",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.identifier",
+              "expected": "TRANSLATION-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.unit",
+              "expected": "account",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.unitPrice",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.lineAmount",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.billingBasis",
+              "expected": "monthly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "621.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "677.76",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "charges.0.amount",
+              "expected": null,
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 63532.07950000001
+      },
+      "after": {
+        "id": "translation-2",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 1,
+          "parsedUnits": 1,
+          "sourceCount": 32,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 32,
+            "denominator": 32,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          }
+        },
+        "parserElapsedMs": 0.41820000000006985,
+        "errorCode": "model_error",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 48,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 45,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Beacon Translation services",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "TRANSLATION-2-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.identifier",
+              "expected": "TRANSLATION-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.quantity",
+              "expected": "1200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.unit",
+              "expected": "word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.unitPrice",
+              "expected": "0.11",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.lineAmount",
+              "expected": "132.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-1.billingBasis",
+              "expected": "per_word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.identifier",
+              "expected": "TRANSLATION-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.quantity",
+              "expected": "1200",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.unit",
+              "expected": "word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.unitPrice",
+              "expected": "0.04",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.lineAmount",
+              "expected": "48.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-2.billingBasis",
+              "expected": "per_word",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.identifier",
+              "expected": "TRANSLATION-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.unitPrice",
+              "expected": "32.90",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.lineAmount",
+              "expected": "131.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-3.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.identifier",
+              "expected": "TRANSLATION-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.unitPrice",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.lineAmount",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-4.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.identifier",
+              "expected": "TRANSLATION-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.unit",
+              "expected": "project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.unitPrice",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.lineAmount",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-5.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.identifier",
+              "expected": "TRANSLATION-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.quantity",
+              "expected": "1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.unit",
+              "expected": "account",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.unitPrice",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.lineAmount",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.translation-2-line-6.billingBasis",
+              "expected": "monthly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "621.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "677.76",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "charges.0.amount",
+              "expected": null,
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 60188.8164
+      }
+    },
+    {
+      "id": "office-2",
+      "before": {
+        "id": "office-2",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 1,
+          "parsedUnits": 1,
+          "sourceCount": 27,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 27,
+            "denominator": 27,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          }
+        },
+        "parserElapsedMs": 13.96820000000298,
+        "errorCode": "invalid_evidence",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 44,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 41,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Beacon Office IT",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "OFFICE-2-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.identifier",
+              "expected": "OFFICE-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.unitPrice",
+              "expected": "206.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.lineAmount",
+              "expected": "827.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.identifier",
+              "expected": "OFFICE-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.quantity",
+              "expected": "10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.unitPrice",
+              "expected": "11.28",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.lineAmount",
+              "expected": "112.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.identifier",
+              "expected": "OFFICE-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.unitPrice",
+              "expected": "42.30",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.lineAmount",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.identifier",
+              "expected": "OFFICE-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.quantity",
+              "expected": "100",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.unit",
+              "expected": "m",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.unitPrice",
+              "expected": "1.13",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.lineAmount",
+              "expected": "113.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.identifier",
+              "expected": "OFFICE-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.unit",
+              "expected": "device",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.unitPrice",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.lineAmount",
+              "expected": "338.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.identifier",
+              "expected": "OFFICE-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.quantity",
+              "expected": "6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.unitPrice",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.lineAmount",
+              "expected": "338.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "1899.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "2069.91",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "charges.0.amount",
+              "expected": null,
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 63323.759699999995
+      },
+      "after": {
+        "id": "office-2",
+        "status": "rejected",
+        "parser": {
+          "complete": true,
+          "units": 1,
+          "parsedUnits": 1,
+          "sourceCount": 27,
+          "itemIdentifierCoverage": {
+            "numerator": 6,
+            "denominator": 6,
+            "value": 1
+          },
+          "sourceLocationsPresent": {
+            "numerator": 27,
+            "denominator": 27,
+            "value": 1
+          },
+          "boxesWithinPage": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          }
+        },
+        "parserElapsedMs": 23.86200000000099,
+        "errorCode": "model_error",
+        "score": {
+          "statedFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 44,
+            "value": 0
+          },
+          "criticalFieldAccuracy": {
+            "numerator": 0,
+            "denominator": 41,
+            "value": 0
+          },
+          "annotatedMissingStateAccuracy": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "lineItemPrecision": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "lineItemRecall": {
+            "numerator": 0,
+            "denominator": 6,
+            "value": 0
+          },
+          "annotatedReviewSignalRecall": {
+            "numerator": 0,
+            "denominator": 1,
+            "value": 0
+          },
+          "sourceReferenceResolvability": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "correctFieldLocationAgreement": {
+            "numerator": 0,
+            "denominator": 0,
+            "value": null
+          },
+          "failures": [
+            {
+              "path": "supplier.name",
+              "expected": "Beacon Office IT",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "quotationNumber",
+              "expected": "OFFICE-2-26",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "date",
+              "expected": "2026-09-10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.identifier",
+              "expected": "OFFICE-1",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.unitPrice",
+              "expected": "206.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.lineAmount",
+              "expected": "827.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-1.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.identifier",
+              "expected": "OFFICE-2",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.quantity",
+              "expected": "10",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.unitPrice",
+              "expected": "11.28",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.lineAmount",
+              "expected": "112.80",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-2.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.identifier",
+              "expected": "OFFICE-3",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.unit",
+              "expected": "each",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.unitPrice",
+              "expected": "42.30",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.lineAmount",
+              "expected": "169.20",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-3.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.identifier",
+              "expected": "OFFICE-4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.quantity",
+              "expected": "100",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.unit",
+              "expected": "m",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.unitPrice",
+              "expected": "1.13",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.lineAmount",
+              "expected": "113.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-4.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.identifier",
+              "expected": "OFFICE-5",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.quantity",
+              "expected": "4",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.unit",
+              "expected": "device",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.unitPrice",
+              "expected": "84.60",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.lineAmount",
+              "expected": "338.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-5.billingBasis",
+              "expected": "fixed_project",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.identifier",
+              "expected": "OFFICE-6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.quantity",
+              "expected": "6",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.unit",
+              "expected": "hour",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.unitPrice",
+              "expected": "56.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.lineAmount",
+              "expected": "338.40",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.currency",
+              "expected": "SGD",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "items.office-2-line-6.billingBasis",
+              "expected": "hourly",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedSubtotal",
+              "expected": "1899.00",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "statedTotal",
+              "expected": "2069.91",
+              "actual": null,
+              "state": "no_accepted_output"
+            },
+            {
+              "path": "charges.0.amount",
+              "expected": null,
+              "actual": null,
+              "state": "no_accepted_output"
+            }
+          ],
+          "mappedItems": {}
+        },
+        "extractionElapsedMs": 60151.04029999999
+      }
+    }
+  ],
+  "observedUsage": {
+    "before": {
+      "dispatches": 4,
+      "reservedAttemptSlots": 8,
+      "reservedTokens": 55220,
+      "waitedMs": 179968,
+      "returnedResponses": 4,
+      "responsesWithoutUsage": 0,
+      "inputTokens": 10173,
+      "outputTokens": 4903,
+      "responseElapsedMs": 13164,
+      "failures": 2,
+      "rejections": 3,
+      "providerInvoiceUsd": null,
+      "scope": "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown."
+    },
+    "after": {
+      "dispatches": 3,
+      "reservedAttemptSlots": 6,
+      "reservedTokens": 42398,
+      "waitedMs": 119959,
+      "returnedResponses": 0,
+      "responsesWithoutUsage": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "responseElapsedMs": 0,
+      "failures": 3,
+      "rejections": 0,
+      "providerInvoiceUsd": null,
+      "scope": "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown."
+    }
+  },
+  "missingStateAudit": {
+    "before": null,
+    "after": {
+      "unsourcedMatchingStates": 0,
+      "scope": "Historical missing-state scoring is unchanged. A matching not-stated/not-applicable/ambiguous default without source evidence is not verified absence, especially after rejected sections. Inspect this diagnostic separately from accuracy."
+    }
+  },
+  "elapsedMs": {
+    "before": 194524.4256,
+    "after": 121446.5891
+  },
+  "limitations": [
+    "Adaptive development comparison of the same small synthetic cohort; no held-out measurement or causal guarantee.",
+    "Inspect all changed configuration files, including any harness changes, before attributing a difference to the model implementation.",
+    "Document acceptance, partial output and correctness are separate. Rejected attempts retain zero recall credit; unattempted documents remain explicit.",
+    "Precision/source denominators depend on returned output; unavailable denominators have no numeric improvement score.",
+    "Elapsed time includes deliberate quota pacing and cannot establish production latency. Usage totals exclude unavailable response usage; no provider invoice is measured.",
+    "The separate interrupted harness preflight is excluded from both phases and their metrics."
+  ]
+}

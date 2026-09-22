@@ -1,9 +1,15 @@
 import { createHash } from "node:crypto";
-import { extractionWireSchema, expandExtraction } from "./transport";
+import { extractionWireSchemaForTargets, expandExtraction } from "./transport";
+import { typedExtractionWireSchemaForTargets, expandTypedExtraction } from "./typed-transport";
+import { partitionedExtractionWireSchemaForTargets, expandPartitionedExtraction } from "./partitioned-transport";
+import { typedProviderSchema } from "./provider-schema";
+import { providerSchemaDiagnostic, ProviderSchemaError } from "./provider-error";
 import { strictSchema } from "./schema";
 import { AIUnavailableError, ProcessingError, bounded, checkCancelled, type ProcessingErrorCode, type ProgressOptions } from "../processing/errors";
 
-export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4"; }
+export type ChunkFailurePolicy = "reject_document" | "retain_valid_chunks_v1";
+export type ExtractionTransport = "legacy_v5" | "typed_fields_v1" | "typed_fields_v2";
+export interface AIRequest { purpose: "extraction" | "matching" | "explanation"; schema: Record<string, unknown>; system: string; user: string; maxOutputTokens: number; transport?: "quotation-v4" | "quotation-v5" | "quotation-v6" | "quotation-v7"; chunkFailurePolicy?: ChunkFailurePolicy; }
 export interface AIResult { data: unknown; model: string; inputTokens: number; outputTokens: number; elapsedMs: number; costUsd: string | null; finishReason?: string; usageAvailable?: boolean; contentCharacters?: number; reasoningCharacters?: number; rejectedAt?: "transport"; providerError?: { code: string; message: string | null }; }
 export type AIRequestFunction = (request: AIRequest, options?: { signal?: AbortSignal }) => Promise<AIResult>;
 export interface AICheckpoint {
@@ -12,9 +18,9 @@ export interface AICheckpoint {
   /** Optional private rejection journal. Never expose result.data in application logs. */
   reject?(key: string, result: AIResult, errorCode: ProcessingErrorCode, context?: { cached: boolean }): Promise<void>;
 }
-export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; }
+export interface AIOptions extends ProgressOptions { request?: AIRequestFunction; checkpoint?: AICheckpoint; extractionVersion?: number; chunkFailurePolicy?: ChunkFailurePolicy; extractionTransport?: ExtractionTransport; }
 export const DEFAULT_MODEL = "openai/gpt-oss-120b";
-export const PROMPT_VERSION = "fieldops-extraction-5";
+export const PROMPT_VERSION = "fieldops-extraction-6";
 const MODELS = new Set([DEFAULT_MODEL, "openai/gpt-oss-20b"]);
 // One request at a time. Provider quota remains authoritative across deployed workers.
 let pending: Promise<unknown> = Promise.resolve();
@@ -32,7 +38,21 @@ export function requireLiveAI(): void { const configuration = liveAIConfiguratio
 
 class RejectedResponse extends ProcessingError {
   readonly result: AIResult;
-  constructor(message: string, result: AIResult, retryable = false) { super("invalid_output", message, retryable); this.result = { ...result, rejectedAt: "transport" }; }
+  constructor(message: string, result: AIResult, retryable = false, code: ProcessingErrorCode = "invalid_output") { super(code, message, retryable); this.result = { ...result, rejectedAt: "transport" }; }
+}
+
+export type RejectedAIUsage = Pick<AIResult, "inputTokens" | "outputTokens" | "elapsedMs" | "costUsd" | "usageAvailable"> & { cached: boolean };
+/** Only response validation emits this marker; repository failures remain operational.
+ * No response data, quotation text or source identifiers escape in its metadata. */
+export class AIInterpretationError extends ProcessingError {
+  readonly usage: RejectedAIUsage;
+  constructor(error: ProcessingError, result: AIResult, cached: boolean) {
+    super(error.code, error.message, error.retryable, error.retryAfterMs);
+    this.usage = { inputTokens: result.inputTokens, outputTokens: result.outputTokens, elapsedMs: result.elapsedMs, costUsd: result.costUsd, usageAvailable: result.usageAvailable === true, cached };
+  }
+}
+function interpretationFailure(error: unknown, result: AIResult, cached: boolean): unknown {
+  return error instanceof ProcessingError && ["invalid_output", "invalid_evidence"].includes(error.code) ? new AIInterpretationError(error, result, cached) : error;
 }
 
 export async function requestAI<T = AIResult>(request: AIRequest, options: AIOptions = {}, validate?: (result: AIResult) => T | Promise<T>): Promise<T> {
@@ -64,14 +84,14 @@ export async function requestAI<T = AIResult>(request: AIRequest, options: AIOpt
     if (error instanceof RejectedResponse) {
       await reject(error.result, error, false);
       // Keep private response contents inside the rejection hook, not the public error.
-      throw new ProcessingError(error.code, error.message, error.retryable);
+      throw interpretationFailure(new ProcessingError(error.code, error.message, error.retryable), error.result, false);
     }
     throw error;
   }
   checkCancelled(options.signal);
   let value: T;
   try { value = validate ? await validate(result) : result as T; }
-  catch (error) { await reject(result, error, false); throw error; }
+  catch (error) { await reject(result, error, false); throw interpretationFailure(error, result, false); }
   checkCancelled(options.signal);
   await checkpoint?.set(key, result);
   return value;
@@ -105,9 +125,15 @@ export function compactExtractionRequest(request: AIRequest): { request: AIReque
       return [key, restore(value)];
     }));
   }
-  return { request: { ...request, user, ...(request.transport === "quotation-v4" ? { schema: strictSchema(extractionWireSchema) } : {}) }, restore: data => {
+  const typedTransport = request.transport === "quotation-v6";
+  const partitionedTransport = request.transport === "quotation-v7";
+  const quotationTransport = request.transport === "quotation-v4" || request.transport === "quotation-v5";
+  const schema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!), all.map(source => aliases.get(source.id)!))) : quotationTransport ? strictSchema(extractionWireSchemaForTargets(targets.map(source => aliases.get(source.id)!))) : request.schema;
+  return { request: { ...request, user, schema }, restore: data => {
     const restored = restore(data);
-    return request.transport === "quotation-v4" ? expandExtraction(restored, targets.map(source => source.id), context.map(source => source.id)) : restored;
+    if (partitionedTransport) return expandPartitionedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
+    if (typedTransport) return expandTypedExtraction(restored, targets.map(source => source.id), context.map(source => source.id));
+    return quotationTransport ? expandExtraction(restored, targets.map(source => source.id), context.map(source => source.id), { coveragePolicy: request.transport === "quotation-v5" ? "retain_partial" : "strict" }) : restored;
   } };
 }
 
@@ -140,12 +166,19 @@ async function requestGroq(request: AIRequest, options: AIOptions): Promise<AIRe
       if (!choice || choice.finish_reason !== "stop" || !choice.message.content) throw new RejectedResponse("The model returned an incomplete extraction. Split this section into fewer rows and retry; no partial model output was accepted.", result);
       let data: unknown; try { data = JSON.parse(choice.message.content); } catch { throw new RejectedResponse("The model did not return valid structured data. Retry the failed section.", result, true); }
       try { data = wire.restore(data); }
-      catch { throw new RejectedResponse("The model returned evidence outside its supplied source records. The interpretation was rejected.", { ...result, data }); }
+      catch (error) {
+        // Normalization emits static, application-owned error messages. Preserve
+        // their schema/coverage/evidence cause without exposing raw responses.
+        if (error instanceof ProcessingError) throw new RejectedResponse(error.message, { ...result, data }, error.retryable, error.code);
+        throw new RejectedResponse("The model returned evidence outside its supplied source records. The interpretation was rejected.", { ...result, data });
+      }
       return { ...result, data };
     } catch (error) {
       if (options.signal?.aborted) throw new ProcessingError("cancelled", "Extraction cancelled. Saved parser and extraction chunks remain available.");
       if (error instanceof ProcessingError) throw error;
       const status = (error as { status?: number }).status;
+      const schemaDiagnostic = providerSchemaDiagnostic(error);
+      if (schemaDiagnostic) throw new ProviderSchemaError(schemaDiagnostic);
       const payload = (error as { error?: { error?: { code?: string; message?: unknown; failed_generation?: unknown }; code?: string; message?: unknown; failed_generation?: unknown } }).error;
       const validation = payload?.error ?? payload;
       if (status === 400 && validation?.code === "json_validate_failed" && typeof validation.failed_generation === "string") {

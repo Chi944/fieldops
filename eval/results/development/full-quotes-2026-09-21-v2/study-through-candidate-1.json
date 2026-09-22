@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "recordedAt": "2026-09-21T15:17:34.207Z",
+  "scope": "21 September development study through candidate 1, with interrupted preflight disclosed separately",
+  "distinctSelectedOriginals": 3,
+  "completedScoredPhases": 2,
+  "fullDocumentAttemptsAcrossScoredPhases": 6,
+  "runs": [
+    {
+      "role": "interrupted_harness_preflight",
+      "report": "eval/results/development/full-quotes-2026-09-21/preflight-interrupted.json",
+      "sha256": "1844d2e7a94337e7bc9f9329d50733419d3161cea427fc957123349618382122",
+      "returnedResponses": 2,
+      "responsesWithoutUsage": 0,
+      "knownInputTokens": 5152,
+      "knownOutputTokens": 2393,
+      "returnedResponseElapsedMs": 8168,
+      "completeDocuments": null,
+      "requestedDocuments": null
+    },
+    {
+      "role": "original_before",
+      "report": "eval/results/development/full-quotes-2026-09-21-v2/live-before.json",
+      "sha256": "f1f383809cf3ba9503ac659bfc8af5e687fc209506b59728b35c9ee6aedbe70a",
+      "returnedResponses": 4,
+      "responsesWithoutUsage": 0,
+      "knownInputTokens": 10173,
+      "knownOutputTokens": 4903,
+      "returnedResponseElapsedMs": 13164,
+      "completeDocuments": 0,
+      "requestedDocuments": 3
+    },
+    {
+      "role": "candidate_1",
+      "report": "eval/results/development/full-quotes-2026-09-21-v2/live-after.json",
+      "sha256": "b0d26d48aa384ec0acdab75adc67a72208f8166a6d44b3c8aecfd185d91fed52",
+      "returnedResponses": 5,
+      "responsesWithoutUsage": 1,
+      "knownInputTokens": 10621,
+      "knownOutputTokens": 5752,
+      "returnedResponseElapsedMs": 18858,
+      "completeDocuments": 0,
+      "requestedDocuments": 3
+    }
+  ],
+  "total": {
+    "returnedResponses": 11,
+    "responsesWithoutUsage": 1,
+    "knownInputTokens": 25946,
+    "knownOutputTokens": 13048,
+    "knownTotalTokens": 38994,
+    "returnedResponseElapsedMs": 40190,
+    "providerInvoiceUsd": null
+  },
+  "conclusion": "No improvement in complete-document extraction or scored field/row recall. Both scored phases rejected all three quotations. Accepted intermediate chunks do not count as complete document outputs.",
+  "limitations": [
+    "The same three originals were reused; six attempts are not six distinct documents.",
+    "One returned response has no usage data; known token totals are a lower bound on returned-response usage.",
+    "Interrupted preflight waits and its partial cohort are excluded from before/after accuracy.",
+    "Returned-response time excludes quota waiting and is not end-to-end latency.",
+    "No held-out or production model calls were made by this study."
+  ]
+}

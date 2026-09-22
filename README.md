@@ -52,9 +52,13 @@ For persistent environment configuration, copy `.env.example` to `.env.local` an
 
 The 20 September hardening run passed **299 unit/integration tests across 35 files**, including six real concurrent PostgreSQL tests. TypeScript, ESLint and the production build pass; the runtime dependency audit reports zero findings. Browser checks exercise actual uploads through manual review, approved matching, Excel and PDF export, persistence, evidence viewing, keyboard use and accessibility. Exact browser timings, hosted checks and deployment revisions are recorded in [release verification](docs/release-verification.md).
 
-Five hosted synthetic originals—text PDF, scanned PDF, PNG, XLSX and CSV—completed production parsing with 197 source spans. A read-only backup restored all five originals and their hashes into a separate local workspace. The private status panel reports original-file capacity, pending cleanup and job counts; an operator can pause new cloud uploads while retaining access to saved comparisons. These checks support an invited personal pilot, not unrestricted production AI. The [latest AI review](docs/ai-reliability-2026-09-20.md) records eight development responses, six rejections and no complete multi-item quotation; hosted AI remains off.
+Five hosted synthetic originals—text PDF, scanned PDF, PNG, XLSX and CSV—completed production parsing with 197 source spans. A read-only backup restored all five originals and their hashes into a separate local workspace. The private status panel reports original-file capacity, pending cleanup and job counts; an operator can pause new cloud uploads while retaining access to saved comparisons. These checks support an invited personal pilot, not unrestricted production AI.
+
+The [21 September complete-quotation study](docs/ai-development-study-2026-09-21.md) evaluated three full synthetic development originals. The original baseline returned no quotation data; an explicit development-only recovery option retained **two partial quotations, 6/18 items and 42/129 critical fields**. Complete extraction remained **0/3**. Rejected sections stay unresolved and block cost recommendations; production AI remains off. Final local verification passed **354 unit/integration tests and 10 browser workflows**, plus typecheck, lint and production build. The [reproduction protocol](docs/development-evaluation-protocol.md) preserves failed candidates, usage unknowns and held-out separation.
 
 The [measured evaluation](docs/evaluation-report.md) distinguishes parser coverage and the identifier/text baseline from unverified AI metrics. It records dataset size, denominators, hashes, per-file results and limitations. The synthetic benchmark covers unrelated sectors, goods and services, scans, currencies, packages, tiers, revisions and malformed inputs. A held-out split is maintained separately from prompt development.
+
+The [22 September follow-up](docs/ai-development-study-2026-09-22.md) adds source-completeness guards, a stricter annotation quality gate and reproducible rejection diagnostics. **429 tests and 10 browser workflows pass**, but the new contract regressed to **22/129 critical fields, 3/18 items and 0/3 complete quotations**. It remains a development-only experiment and is not promoted to the default. Passing application tests is separate from establishing complete-document AI reliability.
 
 ```powershell
 npm run typecheck
@@ -81,6 +85,7 @@ TypeScript, Next.js and React provide the interface and server API. Decimal.js o
 - [Generated screen reference and visual refinement](docs/design/README.md)
 - [Product scope](docs/spec.md) and [implementation milestones](docs/implementation-plan.md)
 - [Measured evaluation](docs/evaluation-report.md) and [fixed failure](docs/failure-notes.md)
+- [Complete-quotation AI study](docs/ai-development-study-2026-09-21.md) and [development-only reproduction](docs/development-evaluation-protocol.md)
 - [Portfolio case study](docs/case-study.md) and [short demonstration script](docs/demo-script.md)
 
 Supported inputs are bounded English printed quotations: text/scanned PDF, PNG/JPEG, XLSX, CSV and pasted text. DOCX, handwriting, universal document interpretation, automatic exchange rates, supplier outreach and autonomous purchasing are outside this release. Hosted AI remains disabled while the configured free provider is evaluated; successful tiny examples do not establish support for every advertised parser format.

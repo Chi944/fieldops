@@ -1,0 +1,20 @@
+{
+  "recordedAt": "2026-09-21T16:48:05.127Z",
+  "name": "full-quotes-2026-09-22-typed-compatible",
+  "diagnosticDispatches": 1,
+  "at": "2026-09-21T16:45:04.824Z",
+  "purpose": "One identical first-section schema diagnostic after interrupted request; no retries",
+  "attemptSlots": 2,
+  "reservedTokens": 14208,
+  "status": 400,
+  "schemaCode": "discriminator_multiple_candidates",
+  "schemaKind": "anyOf",
+  "schemaPath": "/definitions/__schema5/items/anyOf",
+  "cumulativePhaseReservation": {
+    "attemptSlots": 8,
+    "estimatedTokens": 56606
+  },
+  "reportedUsage": null,
+  "providerInvoiceUsd": null,
+  "scope": "Additional first-section schema diagnostic after the completed three-document run, inside its declared ceiling. No extraction was returned or reused. Diagnostic is excluded from field metrics and explicitly additional to live-after usage. No held-out or production calls."
+}

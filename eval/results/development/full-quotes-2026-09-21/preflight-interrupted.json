@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-21",
+  "classification": "interrupted_harness_preflight_excluded_from_paired_comparison",
+  "recordedAt": "2026-09-21T15:08:15.968Z",
+  "configurationHash": "7bc6277f4a5d1efeac541ff14e5793977b4b7bfcf85cd9619e2f9fabd9446209",
+  "journalSha256": "b36bdcea446779980516b70abb8887273398d9517dd8cbef9e3e4fb3066ffec6",
+  "plannedCohort": [
+    {
+      "id": "industrial-1",
+      "format": "text_pdf",
+      "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+      "goldSha256": "a940f84a663cdaf4ccf15151f6bc3e7e87d726c3f923b6f7bc94c56729798461"
+    },
+    {
+      "id": "translation-2",
+      "format": "text",
+      "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+      "goldSha256": "47c8fd33b9de153de91d9e17ad8cebae6628bcd8ff55c7174775c7c6d183a9c1"
+    },
+    {
+      "id": "office-2",
+      "format": "csv",
+      "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+      "goldSha256": "7cc472c8f2cdc9fa97bfe230722f8789d251be54bef96a93521d0fedf814b0f9"
+    }
+  ],
+  "limits": {
+    "maxRequests": 24,
+    "maxReservedTokens": 170000,
+    "maxWaitMs": 600000
+  },
+  "observation": {
+    "firstEventAt": "2026-09-21T14:58:49.110Z",
+    "lastRecordedEventAt": "2026-09-21T15:00:53.244Z",
+    "returnedResponses": 2,
+    "responsesWithoutUsage": 0,
+    "knownInputTokens": 5152,
+    "knownOutputTokens": 2393,
+    "returnedResponseElapsedMs": 8168,
+    "reservedAttemptSlots": 6,
+    "estimatedReservedTokens": 41430,
+    "dispatchReservations": 3,
+    "requestedWaitMs": 171208,
+    "actualWaitElapsedMs": null,
+    "documentIdsWithDispatchedRequests": [
+      "industrial-1"
+    ],
+    "validatedIntermediateCheckpoints": 1,
+    "validationRejections": [
+      {
+        "documentId": "industrial-1",
+        "code": "invalid_output",
+        "at": "2026-09-21T15:00:53.238Z"
+      }
+    ],
+    "quotaFailures": 1,
+    "completedCohort": false,
+    "completeDocumentOutputs": 0,
+    "fieldAccuracy": null,
+    "providerInvoiceUsd": null,
+    "heldoutModelCalls": 0
+  },
+  "reason": "Stopped after identifying a harness pacing defect. Waiting 60 seconds from reservation ran before the application local quota window ended because SDK initialization and actual dispatch happened later. The first next dispatch immediately hit quota, consuming conservative reservation slots; the runner then waited another minute. Settlement-based pacing was tested before the separate v2 pair. No extraction implementation change was made between this preflight and v2 before.",
+  "preservation": "The interrupted run directory, lock, accepted checkpoint, rejected response and append-only usage journal remain private and unchanged. No finalized before report or full-cohort accuracy is manufactured from this interrupted run.",
+  "limitations": [
+    "A successful intermediate chunk is not a complete quotation.",
+    "Requested wait intervals include the interval interrupted by the operator; their sum is not actual elapsed wait.",
+    "Attempt slots and estimated tokens are reservations, not actual HTTP attempts or a provider invoice.",
+    "This record is excluded from the before/after pair and cannot replace its denominator."
+  ]
+}

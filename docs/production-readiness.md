@@ -2,6 +2,8 @@
 
 FieldOps is a deployed, invited personal-workspace pilot. The supported path is **upload → source review/manual entry → approved matching → comparison → Excel or print report**. The public sample workspace remains independent of private cloud services. Broad automatic AI extraction is not ready for production: complete-document development probes still reject missing or unsupported output, and held-out AI accuracy is not established. Keep hosted `FIELDOPS_PROCESSING_MODE=parse_only` until a frozen candidate passes the documented release gates.
 
+The [22 September development follow-up](ai-development-study-2026-09-22.md) preserves this boundary. It tests stricter source completeness and versioned request contracts, with separate schema-failure diagnostics and fixed-denominator field/evidence gates. Experimental transport acceptance and passing software tests do not authorize production AI.
+
 ## Evidence from 20 September 2026
 
 | Area | Evidence and boundary |

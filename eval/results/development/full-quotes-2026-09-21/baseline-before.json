@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-21",
+  "phase": "before",
+  "mode": "baseline",
+  "pair": {
+    "mode": "baseline",
+    "split": "dev",
+    "selection": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+        "goldSha256": "a940f84a663cdaf4ccf15151f6bc3e7e87d726c3f923b6f7bc94c56729798461"
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+        "goldSha256": "47c8fd33b9de153de91d9e17ad8cebae6628bcd8ff55c7174775c7c6d183a9c1"
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+        "goldSha256": "7cc472c8f2cdc9fa97bfe230722f8789d251be54bef96a93521d0fedf814b0f9"
+      }
+    ],
+    "limits": {
+      "maxRequests": 24,
+      "maxReservedTokens": 170000,
+      "maxWaitMs": 600000
+    },
+    "metricVersion": "fieldops-development-1",
+    "synthetic": true
+  },
+  "startedAt": "2026-09-21T14:58:32.107Z",
+  "measuredAt": "2026-09-21T14:58:32.892Z",
+  "elapsedMs": 784.4285,
+  "configuration": {
+    "promptVersion": "fieldops-extraction-5",
+    "model": "openai/gpt-oss-120b",
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "81aafe2b7585ee053e009569876b3c75182914ba47fabe8430c6b64d7eec0069"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "07fefede11c49c373c68ce33acc4a381158f22fc7e8a1546f9122d947aa06e5e"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "9f1b72b7e43e6a677d55ab4d73b624a26281a67d70524c8dea75947d1b2a2eb4"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "b12e53eb72faaac191313799bb552e34ccbbb91b219840b0c74b406f88dbe905"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "ed47bd03f97c14cc32c20db7975d922a57f2fd35e17ace356c1902d284ea8ebe"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "fbc3bcbed587c1ffb4f1bd16c857859987fa92fa5acced83c9050d80b72126bf"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "2def410c6536a09bc35b66157979d545ba93b8c9a617fe3605c9a0b6ebc49c9f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "39d9541d2c4c96fa550f976a30b31c988d765d5bc94f33b879d7642d763bcc40"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "beb56554aaf90d2b30883bad262f9fd72fdaf196d1b4e58120ac3f84d3919e63"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "584d96087cedb91df0c133d94ca1d9e9131da75c7c69a70398dbc96c7067e901"
+      }
+    ],
+    "sha256": "078f9a832583f05f319e6f41c9ca5da6a4f94c30e10ea3580cf9762cbac69938"
+  },
+  "configurationStableDuringRun": true,
+  "dataset": {
+    "requestedDocuments": 3,
+    "logicalItems": 18,
+    "annotatedFields": 140,
+    "formats": [
+      "text_pdf",
+      "text",
+      "csv"
+    ],
+    "synthetic": true,
+    "split": "dev",
+    "heldoutDocumentsRead": 0,
+    "heldoutModelCalls": 0
+  },
+  "completion": {
+    "completeDocuments": 0,
+    "partialDocuments": 0,
+    "rejectedDocuments": 0,
+    "parserFailures": 0,
+    "unattemptedDocuments": 0,
+    "halted": null
+  },
+  "fields": null,
+  "observedUsage": {
+    "dispatches": 0,
+    "reservedAttemptSlots": 0,
+    "reservedTokens": 0,
+    "waitedMs": 0,
+    "returnedResponses": 0,
+    "responsesWithoutUsage": 0,
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "responseElapsedMs": 0,
+    "failures": 0,
+    "rejections": 0,
+    "providerInvoiceUsd": null,
+    "scope": "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown."
+  },
+  "measurements": [
+    {
+      "id": "industrial-1",
+      "status": "parsed_only",
+      "parser": {
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      "parserElapsedMs": 756.4679999999998
+    },
+    {
+      "id": "translation-2",
+      "status": "parsed_only",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 32,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 0.35360000000014224
+    },
+    {
+      "id": "office-2",
+      "status": "parsed_only",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 12.77539999999999
+    }
+  ],
+  "limitations": [
+    "Development-only adaptive evidence; no held-out or general supplier-format accuracy claim.",
+    "All complete selected documents are supplied; no cropped successful section is substituted for a quotation.",
+    "Field metrics include partial accepted output. Rejected attempted documents earn zero credit; unattempted documents are counted separately. Zero source/precision denominators mean unavailable.",
+    "Item alignment uses exact identifiers. Source reference resolvability and location agreement are narrower than independent semantic correctness.",
+    "Matching and arithmetic are not remeasured by this extraction-only cohort. No model matching calls are made.",
+    "A complete extraction status does not imply every field is correct or every review issue resolved. Inspect accuracy denominators and issues.",
+    "Code/runtime drift during execution invalidates a paired causal comparison and is exposed explicitly.",
+    "This executable imports no deployment client and makes no production writes. Its environment guard is defense in depth, not an audit of other simultaneously running processes."
+  ]
+}

@@ -22,7 +22,7 @@ export const extractionSchema = z.object({
   items: z.array(z.object({ sourceIds: z.array(z.string()), kind: z.enum(["goods", "service", "mixed", "unknown"]), fields: sectionFields([...sectionFieldKeys.item, ...itemAttributeFieldKeys]), taxBasis: z.enum(["inclusive", "exclusive", "not_stated"]), tiers: z.array(tierSchema), discount: discountSchema.nullable(), attributes: z.array(attributeSchema) }).strict()),
   charges: z.array(z.object({ label: z.string(), kind: z.enum(["shipping", "tax", "setup", "recurring", "other", "discount"]), fields: sectionFields(sectionFieldKeys.charge), billingPeriod: z.string().nullable(), appliesTo: z.enum(["quotation", "item", "unknown"]), itemSourceId: z.string().nullable() }).strict()),
   attributes: z.array(attributeSchema),
-  coverage: z.array(z.object({ sourceId: z.string(), disposition: z.enum(["used", "header", "continuation", "terms", "non_quotation", "unreadable"]), reason: z.string() }).strict()),
+  coverage: z.array(z.object({ sourceId: z.string(), disposition: z.enum(["used", "header", "continuation", "terms", "non_quotation", "unreadable", "uninterpreted"]), reason: z.string() }).strict()),
   uncertainties: z.array(z.object({ message: z.string(), sourceIds: z.array(z.string()) }).strict()),
 }).strict();
 export type ExtractedChunk = z.infer<typeof extractionSchema>;

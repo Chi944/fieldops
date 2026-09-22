@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-21-availability",
+  "auditedAt": "2026-09-21T15:55:07.645Z",
+  "reportSha256": "6d4913962f41f4fb8f40228f95e42726fb71f916ab9cbf89138e13932934eae7",
+  "journalSha256": "a68fcf2bc08b5884f4076c7d406cd152388ba796d9ee6655c07ff276898312a2",
+  "auditCodeSha256": "20aef09292ad0aa32aab9e19691986aa3f298a6efdecb5fe65c05f27aabd8d25",
+  "configurationHash": "b5448cc538925c184d12991c31eff9d51cce0fb2b4293d846c34028b2831f203",
+  "providerCalls": 0,
+  "heldoutReads": 0,
+  "documents": [
+    {
+      "id": "industrial-1",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "f84e166badede01e3ecb7a770af13be1ae7b95e32804f675c0e9d65247a54811",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 1,
+        "rejectionEvents": 2,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 4,
+      "attemptedSections": 4,
+      "validatedSections": 2,
+      "rejectedSections": 2,
+      "sectionCountsAgree": true,
+      "failedTargets": {
+        "numerator": 21,
+        "denominator": 40,
+        "allResolvable": true,
+        "exactPlannedSectionSets": true,
+        "allRemainBlocking": true,
+        "sections": [
+          {
+            "section": 2,
+            "targetCount": 13,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          },
+          {
+            "section": 4,
+            "targetCount": 8,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "f9296a16e6f778544837c8c995f4f5bb567e731365aaa9ca0dc8cf3bbf21643c",
+      "retainedSourceArraySha256": "f9296a16e6f778544837c8c995f4f5bb567e731365aaa9ca0dc8cf3bbf21643c",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 88,
+        "statedFields": 40,
+        "references": 40,
+        "resolvable": 40,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 3,
+        "retainedValuesChecked": 4,
+        "explicitlyCoverageBlockedValues": 4,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "In-memory approved singleton groups isolate the existing coverage/evidence gate on each retained row. This is not a cross-supplier ranking or matching-quality test."
+      }
+    },
+    {
+      "id": "translation-2",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "afd932771e4c06aba7c877b80e15bffd68f2fea45ddd471ee13a189ccc86236e",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 0,
+        "rejectionEvents": 2,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 4,
+      "attemptedSections": 4,
+      "validatedSections": 2,
+      "rejectedSections": 2,
+      "sectionCountsAgree": true,
+      "failedTargets": {
+        "numerator": 13,
+        "denominator": 32,
+        "allResolvable": true,
+        "exactPlannedSectionSets": true,
+        "allRemainBlocking": true,
+        "sections": [
+          {
+            "section": 2,
+            "targetCount": 10,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          },
+          {
+            "section": 3,
+            "targetCount": 3,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "retainedSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 54,
+        "statedFields": 28,
+        "references": 28,
+        "resolvable": 28,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 5,
+        "retainedValuesChecked": 2,
+        "explicitlyCoverageBlockedValues": 2,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "In-memory approved singleton groups isolate the existing coverage/evidence gate on each retained row. This is not a cross-supplier ranking or matching-quality test."
+      }
+    },
+    {
+      "id": "office-2",
+      "status": "rejected",
+      "freshJournal": {
+        "dispatchReservations": 3,
+        "returnedResponses": 3,
+        "responsesWithoutUsage": 1,
+        "rejectionEvents": 3,
+        "cachedRejectionEvents": 0
+      },
+      "plannedSections": 3,
+      "attemptedSections": null,
+      "validatedSections": null,
+      "rejectedSections": null,
+      "failedTargets": null,
+      "retainedOutputAvailable": false,
+      "limitation": "No returned quotation is available to attribute exact failed target sections. Fresh journal counts are preserved separately; request dispatches are not silently treated as unique sections."
+    }
+  ],
+  "limitations": [
+    "Counts describe section validation and partial availability, not proof of semantic extraction correctness.",
+    "Readonly context references are excluded from failed-target denominators. Field-reference resolvability does not prove that the source supports a claim.",
+    "Validated/rejected section counts come from returned quotation metadata and exact static issue-to-chunk checks; fresh journal dispatch/response counts are reported separately and include failures.",
+    "No raw quotations, supplier values or rejected replies are published by this audit.",
+    "No returned output means exact section attribution is unavailable; the audit does not infer it from response counts."
+  ]
+}

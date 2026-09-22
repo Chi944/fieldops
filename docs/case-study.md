@@ -26,6 +26,8 @@ The recall loss is informative: a third supplier's incompatible alternative make
 
 Small real Groq extraction probes now provide measured latency and token usage; multi-item development probes also exposed provider-rejected structures. These limited results do not establish broad field accuracy, AI matching or live prompt-injection resistance. The live evaluator preserves rejected outputs privately, counts failed documents, records exact configuration/source hashes and keeps held-out data separate. See the [measured report](evaluation-report.md) and the [independent gold review](../eval/gold-review.md) for current results and the exact review scope.
 
+The subsequent [complete-quotation development study](ai-development-study-2026-09-21.md) used three fixed full originals and retained every failed candidate. The original baseline returned no usable quotations. The final opt-in recovery returned two partial quotations containing 6/18 identified items and 42/129 critical fields; complete extraction remained 0/3. These are availability measurements on three synthetic development documents, not a held-out accuracy claim. Production AI remained disabled.
+
 ## A substantive failure and its fix
 
 A test requested 20 units from a supplier selling boxes of 12. Two boxes cost 48.00, but the first implementation displayed surplus as `3.999999999999999999999999999999999999996`.
@@ -36,6 +38,8 @@ The fix calculates delivered contents first: `2 × 12 = 24`, then subtracts orig
 
 Independent review found another class of problem: some gold fields had correct normalized values but unsuitable raw evidence, including an ISO date used as raw text where the source spelled out the month. The corrected fixtures retain the normalized date and the actual source wording separately. This illustrates why checking that a source ID exists is only one part of evidence reliability.
 
+The complete-document study exposed a separate availability failure: a later rejected model section discarded the document's earlier validated sections. It also found a chunk boundary that separated a minimum-order continuation from its priced item. Keeping that item together and clarifying the model contract did not produce complete quotations. An explicit development-only recovery option then isolated rejected sections, preserved only atomically validated fields, and attached unresolved issues to every failed target source. All six retained prices remained blocked from recommendations. Invalid decimal values, fabricated excerpts and malformed JSON still fail validation. This fixes loss of validated work while leaving the larger extraction reliability problem visible; the application default remains fail-fast.
+
 ## An observed hosted integration failure
 
 The first real GitHub sign-in created a valid Neon session and matched the numeric invitation, yet the browser remained a guest. Neon returned its one-time verifier to the homepage. The original proxy only matched API/auth paths, so the handoff never became an application session. The fix handles the verifier on the homepage while keeping ordinary demo visits public; tests exercise the installed SDK and actual Next matcher. Actual hosted retesting passed sign-in, the complete two-quotation manual workflow, sign-out and restored access after a fresh sign-in. [Hosted evidence](hosted-acceptance.md) records the exact boundaries.
@@ -43,6 +47,8 @@ The first real GitHub sign-in created a valid Neon session and matched the numer
 A separate review found that deleting a comparison could wait behind a long global file-cleanup queue after its database deletion had already committed. Foreground cleanup now has a three-second abort deadline and leaves failed object removals in the durable outbox, preserving successful deletion acknowledgment.
 
 ## Remaining work
+
+The [22 September follow-up](ai-development-study-2026-09-22.md) reproduced a false-completeness case: an interpretation retained an item identifier and description while omitting the visible quantity and prices. Counting the row alone hid that loss. A source-based guard now requires a retained value or ambiguity for explicitly labelled numeric details; it preserves the supplier's values and highlights missing interpretations. Review then found an overreach in the guard: a correctly extracted CSV `Total` footer looked like a missing item amount. The fix requires both an exact summary label and retained total evidence at the amount cell, while tests keep priced items named “Total” subject to the guard. These are observed, fixed software failures; passing those regressions does not establish complete AI extraction accuracy.
 
 The next release should collect permissioned, less regular quotations; independently verify a larger hold-out set; run real extraction and same-input AI-versus-baseline matching; and investigate the most consequential measured failures. More varied scan degradation, multilingual interpretation, graduated tiers and bundle equivalence need explicit support boundaries and additional evidence before expanding claims.
 
