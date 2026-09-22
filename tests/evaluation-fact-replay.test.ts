@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
-import { assertFactReplayReport, assertReplayConfiguration, replaySavedResponse, ReplayUnavailableError, PreservedReplayRejection, type SavedReplayResponse } from "../scripts/replay-development-facts";
+import { assertFactReplayReport, assertReplayConfiguration, parseFactReplayArguments, replaySavedResponse, ReplayUnavailableError, PreservedReplayRejection, type SavedReplayResponse } from "../scripts/replay-development-facts";
 import { AIInterpretationError, compactExtractionRequest, DEFAULT_MODEL, PROMPT_VERSION, type AIRequest, type AIResult } from "@/lib/ai/groq";
 import { extractQuotation } from "@/lib/ai";
 import { parseDocument } from "@/lib/processing";
@@ -14,8 +14,9 @@ const raw = () => ({ facts: [
 ].map(([key, value, type]) => ({ section: "item", entity: "i1", key, type, value, raw: value, state: "value", sourceIds: ["s0"] })), excluded: [], uncertainties: [] });
 const request = (): AIRequest => ({ purpose: "extraction", transport: "quotation-v8", chunkFailurePolicy: "retain_valid_chunks_v1", system: "Synthetic test", schema: {}, maxOutputTokens: 3600, user: JSON.stringify({ document: "synthetic", section: 1, totalSections: 1, sources: [{ id: "synthetic:row", text: "Widget W-1 quantity 2 each unit price 10 line amount 20" }], context: [] }) });
 function report() { return { name: "synthetic-replay", phase: "after", mode: "live", startedAt: "2026-09-23T00:00:00Z", measuredAt: "2026-09-23T00:01:00Z", configurationStableDuringRun: true, configuration: { extractionTransport: "fact_ledger_v1", chunkFailurePolicy: "retain_valid_chunks_v1", sha256: "a".repeat(64), model: DEFAULT_MODEL }, dataset: { split: "dev", synthetic: true, requestedDocuments: 3, heldoutDocumentsRead: 0, heldoutModelCalls: 0 }, pair: { split: "dev", mode: "live", synthetic: true, selection: ["industrial-1", "translation-2", "office-2"].map(id => ({ id, sha256: "b".repeat(64), goldSha256: "c".repeat(64) })) }, measurements: ["industrial-1", "translation-2", "office-2"].map(id => ({ id, status: "rejected" })) }; }
-function identity(changed?: string) {
-  const body = { promptVersion: PROMPT_VERSION, model: DEFAULT_MODEL, chunkFailurePolicy: "retain_valid_chunks_v1", extractionTransport: "fact_ledger_v1", runtime: { node: "v24.synthetic", platform: "win32", architecture: "x64", ocrSha256: null }, files: ["src/lib/ai/index.ts", "src/lib/ai/groq.ts", "src/lib/ai/schema.ts", "src/lib/ai/fact-transport.ts"].map(file => ({ file, sha256: file === changed ? "b".repeat(64) : "a".repeat(64) })) };
+function identity(changed: string | string[] = []) {
+  const changedFiles = typeof changed === "string" ? [changed] : changed;
+  const body = { promptVersion: PROMPT_VERSION, model: DEFAULT_MODEL, chunkFailurePolicy: "retain_valid_chunks_v1", extractionTransport: "fact_ledger_v1", runtime: { node: "v24.synthetic", platform: "win32", architecture: "x64", ocrSha256: null }, files: ["src/lib/ai/index.ts", "src/lib/ai/groq.ts", "src/lib/ai/schema.ts", "src/lib/ai/fact-transport.ts"].map(file => ({ file, sha256: changedFiles.includes(file) ? "b".repeat(64) : "a".repeat(64) })) };
   return { ...body, sha256: sha(body) } as Parameters<typeof assertReplayConfiguration>[0];
 }
 
@@ -39,6 +40,22 @@ describe("offline fact-ledger replay boundaries", () => {
     expect(() => assertReplayConfiguration(identity(), invalidHash)).toThrow(/identity is invalid/);
     const changedPrompt = identity(); changedPrompt.promptVersion = "different"; const { sha256: _old, ...body } = changedPrompt; void _old; changedPrompt.sha256 = sha(body);
     expect(() => assertReplayConfiguration(identity(), changedPrompt)).toThrow(/prompt/);
+  });
+
+  it("allows integration drift only in the explicit tier-range variant while keeping every other configuration fence", () => {
+    const permitted = ["src/lib/ai/index.ts", "src/lib/ai/fact-transport.ts"];
+    expect(() => assertReplayConfiguration(identity(), identity("src/lib/ai/index.ts"))).toThrow(/Only the fact decoder/);
+    expect(() => assertReplayConfiguration(identity(), identity(permitted), "root-alias")).toThrow(/Only the fact decoder/);
+    expect(assertReplayConfiguration(identity(), identity(permitted), "tier-range")).toEqual(permitted);
+    for (const extra of ["src/lib/ai/schema.ts", "src/lib/ai/groq.ts"]) expect(() => assertReplayConfiguration(identity(), identity([...permitted, extra]), "tier-range")).toThrow(/Only the fact decoder and tier evidence/);
+    const changedPrompt = identity(permitted); changedPrompt.promptVersion = "changed"; const { sha256: _old, ...body } = changedPrompt; void _old; changedPrompt.sha256 = sha(body);
+    expect(() => assertReplayConfiguration(identity(), changedPrompt, "tier-range")).toThrow(/prompt/);
+  });
+
+  it("requires the exact opt-in CLI variant and cannot select arbitrary replay patches or overwrite names", () => {
+    expect(parseFactReplayArguments(["--name", "synthetic-replay"])).toEqual({ name: "synthetic-replay", variant: "root-alias" });
+    expect(parseFactReplayArguments(["--name", "synthetic-replay", "--variant", "tier-range"])).toEqual({ name: "synthetic-replay", variant: "tier-range" });
+    for (const args of [["--name", "../outside"], ["--name", "synthetic-replay", "--variant", "anything"], ["--name", "synthetic-replay", "--variant", "tier-range", "--force"], ["--name", "synthetic-replay", "--variant"]]) expect(() => parseFactReplayArguments(args)).toThrow();
   });
 
   it("decodes eligible saved stop responses with real source aliases and no syntax/value repair", () => {

@@ -21,6 +21,16 @@ const modelNames = new Set(["openai/gpt-oss-120b", "openai/gpt-oss-20b"]);
 const decoderFile = "src/lib/ai/fact-transport.ts";
 const options = { extractionTransport: "fact_ledger_v1", chunkFailurePolicy: "retain_valid_chunks_v1" } as const;
 const requestKey = (request: AIRequest, model: string) => sha(JSON.stringify({ version: PROMPT_VERSION, model, request }));
+export type FactReplayVariant = "root-alias" | "tier-range";
+function variantDetails(variant: FactReplayVariant) {
+  if (variant === "root-alias") return { suffix: "", files: [decoderFile], purpose: "Revalidate the original saved responses after the root-entity alias decoder correction." };
+  if (variant === "tier-range") return { suffix: "-tier-range", files: [decoderFile, "src/lib/ai/index.ts"], purpose: "Revalidate the same original saved responses after the root-alias correction and the same-item complete tier-range evidence guard." };
+  throw new Error("Only the root-alias and explicit tier-range replay variants are supported.");
+}
+export function parseFactReplayArguments(args: string[]): { name: string; variant: FactReplayVariant } {
+  if (args[0] !== "--name" || !/^[a-z][a-z0-9-]{2,63}$/.test(args[1] ?? "") || !(args.length === 2 || (args.length === 4 && args[2] === "--variant" && args[3] === "tier-range"))) throw new Error("Use --name <finalized-development-experiment> [--variant tier-range].");
+  return { name: args[1], variant: args.length === 4 ? "tier-range" : "root-alias" };
+}
 
 export class ReplayUnavailableError extends Error {
   constructor(readonly reason: string) { super("This saved response cannot be replayed; no replacement response will be generated."); }
@@ -39,14 +49,15 @@ export function assertFactReplayReport(value: unknown, name: string): asserts va
   if (report?.name !== name || report.phase !== "after" || report.mode !== "live" || report.configurationStableDuringRun !== true || configuration?.extractionTransport !== options.extractionTransport || configuration.chunkFailurePolicy !== options.chunkFailurePolicy || !hex(configuration.sha256) || !modelNames.has(String(configuration.model)) || dataset?.split !== "dev" || dataset.synthetic !== true || dataset.requestedDocuments !== 3 || dataset.heldoutDocumentsRead !== 0 || dataset.heldoutModelCalls !== 0 || pair?.split !== "dev" || pair.synthetic !== true || pair.mode !== "live" || !Number.isFinite(started) || !Number.isFinite(finished) || finished < started || JSON.stringify(selection.map(entry => object(entry)?.id)) !== JSON.stringify(PAIRED_COHORT) || JSON.stringify(measurements.map(entry => object(entry)?.id)) !== JSON.stringify(PAIRED_COHORT) || selection.some(entry => !hex(object(entry)?.sha256) || !hex(object(entry)?.goldSha256))) throw new Error("A finalized stable fact-ledger retention report for the fixed synthetic development cohort is required.");
 }
 
-export function assertReplayConfiguration(recorded: Identity, current: Identity): string[] {
+export function assertReplayConfiguration(recorded: Identity, current: Identity, variant: FactReplayVariant = "root-alias"): string[] {
+  const allowed = variantDetails(variant).files;
   for (const identity of [recorded, current]) {
     const { sha256, ...body } = identity;
     if (sha(JSON.stringify(body)) !== sha256 || new Set(identity.files.map(file => file.file)).size !== identity.files.length) throw new Error("Replay configuration identity is invalid.");
   }
   if (recorded.promptVersion !== PROMPT_VERSION || recorded.promptVersion !== current.promptVersion || recorded.model !== current.model || recorded.chunkFailurePolicy !== current.chunkFailurePolicy || recorded.extractionTransport !== current.extractionTransport || JSON.stringify(recorded.runtime) !== JSON.stringify(current.runtime) || JSON.stringify(recorded.files.map(file => file.file)) !== JSON.stringify(current.files.map(file => file.file))) throw new Error("Replay must preserve the measured prompt, model, runtime and source-file set.");
   const changed = recorded.files.filter((file, index) => file.sha256 !== current.files[index].sha256).map(file => file.file);
-  if (changed.some(file => file !== decoderFile)) throw new Error("Only the fact decoder may differ from the finalized measured configuration.");
+  if (changed.some(file => !allowed.includes(file))) throw new Error(variant === "root-alias" ? "Only the fact decoder may differ from the finalized measured configuration." : "Only the fact decoder and tier evidence integration may differ for the explicit tier-range replay.");
   return changed;
 }
 
@@ -95,13 +106,14 @@ function safeScore(score: ReturnType<typeof scoreExtraction>) { return Object.fr
 function interpretationCapture() { return new AIInterpretationError(new ProcessingError("invalid_output", "Offline request capture; no provider response."), { data: null, model: "INJECTED-CAPTURE-NO-PROVIDER", inputTokens: 0, outputTokens: 0, elapsedMs: 0, costUsd: null, usageAvailable: false }, false); }
 interface Captured { request: AIRequest; documentId: string; section: number; }
 
-export async function replayDevelopmentFacts(name: string, root = process.cwd()) {
+export async function replayDevelopmentFacts(name: string, root = process.cwd(), variant: FactReplayVariant = "root-alias") {
   if (!/^[a-z][a-z0-9-]{2,63}$/.test(name)) throw new Error("Use one finalized development experiment name.");
+  const variantInfo = variantDetails(variant);
   assertDevelopmentEnvironment(process.env);
   if (process.env.FIELDOPS_OCR_DATA_DIR) throw new Error("Offline replay cannot redirect its OCR asset directory.");
   root = path.resolve(root); if (await realpath(root) !== root || root !== path.resolve(process.cwd())) throw new Error("Run offline replay from its non-redirected repository root.");
   const publicDirectory = path.join(root, "eval/results/development", name), privateDirectory = path.join(root, "eval/runs/private/development", name, "live-after");
-  const reportPath = path.join(publicDirectory, "live-after.json"), outputPath = path.join(publicDirectory, "fact-decoder-replay.json"), markdownPath = path.join(publicDirectory, "fact-decoder-replay.md"), replayDirectory = path.join(root, "eval/runs/private/development", name, "decoder-replay");
+  const reportPath = path.join(publicDirectory, "live-after.json"), outputName = `fact-decoder-replay${variantInfo.suffix}`, outputPath = path.join(publicDirectory, `${outputName}.json`), markdownPath = path.join(publicDirectory, `${outputName}.md`), replayDirectory = path.join(root, "eval/runs/private/development", name, `decoder-replay${variantInfo.suffix}`);
   let reportBytes: Buffer;
   try { reportBytes = await readExact(reportPath); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") throw new Error("The live report is not finalized; replay stops without polling."); throw error; }
   const report: unknown = JSON.parse(reportBytes.toString("utf8")); assertFactReplayReport(report, name);
@@ -119,7 +131,7 @@ export async function replayDevelopmentFacts(name: string, root = process.cwd())
   if (replayCodePath !== path.join(root, "scripts/replay-development-facts.ts")) throw new Error("Replay must use the reviewed script in this repository.");
   const replayCodeSha256 = sha(await track(replayCodePath)), auditCodeSha256 = sha(await track(path.join(root, "scripts/audit-development-sections.ts")));
   try { await track(path.join(root, ".fieldops/tessdata/eng.traineddata.gz"), 32 * 1024 * 1024); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-  const current = await fingerprint(root, options.chunkFailurePolicy, options.extractionTransport), changedFiles = assertReplayConfiguration(report.configuration, current);
+  const current = await fingerprint(root, options.chunkFailurePolicy, options.extractionTransport), changedFiles = assertReplayConfiguration(report.configuration, current, variant);
   async function scopedJson(filename: string) { const bytes = await readExact(filename); provenance.push({ path: path.relative(root, filename).replaceAll("\\", "/"), sha256: sha(bytes) }); return JSON.parse(bytes.toString("utf8")) as unknown; }
   const manifestPath = path.join(root, "eval/development/gold.json"); await track(manifestPath); const manifest = await readDevelopmentManifest(root);
   const plan = object(await scopedJson(path.join(privateDirectory, "plan.json")));
@@ -182,7 +194,7 @@ export async function replayDevelopmentFacts(name: string, root = process.cwd())
   for (const input of provenance) if (sha(await readExact(path.join(root, input.path), 32 * 1024 * 1024)) !== input.sha256) throw new Error("Replay input changed during processing.");
   for (const [directory, filenames] of listings) { let final: string[]; try { final = (await readdir(directory)).sort(); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; final = []; } if (JSON.stringify(final) !== JSON.stringify(filenames)) throw new Error("Saved response set changed during replay."); }
   if (sha(await readExact(reportPath)) !== sha(reportBytes) || (await fingerprint(root, options.chunkFailurePolicy, options.extractionTransport)).sha256 !== current.sha256) throw new Error("Report or current configuration changed during replay.");
-  const output = { version: 1, name, replayedAt: new Date().toISOString(), sourceReportSha256: sha(reportBytes), replayCodeSha256, auditCodeSha256, currentConfiguration: current, changedFiles, providerCalls: 0, freshUsage: null, originalCheckpointWrites: 0, originalJournalWrites: 0, heldoutReads: 0, inputArtifacts: provenance,
+  const output = { version: 1, name, variant, purpose: variantInfo.purpose, replayedAt: new Date().toISOString(), sourceReportSha256: sha(reportBytes), replayCodeSha256, auditCodeSha256, currentConfiguration: current, changedFiles, providerCalls: 0, freshUsage: null, originalCheckpointWrites: 0, originalJournalWrites: 0, heldoutReads: 0, inputArtifacts: provenance,
     before: { configurationHash: report.configuration.sha256, completion: report.completion, fields: report.fields, readiness: report.readiness, observedHistoricalUsage: report.observedUsage },
     after: { completion: { completeDocuments: measurements.filter(value => value.status === "complete").length, partialDocuments: measurements.filter(value => value.status === "partial").length, unavailableOrRejectedDocuments: measurements.filter(value => value.status === "unavailable_or_rejected").length, requestedDocuments: fixtures.length }, fields: aggregateExtractionMetrics(internalScores), readiness: { passingDocuments: measurements.filter(value => value.readiness?.passesSelectedAnnotationGate).length, requestedDocuments: fixtures.length, auditedOutputs: pendingOutputs.length,
       correctCriticalFields: { numerator: measurements.reduce((sum, value) => sum + (value.readiness?.correctCriticalStatedFields.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state === "value").length, 0) },
@@ -191,16 +203,17 @@ export async function replayDevelopmentFacts(name: string, root = process.cwd())
       sourceLinkedCriticalNonValueStates: { numerator: measurements.reduce((sum, value) => sum + (value.readiness?.sourceLinkedCriticalNonValueStates.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.fields.filter(field => field.critical && field.state !== "value").length, 0) },
       completeExpectedItems: { numerator: measurements.reduce((sum, value) => sum + (value.readiness?.completeExpectedItems.numerator ?? 0), 0), denominator: fixtures.reduce((sum, fixture) => sum + fixture.quotation.items.length, 0) },
     }, measurements },
-    limitations: ["Post-hoc decoding of the same development responses, not a new model generation, independent evaluation or held-out result.", "Only the fact-decoder source may differ. Exact original request hashes still bind model, prompt, schema and source records. No rejected value, syntax, citation or quotation is repaired by this tool.", "Accepted expanded checkpoints and eligible stop-finished local rejections pass current domain validation. Provider-schema rejection and truncation with recorded invalid_output/evidence retain their original failed-section behavior without decoding. Missing/unattributable responses and operational failures stop that document. None are revived or replaced.", "All three documents and expected annotations remain in metric denominators. Unavailable replay documents earn no extraction credit; partial output is scored as partial availability.", "Private quotation usage/timestamps describe replayed response metadata and local reconstruction. There is no fresh provider latency, token usage or cost measurement; historical usage remains separately labelled.", "Source-reference resolution and location agreement do not prove semantic entailment. Strict readiness v4 intentionally leaves unverified charge absence unresolved.", "No original checkpoint, journal, report or quotation is overwritten. Replayed quotations remain private; public output contains only fixed identifiers, hashes, aggregate metrics and static audit diagnostics."] };
+    limitations: ["Post-hoc decoding of the same development responses, not a new model generation, independent evaluation or held-out result.", `${variant === "tier-range" ? "Only fact-transport.ts and index.ts may differ for this explicit tier-range variant; the default root-alias variant still prohibits index.ts drift." : "Only the fact-decoder source may differ."} Exact original request hashes still bind model, prompt, schema and source records. No rejected value, syntax, citation or quotation is repaired by this tool.`, "Accepted expanded checkpoints and eligible stop-finished local rejections pass current domain validation. Provider-schema rejection and truncation with recorded invalid_output/evidence retain their original failed-section behavior without decoding. Missing/unattributable responses and operational failures stop that document. None are revived or replaced.", "All three documents and expected annotations remain in metric denominators. Unavailable replay documents earn no extraction credit; partial output is scored as partial availability.", "Private quotation usage/timestamps describe replayed response metadata and local reconstruction. There is no fresh provider latency, token usage or cost measurement; historical usage remains separately labelled.", "Source-reference resolution and location agreement do not prove semantic entailment. Strict readiness v4 intentionally leaves unverified charge absence unresolved.", "No original checkpoint, journal, report or quotation is overwritten. Replayed quotations remain private; public output contains only fixed identifiers, hashes, aggregate metrics and static audit diagnostics."] };
   await mkdir(replayDirectory); if (await realpath(replayDirectory) !== replayDirectory) throw new Error("Replay output directory redirected.");
   for (const item of pendingOutputs) await writeImmutableJson(path.join(replayDirectory, `${item.id}.json`), item.quotation);
   await writeImmutableJson(outputPath, output);
-  await writeFile(markdownPath, `# Offline fact-decoder replay\n\nFinalized source report SHA-256: \`${output.sourceReportSha256}\`. Replay code SHA-256: \`${replayCodeSha256}\`. Provider calls: 0.\n\n| Document | Original live result | Offline replay | Validated / planned sections |\n|---|---|---|---:|\n${measurements.map(value => `| ${value.id} | ${value.originalStatus} | ${value.status} | ${value.requestCoverage.validated}/${value.requestCoverage.planned} |`).join("\n")}\n\n${output.limitations.map(value => `- ${value}`).join("\n")}\n\n[Immutable sanitized replay report](fact-decoder-replay.json).\n`, { flag: "wx" });
+  await writeFile(markdownPath, `# Offline fact-decoder replay\n\nVariant: \`${variant}\`. ${variantInfo.purpose}\n\nFinalized source report SHA-256: \`${output.sourceReportSha256}\`. Replay code SHA-256: \`${replayCodeSha256}\`. Provider calls: 0.\n\n| Document | Original live result | Offline replay | Validated / planned sections |\n|---|---|---|---:|\n${measurements.map(value => `| ${value.id} | ${value.originalStatus} | ${value.status} | ${value.requestCoverage.validated}/${value.requestCoverage.planned} |`).join("\n")}\n\n${output.limitations.map(value => `- ${value}`).join("\n")}\n\n[Immutable sanitized replay report](${outputName}.json).\n`, { flag: "wx" });
   return output;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  const args = process.argv.slice(2);
-  if (args.length !== 2 || args[0] !== "--name") { console.error("Use --name <finalized-development-experiment>."); process.exitCode = 1; }
-  else replayDevelopmentFacts(args[1]).then(() => console.log("Immutable offline fact replay written; no provider calls.")).catch(() => { console.error("Offline replay stopped: verify finalized scope, recorded artifacts and decoder-only configuration. Raw response contents were not logged."); process.exitCode = 1; });
+  try {
+    const args = parseFactReplayArguments(process.argv.slice(2));
+    replayDevelopmentFacts(args.name, process.cwd(), args.variant).then(() => console.log("Immutable offline fact replay written; no provider calls.")).catch(() => { console.error("Offline replay stopped: verify finalized scope, recorded artifacts and variant-specific configuration. Raw response contents were not logged."); process.exitCode = 1; });
+  } catch { console.error("Use --name <finalized-development-experiment> [--variant tier-range]."); process.exitCode = 1; }
 }

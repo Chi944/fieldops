@@ -59,3 +59,35 @@ Both partial replay outputs preserve the complete original source arrays. **87/8
 The live phase took **652.6 seconds**, including **599.8 seconds of quota pacing**. Eleven dispatches reserved 22 attempt slots and 118,920 estimated tokens. Known returned usage was **9,827 input + 12,879 output = 22,706 tokens**; four responses lack usage. Provider invoice cost is unavailable. The offline replay has no fresh provider latency, token usage or cost measurement. No purchase, billing change, paid fallback, production key change or held-out model call occurred.
 
 The release retains the working personal and invited parser/manual workflow. Reliable automatic full-document extraction remains a release blocker. Further work needs a separately declared development experiment, then independent validation on a frozen viable candidate; changing a run name or passing software tests does not establish model reliability.
+
+## Second offline correction: stated tier intervals
+
+The first replay and its exact implementation are preserved at **`36d405e`**, including the replay tool's recorded code hash. Read-only diagnosis then found a second application failure: an explicitly stated tier upper bound was rejected because the numeric evidence tokenizer read the hyphen in a range as a negative sign. The raw source clause contained the lower bound, upper bound and price. The model had supplied a complete same-item tier; its values had not been invented. This is distinct from the still-valid rejection of repeated/misplaced exclusion facts and omitted item identifiers.
+
+Before measuring the next replay, restrict the fix to a decimal maximum-bound attribute of an explicitly supported complete tier. Accept only an exact unsigned interval, optionally followed by `at` and the stated unit price. Both endpoints, the optional price, the same-item tier and shared parser source must agree. Bounds must be nonnegative and ordered. Preserve the original raw clause and references; do not strip hyphens globally or change monetary validation. Dates, multiple ranges, unrelated attributes, different prices/endpoints or unrelated sources must not gain acceptance.
+
+The explicit `tier-range` replay variant writes new immutable report/output paths and allows only the root decoder and this field-validation file to differ from the original live snapshot. It reuses the same saved responses, preserves provider failures, and makes zero model calls. The first live and root-only replay artifacts remain unchanged.
+
+The second replay is now finalized. Its [sanitized JSON](../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay-tier-range.json) and [section summary](../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay-tier-range.md) retain the original live report as the before result. The table above remains the historical root-only replay; the following table records the additional tier-range correction on exactly the same saved responses.
+
+| Measurement | Root-only replay | Root alias plus tier-range replay |
+|---|---:|---:|
+| Complete quotations | 0/3 | 0/3 |
+| Partial / unavailable or rejected quotations | 2 / 1 | 3 / 0 |
+| Correct critical stated fields | 34/129 | 47/129 |
+| Correct stated fields | 39/138 | 55/138 |
+| Aligned expected items found | 5/18 | 7/18 |
+| Aligned items / retained rows | 5/8 | 7/10 |
+| Critical stated fields with matching source location | 30/129 | 41/129 |
+| Fully correct, source-linked annotated items | 0/18 | 0/18 |
+| Selected-annotation gate v4 | 0/3 | 0/3 |
+| Validated sections | 5/11 | 6/11 |
+| New provider calls | 0 | 0 |
+
+All 11 planned requests matched their saved response hashes. The industrial PDF retained 2/4 sections, translation text 3/4, and office CSV 1/3. Four original provider-schema failures stayed rejected without decoding, and one response still failed local decoding. No response was regenerated, repaired or selected from competing retries. This exceeds the earlier partial-field recovery of 42/129 critical fields, but **no quotation or annotated item is complete**. Aligned items use the identifier-based scoring rule; 7/18 is not a semantic matching benchmark.
+
+All three outputs preserve their complete original source arrays. **117/117 field references resolve**, with zero unsourced stated fields. Exact failed target sets account for **42/99 source spans** and remain blocking. The audit forced approved singleton groups only in memory: **all 10 retained comparison rows were blocked and zero cost recommendations appeared**. This tests the coverage/evidence calculation guard, not cross-supplier recommendation quality.
+
+Reference integrity remains distinct from supported interpretation. The selected-field metric reports **49/56 correct-location agreements**, and the fixed critical-field denominator gives **41/129 correct values with matching source locations**. Neither establishes semantic entailment of all supplier claims. Both critical non-value annotations remain unresolved (0/2); strict v4 charge identity does not invent evidence of absence.
+
+The replay references original live report SHA-256 `5d3f3032525bf5f7496eab371c9d84c9cf35b3ecb9686403644e196ef239e2fd` and replay script SHA-256 `ef22202d288a6cd6b451c8217ba2c6351cba82df9b2e908d63a22854c28e7369`. Its only allowed runtime source differences are `fact-transport.ts` and `index.ts`; original prompt, schema and source request hashes still match. It adds **no fresh provider latency, tokens or invoice-cost measurement**. The original live usage remains 22,706 known tokens plus four responses with unavailable usage. Production AI stays disabled, and no held-out validation or broader reliability claim follows from this adaptive offline correction.

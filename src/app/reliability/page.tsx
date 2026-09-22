@@ -1,6 +1,6 @@
 import Link from "next/link";
 import result from "../../../eval/results/latest.json";
-import study from "../../../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay.json";
+import study from "../../../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay-tier-range.json";
 export const metadata = { title: "Reliability evidence — FieldOps" };
 export default function ReliabilityPage() {
   return (
@@ -75,7 +75,7 @@ export default function ReliabilityPage() {
           The latest study used three complete synthetic development quotations:
           a two-page PDF, a CSV and pasted text. The live run returned one partial
           quotation and {study.before.fields!.criticalFieldAccuracy.numerator}/{study.before.fields!.criticalFieldAccuracy.denominator} correct
-          critical fields. A decoder fix, tested offline on those same saved
+          critical fields. Two evidence-preserving application fixes, tested offline on those same saved
           responses, retained {study.after.completion.partialDocuments} partial quotations
           and {study.after.fields.criticalFieldAccuracy.numerator}/{study.after.fields.criticalFieldAccuracy.denominator} correct
           critical fields. Complete extraction remained {study.after.completion.completeDocuments}/{study.after.completion.requestedDocuments}.
