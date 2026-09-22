@@ -1,5 +1,7 @@
 # Groq focused extraction study — 23 September 2026
 
+**Status: closed as interrupted.** Preserve the commands below as the original predeclared protocol; do not resume them or treat this as a completed model comparison. See the [sealed interruption evidence](../eval/results/development/groq-focused-2026-09-23/interrupted-before.json) and the [separately declared date/recovery follow-up](groq-focused-study-v2-2026-09-23.md).
+
 ## Decision and scope before inference
 
 The user authorized continuing with Groq first after reviewing the failed full-document results. This study tests a different task boundary: caller-assigned item slots and one document-level extraction task, rather than asking each response to invent entity bookkeeping and exclusion lists. The hypothesis comes from the previous saved development responses: all four provider-schema failures included known context IDs in target-only exclusion lists. None of those five offending references belonged to another document. This does not establish that the remaining values were correct.

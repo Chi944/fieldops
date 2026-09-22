@@ -36,6 +36,8 @@ The synthetic acceptance data was then removed and verified: all nine originals 
 
 ## Remaining broad-release gates
 
+The [focused Groq follow-up](groq-focused-study-v2-2026-09-23.md) adds safe interrupted-study recovery and a narrow date correction. Its one-original saved-response replay improves selected fields but remains partial. The first live study is preserved as interrupted, and a fresh complete-cohort comparison is pending. These development findings do not close the gates below.
+
 - Freeze a viable model/prompt/schema/parser candidate; complete the held-out extraction/matching/ambiguity/evidence benchmark with actual latency and usage. Retain unsuccessful probes and report missing provider usage as unknown.
 - Exercise two separate hosted identities and uninvited access through the real OAuth service. Automated two-user SQL tests are valuable, but not a substitute for that hosted check.
 - Add bounded history retention and database-growth admission that still permits deletion and recovery. Add persistent global token admission before broader concurrent AI access; current local counters are supplementary to the Free provider quota.

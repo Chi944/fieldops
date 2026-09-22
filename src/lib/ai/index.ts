@@ -15,6 +15,7 @@ import { extractionCompletenessIssues } from "./completeness";
 import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
 import { planFocusedExtraction, focusedExtractionWireSchema, focusedProviderSchema, focusedExtractionInstruction } from "./focused-transport";
+import { normalizeWrittenDate } from "./dates";
 export { extractionChunks, extractionContext } from "./chunks";
 export * from "./groq";
 export { AIUnavailableError } from "../processing/errors";
@@ -79,6 +80,7 @@ function assertSources(ids: string[], sources: Map<string, SourceSpan>, requireS
   if (new Set(ids).size !== ids.length || ids.some(id => !sources.has(id))) throw new ProcessingError("invalid_evidence", "The model returned a source reference outside this document section. The result was rejected.");
 }
 function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<string, SourceSpan>, typedAttribute = false, tierEvidence: TierEvidence = []): FieldValue {
+  let normalizedValue = field.value;
   if ((field.state === "value") !== (field.value !== null)) throw new ProcessingError("invalid_output", "The model returned an inconsistent field state and value.");
   assertSources(field.sourceIds, sources, field.state !== "not_stated");
   if (field.state !== "not_stated") {
@@ -96,10 +98,11 @@ function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<s
   if (field.state === "value" && field.key === "currency" && !/^[A-Z]{3}$/.test(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid currency code. Currency must be explicitly stated and use its three-letter code.");
   if (field.state === "value" && field.key === "currency" && !hasCurrencyEvidence(field.value!, field.raw ?? "")) throw new ProcessingError("invalid_evidence", "The extracted currency is not supported by an explicit code or unambiguous currency name in its excerpt. A bare currency symbol needs review.");
   if (field.state === "value" && (field.key === "date" || (typedAttribute && field.type === "date"))) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(field.value!) || Number.isNaN(Date.parse(field.value!)) || new Date(field.value!).toISOString().slice(0, 10) !== field.value) throw new ProcessingError("invalid_output", "The model returned an invalid calendar date.");
+    normalizedValue = /^\d{4}-\d{2}-\d{2}$/.test(field.value!) ? field.value : normalizeWrittenDate(field.value!, field.raw!);
+    if (!normalizedValue || Number.isNaN(Date.parse(normalizedValue)) || new Date(normalizedValue).toISOString().slice(0, 10) !== normalizedValue) throw new ProcessingError("invalid_output", "The model returned an invalid calendar date.");
   }
   if (field.state === "value" && typedAttribute && field.type === "boolean" && !["true", "false"].includes(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid typed boolean attribute.");
-  return { state: field.state, value: field.value, raw: field.raw, sourceIds: [...field.sourceIds], origin: "supplier" };
+  return { state: field.state, value: normalizedValue, raw: field.raw, sourceIds: [...field.sourceIds], origin: "supplier" };
 }
 function attributes(fields: ExtractedAttribute[], sources: Map<string, SourceSpan>, tierEvidence: TierEvidence = []): Attribute[] {
   return fields.map(attribute => ({ key: attribute.key, label: attribute.label, type: attribute.type, value: convertField(attribute, sources, true, tierEvidence), ...(attribute.unit ? { unit: attribute.unit } : {}) }));

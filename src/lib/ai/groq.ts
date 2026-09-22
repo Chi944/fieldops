@@ -73,6 +73,11 @@ function interpretationFailure(error: unknown, result: AIResult, cached: boolean
   return error instanceof ProcessingError && ["invalid_output", "invalid_evidence"].includes(error.code) ? new AIInterpretationError(error, result, cached) : error;
 }
 
+/** Shared with the development outcome journal; identical requests keep their historical keys. */
+export function aiRequestKey(request: AIRequest, model = process.env.GROQ_MODEL || DEFAULT_MODEL): string {
+  return createHash("sha256").update(JSON.stringify({ version: PROMPT_VERSION, model, request, ...(model === PREVIEW_MODEL ? { modelProfile: groqModelProfile(model).version } : {}) })).digest("hex");
+}
+
 export async function requestAI<T = AIResult>(request: AIRequest, options: AIOptions = {}, validate?: (result: AIResult) => T | Promise<T>): Promise<T> {
   checkCancelled(options.signal);
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL;
@@ -80,7 +85,7 @@ export async function requestAI<T = AIResult>(request: AIRequest, options: AIOpt
   if (previewReason) throw new AIUnavailableError(previewReason);
   // Historical GPT-OSS checkpoint keys stay byte-for-byte unchanged. Preview
   // results are bound to their explicit, model-specific reasoning profile.
-  const key = createHash("sha256").update(JSON.stringify({ version: PROMPT_VERSION, model, request, ...(model === PREVIEW_MODEL ? { modelProfile: groqModelProfile(model).version } : {}) })).digest("hex");
+  const key = aiRequestKey(request, model);
   // Raw transport requests are never successful checkpoints. Domain callers must
   // validate schema, evidence and integration before an answer becomes resumable.
   const checkpoint = validate ? options.checkpoint : undefined;

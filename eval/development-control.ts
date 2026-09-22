@@ -57,7 +57,7 @@ export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
   if (extractionTransport !== "legacy_v5" && !live) throw new Error("Typed extraction transport requires an explicit live development run.");
   const study = comparisonKind === "model";
-  return { name, phase, live, documentIds, maxRequests: number("--max-requests", study ? 12 : 24, study ? 12 : 24), maxReservedTokens: number("--max-reserved-tokens", study ? 60000 : 170000, study ? 60000 : 170000), maxWaitMs: number("--max-wait-ms", study ? 720000 : 600000, study ? 720000 : 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}), ...(study ? { comparisonKind: "model" as const, model: model as DevelopmentOptions["model"] } : {}) };
+  return { name, phase, live, documentIds, maxRequests: number("--max-requests", study ? 12 : 24, study ? 12 : 24), maxReservedTokens: number("--max-reserved-tokens", study ? 90000 : 170000, study ? 90000 : 170000), maxWaitMs: number("--max-wait-ms", study ? 720000 : 600000, study ? 720000 : 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}), ...(study ? { comparisonKind: "model" as const, model: model as DevelopmentOptions["model"] } : {}) };
 }
 /** Diagnostic only: preserve historical scoring while exposing unconfirmed defaults. */
 export function unsourcedMissingStateAgreements(fixture: Pick<FixtureRecord, "fields">, quotation: Quotation, mappedItems: Record<string, string>): number {
@@ -82,6 +82,7 @@ export interface DevelopmentEvent {
   attemptSlots?: number; reservedTokens?: number; waitMs?: number;
   inputTokens?: number; outputTokens?: number; elapsedMs?: number; usageAvailable?: boolean; costUsd?: string | null; model?: string;
   sharedAllocationId?: string;
+  requestKey?: string; recovered?: boolean; scheduledWaitMs?: number;
 }
 /** Estimates mirror the compact application wire request. Two slots cover its one transient retry. */
 export function requestReservation(request: AIRequest, maxTransportAttempts: 1 | 2 = 2) {
@@ -90,12 +91,28 @@ export function requestReservation(request: AIRequest, maxTransportAttempts: 1 |
   if (!Number.isSafeInteger(request.maxOutputTokens) || request.maxOutputTokens < 1) throw new Error("Invalid output token reservation.");
   return { attemptSlots: maxTransportAttempts, reservedTokens: maxTransportAttempts * (estimatedInput + request.maxOutputTokens) };
 }
+/** Unknown attempts retain their own reservations; another request's overrun cannot offset them. */
+export function accountedDevelopmentTokens(events: DevelopmentEvent[]): number {
+  const requests = new Map<string, { reserved: number; known: number }>();
+  let lastReservation: string | undefined;
+  events.forEach((event, index) => {
+    if (event.kind === "reservation") lastReservation = event.requestKey ?? `legacy-reservation:${index}`;
+    if (!["reservation", "response"].includes(event.kind)) return;
+    const key = event.requestKey ?? lastReservation ?? `unattributed-response:${index}`;
+    const value = requests.get(key) ?? { reserved: 0, known: 0 };
+    if (event.kind === "reservation") value.reserved += event.reservedTokens ?? 0;
+    else if (event.usageAvailable === true) value.known += (event.inputTokens ?? 0) + (event.outputTokens ?? 0);
+    requests.set(key, value);
+  });
+  return [...requests.values()].reduce((sum, value) => sum + Math.max(value.reserved, value.known), 0);
+}
 export function summarizeDevelopmentUsage(events: DevelopmentEvent[]) {
   const responses = events.filter(event => event.kind === "response");
   return {
     dispatches: events.filter(event => event.kind === "reservation").length,
     reservedAttemptSlots: events.reduce((sum, event) => sum + (event.attemptSlots ?? 0), 0),
     reservedTokens: events.reduce((sum, event) => sum + (event.reservedTokens ?? 0), 0),
+    accountedTokenFloor: accountedDevelopmentTokens(events),
     waitedMs: events.reduce((sum, event) => sum + (event.waitMs ?? 0), 0),
     returnedResponses: responses.length,
     responsesWithoutUsage: responses.filter(event => event.usageAvailable !== true).length,
@@ -105,7 +122,7 @@ export function summarizeDevelopmentUsage(events: DevelopmentEvent[]) {
     failures: events.filter(event => event.kind === "failure").length,
     rejections: events.filter(event => event.kind === "rejection" && !event.cached).length,
     providerInvoiceUsd: null,
-    scope: "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown.",
+    scope: "Durable reservations record configured transport-attempt slots (one in the model study, two in the legacy protocol) and heuristic token estimates, not measured billing or a hard tokenizer bound. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown.",
   };
 }
 export const responseEvent = (result: AIResult): DevelopmentEvent => ({ kind: "response", at: new Date().toISOString(), inputTokens: result.inputTokens, outputTokens: result.outputTokens, elapsedMs: result.elapsedMs, usageAvailable: result.usageAvailable === true, costUsd: result.costUsd, model: result.model });
@@ -118,6 +135,8 @@ export function developmentRequestController(options: {
   maxTransportAttempts?: 1 | 2;
   lastSharedActivity?: () => string | undefined;
   retryQuota?: boolean;
+  requestKey?: (request: AIRequest) => string;
+  durableWaits?: boolean;
 }) {
   let halted: string | null = null;
   const halt = (code: string): never => { halted = code; throw Object.assign(new Error("Development evaluation paused at its configured boundary."), { code }); };
@@ -126,9 +145,10 @@ export function developmentRequestController(options: {
   const request: AIRequestFunction = async (input, context) => {
     if (input.purpose !== "extraction") return halt("development_scope");
     if (halted) return halt(halted);
+    const requestKey = options.requestKey?.(input);
     for (;;) {
       const usage = summarizeDevelopmentUsage(options.events), reservation = requestReservation(input, options.maxTransportAttempts);
-      if (usage.reservedAttemptSlots + reservation.attemptSlots > options.limits.maxRequests || usage.reservedTokens + reservation.reservedTokens > options.limits.maxReservedTokens || usage.inputTokens + usage.outputTokens >= options.limits.maxReservedTokens) return halt("evaluation_budget");
+      if (usage.reservedAttemptSlots + reservation.attemptSlots > options.limits.maxRequests || usage.accountedTokenFloor + reservation.reservedTokens > options.limits.maxReservedTokens) return halt("evaluation_budget");
       // A reservation precedes SDK initialization and actual provider dispatch.
       // Pace from settlement, which is safely after the provider's quota window
       // began; use the reservation only when interruption left no known outcome.
@@ -138,18 +158,20 @@ export function developmentRequestController(options: {
       if (remaining > 60000 || !Number.isFinite(remaining)) return halt("evaluation_clock");
       if (remaining > 0) {
         if (usage.waitedMs + remaining > options.limits.maxWaitMs) return halt("evaluation_wait_budget");
-        await record({ kind: "quota_wait", at: new Date(now()).toISOString(), waitMs: remaining, code: "paced_free_quota" });
+        const waitStarted = now();
+        await record({ kind: "quota_wait", at: new Date(now()).toISOString(), waitMs: options.durableWaits ? 0 : remaining, ...(options.durableWaits ? { scheduledWaitMs: remaining, requestKey } : {}), code: "paced_free_quota" });
         await (options.wait ?? (ms => new Promise(resolve => setTimeout(resolve, ms))))(remaining);
+        if (options.durableWaits) await record({ kind: "quota_wait", at: new Date(now()).toISOString(), waitMs: Math.max(0, now() - waitStarted), requestKey, code: "completed_free_quota_wait" });
       }
       // Persist before dispatch: an interrupted or failed call never refunds its unknown usage.
-      await record({ kind: "reservation", at: new Date(now()).toISOString(), ...reservation });
+      await record({ kind: "reservation", at: new Date(now()).toISOString(), ...reservation, ...(requestKey ? { requestKey } : {}) });
       try {
         const result = await options.request(input, context);
-        await record({ ...responseEvent(result), at: new Date(now()).toISOString() });
+        await record({ ...responseEvent(result), at: new Date(now()).toISOString(), ...(requestKey ? { requestKey } : {}) });
         return result;
       } catch (error) {
         const code = errorCode(error), delay = (error as { retryAfterMs?: unknown })?.retryAfterMs;
-        await record({ kind: "failure", at: new Date(now()).toISOString(), code });
+        await record({ kind: "failure", at: new Date(now()).toISOString(), code, ...(requestKey ? { requestKey } : {}) });
         const waitMs = typeof delay === "number" && Number.isFinite(delay) ? Math.max(1000, delay) : 60000;
         if (options.retryQuota !== false && code === "quota" && waitMs <= 60000 && summarizeDevelopmentUsage(options.events).waitedMs + waitMs <= options.limits.maxWaitMs) {
           await record({ kind: "quota_wait", at: new Date().toISOString(), waitMs });
@@ -161,5 +183,5 @@ export function developmentRequestController(options: {
       }
     }
   };
-  return { request, get halt() { return halted; } };
+  return { request, stop: (code: string) => { halted = code; }, get halt() { return halted; } };
 }

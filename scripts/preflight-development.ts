@@ -5,7 +5,7 @@ import { parseDocument, ProcessingError } from "../src/lib/processing";
 import { extractQuotation, extractionChunks, type AIRequest, type AIResult } from "../src/lib/ai";
 import { planFocusedExtraction } from "../src/lib/ai/focused-transport";
 import { assertDevelopmentEnvironment, PAIRED_COHORT, requestReservation, type DevelopmentOptions } from "../eval/development-control";
-import { inspectModelStudyBudget } from "../eval/model-study-control";
+import { inspectModelStudyBudget, MODEL_STUDY_PROTOCOL_VERSION } from "../eval/model-study-control";
 import { fingerprint, readDevelopmentManifest, sourceFile, writeImmutableJson } from "./evaluate-development";
 
 export async function captureDevelopmentRequests(root: string, extractionTransport: DevelopmentOptions["extractionTransport"], model?: NonNullable<DevelopmentOptions["model"]>) {
@@ -56,9 +56,9 @@ export async function preflightDevelopment(name: string, root = process.cwd(), e
       }
     } finally { if (previousModel === undefined) delete process.env.GROQ_MODEL; else process.env.GROQ_MODEL = previousModel; }
     const configurationStableDuringRun = (await Promise.all(models.map(async model => (await fingerprint(root, policy, extractionTransport, { model: model.configuration.model as NonNullable<DevelopmentOptions["model"]> })).sha256 === model.configuration.sha256))).every(Boolean);
-    const fits = models.every(model => model.documents.every(document => document.parserComplete) && model.reservation.attemptSlots <= 12 && model.reservation.estimatedTokens <= 60000 && model.reservation.nominalPacingMs + 60000 <= 720000 && model.reservation.maxSingleAttemptEstimatedTokens <= 7500);
+    const fits = models.every(model => model.documents.every(document => document.parserComplete) && model.reservation.attemptSlots <= 12 && model.reservation.estimatedTokens <= 90000 && model.reservation.nominalPacingMs + 60000 <= 720000 && model.reservation.maxSingleAttemptEstimatedTokens <= 7500);
     const dailyBudget = await inspectModelStudyBudget(root);
-    const report = { version: 2, name, measuredAt: new Date().toISOString(), mode: "offline_request_capture", comparisonKind, providerCalls: 0, modelOutputs: 0, heldoutReads: 0, selection, configurationStableDuringRun, models, limits: { attemptSlots: 12, estimatedTokens: 60000, totalWaitingMs: 720000, singleAttemptEstimatedTokens: 7500, sharedUtcDayEstimatedTokens: 180000, maxTransportAttempts: 1 }, fits, dailyBudget, limitation: "Full fixed cohort for each model, using invalid injected responses only. Estimated reservations include exactly one transport attempt; retry is disabled. A whole phase allocation must fit the shared UTC-day budget before any call. The next phase may require a new UTC day. This is not measured model quality, provider quota, or billing." };
+    const report = { version: 2, modelStudyProtocolVersion: MODEL_STUDY_PROTOCOL_VERSION, name, measuredAt: new Date().toISOString(), mode: "offline_request_capture", comparisonKind, providerCalls: 0, modelOutputs: 0, heldoutReads: 0, selection, configurationStableDuringRun, models, limits: { attemptSlots: 12, estimatedTokens: 90000, totalWaitingMs: 720000, singleAttemptEstimatedTokens: 7500, sharedUtcDayEstimatedTokens: 180000, maxTransportAttempts: 1 }, fits, dailyBudget, limitation: "Full fixed cohort for each model, using invalid injected responses only. Estimated reservations include exactly one transport attempt; retry is disabled. A whole phase allocation must fit the shared UTC-day budget before any call. Known usage may exceed estimates; accounting uses the greater value without changing historical metadata. The next phase may require a new UTC day. This is not measured model quality, provider quota, or billing." };
     await writeImmutableJson(path.join(root, "eval/results/development", name, "offline-preflight.json"), report);
     console.log(JSON.stringify({ providerCalls: 0, models: models.map(model => ({ model: model.configuration.model, reservation: model.reservation })), fits, dailyBudget }));
     return report;

@@ -21,8 +21,8 @@ const result: AIResult = { data: {}, model: "INJECTED-NO-PROVIDER", inputTokens:
 describe("explicit fixed-cohort model comparison", () => {
   it("keeps historical defaults while requiring an explicit allowed model and full cohort", () => {
     const args = ["--name", "synthetic-study", "--phase", "before", "--live", "--comparison-kind", "model", "--model", "openai/gpt-oss-120b", "--chunk-failure-policy", "retain_valid_chunks_v1", "--extraction-transport", "focused_fields_v1"];
-    expect(parseDevelopmentOptions(args)).toMatchObject({ maxRequests: 12, maxReservedTokens: 60000, maxWaitMs: 720000, comparisonKind: "model" });
-    for (const extra of [["--documents", "industrial-1"], ["--baseline-name", "old-study"], ["--max-requests", "13"], ["--max-reserved-tokens", "60001"]]) expect(() => parseDevelopmentOptions([...args, ...extra])).toThrow();
+    expect(parseDevelopmentOptions(args)).toMatchObject({ maxRequests: 12, maxReservedTokens: 90000, maxWaitMs: 720000, comparisonKind: "model" });
+    for (const extra of [["--documents", "industrial-1"], ["--baseline-name", "old-study"], ["--max-requests", "13"], ["--max-reserved-tokens", "90001"]]) expect(() => parseDevelopmentOptions([...args, ...extra])).toThrow();
     expect(() => parseDevelopmentOptions(args.map(value => value === "openai/gpt-oss-120b" ? "unapproved-model" : value))).toThrow();
     expect(() => parseDevelopmentOptions(["--name", "synthetic-study", "--phase", "before", "--live", "--model", "qwen/qwen3.8-27b"])).toThrow("comparison-kind");
     expect(parseDevelopmentOptions(["--name", "synthetic-study", "--phase", "before"])).toMatchObject({ maxRequests: 24, maxReservedTokens: 170000, maxWaitMs: 600000 });
@@ -45,6 +45,33 @@ describe("explicit fixed-cohort model comparison", () => {
 });
 
 describe("persistent aggregate free reservation budget", () => {
+  it("retains unknown-request reservations when another response exceeds its own estimate", async () => {
+    const root = await temporary();
+    await journal(root, "prior-study", "after", [
+      { ...reservation(40000), requestKey: "a".repeat(64) }, { kind: "response", at, requestKey: "a".repeat(64), usageAvailable: false, inputTokens: 0, outputTokens: 0 },
+      { ...reservation(40000, new Date(Date.parse(at) + 1).toISOString()), requestKey: "b".repeat(64) }, { kind: "response", at, requestKey: "b".repeat(64), usageAvailable: true, inputTokens: 60000, outputTokens: 10000 },
+    ]);
+    expect(await inspectModelStudyBudget(root, 90000, Date.parse(at))).toMatchObject({ committedEstimatedTokens: 110000, remainingEstimatedTokens: 70000, phaseFits: false });
+    await expect(acquireModelStudyBudget({ root, name: "model-study", phase: "before", configurationHash, allocationTokens: 90000, now: () => Date.parse(at) })).rejects.toMatchObject({ code: "model_study_daily_budget" });
+  });
+  it("uses actual known phase usage when it exceeds estimates without rewriting original reservations", async () => {
+    const root = await temporary();
+    const filename = await journal(root, "prior-study", "after", [reservation(40000), { kind: "response", at, inputTokens: 35000, outputTokens: 15000, usageAvailable: true }]);
+    const original = await readFile(filename, "utf8");
+    expect(await inspectModelStudyBudget(root, 90000, Date.parse(at))).toMatchObject({ committedEstimatedTokens: 50000, remainingEstimatedTokens: 130000 });
+    const budget = await acquireModelStudyBudget({ root, name: "model-study", phase: "before", configurationHash, allocationTokens: 90000, now: () => Date.parse(at) });
+    expect(budget.current()).toMatchObject({ committedEstimatedTokens: 140000, remainingEstimatedTokens: 40000 });
+    await budget.close();
+    expect(await readFile(filename, "utf8")).toBe(original);
+  });
+  it("never rolls common settlement time backwards when recovering older response metadata", async () => {
+    const root = await temporary(), now = Date.parse(at);
+    const budget = await acquireModelStudyBudget({ root, name: "model-study", phase: "before", configurationHash, allocationTokens: 90000, now: () => now });
+    await budget.annotate({ kind: "failure", at: new Date(now + 5000).toISOString() });
+    await budget.annotate({ kind: "failure", at });
+    expect(budget.lastActivity()).toBe(new Date(now + 5000).toISOString());
+    await budget.close();
+  });
   it("seeds prior reservations once, permits one whole phase, blocks a second until the next UTC day", async () => {
     const root = await temporary(); let now = Date.parse(at);
     await journal(root, "prior-study", "after", [reservation(118920), { kind: "failure", at, code: "invalid_output" }]);
