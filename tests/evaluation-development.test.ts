@@ -24,6 +24,9 @@ describe("development-only evaluation selection and artifacts", () => {
     expect(parseDevelopmentOptions(["--name", "candidate-two", "--phase", "after", "--live", "--baseline-name", "original-before"])).toMatchObject({ baselineName: "original-before", phase: "after", live: true });
     for (const args of [["--phase", "before", "--live", "--baseline-name", "original-before"], ["--phase", "after", "--baseline-name", "original-before"], ["--phase", "after", "--live", "--baseline-name", "../original-before"], ["--phase", "after", "--live", "--baseline-name", "candidate-two"]]) expect(() => parseDevelopmentOptions(["--name", "candidate-two", ...args])).toThrow("baseline-name");
     expect(options.chunkFailurePolicy).toBe("reject_document");
+    expect(options.extractionTransport).toBe("legacy_v5");
+    expect(parseDevelopmentOptions(["--name", "fact-candidate", "--phase", "after", "--live", "--extraction-transport", "fact_ledger_v1"]).extractionTransport).toBe("fact_ledger_v1");
+    expect(() => parseDevelopmentOptions(["--name", "fact-candidate", "--phase", "after", "--extraction-transport", "fact_ledger_v1"])).toThrow();
     expect(parseDevelopmentOptions(["--name", "candidate-three", "--phase", "after", "--live", "--chunk-failure-policy", "retain_valid_chunks_v1"]).chunkFailurePolicy).toBe("retain_valid_chunks_v1");
     for (const args of [["--phase", "before", "--live"], ["--phase", "after"]]) expect(() => parseDevelopmentOptions(["--name", "candidate-three", ...args, "--chunk-failure-policy", "retain_valid_chunks_v1"])).toThrow("explicit live after");
     expect(() => parseDevelopmentOptions(["--name", "candidate-three", "--phase", "after", "--live", "--chunk-failure-policy", "repair-invalid-values"])).toThrow("supported explicit");

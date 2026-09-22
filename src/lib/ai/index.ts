@@ -10,6 +10,7 @@ import { extractionSchema, sectionFieldKeys, itemAttributeFieldKeys, strictSchem
 import { extractionInstruction } from "./transport";
 import { typedExtractionInstruction, typedExtractionWireSchemaForTargets } from "./typed-transport";
 import { partitionedExtractionInstruction, partitionedExtractionWireSchemaForTargets } from "./partitioned-transport";
+import { factExtractionInstruction, factExtractionWireSchemaForTargets, factProviderSchema } from "./fact-transport";
 import { extractionCompletenessIssues } from "./completeness";
 import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
@@ -114,14 +115,16 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
   const typedTransport = options.extractionTransport === "typed_fields_v1";
   const partitionedTransport = options.extractionTransport === "typed_fields_v2";
+  const factTransport = options.extractionTransport === "fact_ledger_v1";
   const rejectedUsage: RejectedAIUsage[] = [], rejectedSources: string[] = [];
   for (let index = 0; index < chunks.length; index++) {
     await progress(options, "extracting", 35 + Math.round(index / chunks.length * 45), `Extracting quotation section ${index + 1} of ${chunks.length}`);
     const targets = chunks[index], context = extractionContext(parsed, targets);
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
     try {
-      const requestSchema = partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targets.map(source => source.id), [...targets, ...context].map(source => source.id))) : strictSchema(extractionSchema);
-      const accepted = await requestAI({ purpose: "extraction", transport: partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
+      const targetIds = targets.map(source => source.id), knownIds = [...targets, ...context].map(source => source.id);
+      const requestSchema = factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
+      const accepted = await requestAI({ purpose: "extraction", transport: factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
         user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
         const validated = extractionSchema.safeParse(result.data);
         if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");

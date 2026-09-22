@@ -3,6 +3,7 @@ import type { FieldValue, ParsedDocument, Quotation, SourceSpan } from "../src/l
 import { resolveField } from "../src/lib/domain/corrections";
 import { canonical, fraction, scoreExtraction } from "./metrics";
 import { decimal } from "../src/lib/domain/calculate";
+import { alignQuotationCharges } from "./charge-alignment";
 
 function locationSupports(actual: SourceSpan, expected: SourceSpan): boolean {
   if (actual.documentId !== expected.documentId) return false;
@@ -21,6 +22,7 @@ const numericFields = new Set(["quantity", "unitPrice", "lineAmount", "packageSi
  */
 export function auditExtractionReadiness(expected: FixtureRecord, actual: Quotation, parsed: ParsedDocument) {
   const score = scoreExtraction(expected, actual, parsed), sourceMap = new Map(parsed.sources.map(source => [source.id, source]));
+  const chargeAlignment = alignQuotationCharges(expected, actual, parsed, { mappedItemIds: score.mappedItems });
   const critical = expected.fields.filter(field => field.critical && field.state === "value");
   const criticalNonValues = expected.fields.filter(field => field.critical && field.state !== "value");
   const supportedPaths = new Set<string>();
@@ -39,9 +41,7 @@ export function auditExtractionReadiness(expected: FixtureRecord, actual: Quotat
   for (const gold of critical) {
     const parts = gold.path.split(".");
     if (parts[0] === "items") { const mapped = score.mappedItems[parts[1]]; if (!mapped) continue; parts[1] = mapped; }
-    // Equal amounts at the same index cannot substitute one commercial charge
-    // kind for another, even when they share a source summary or currency.
-    if (parts[0] === "charges" && actual.charges[Number(parts[1])]?.kind !== expected.quotation.charges[Number(parts[1])]?.kind) continue;
+    if (parts[0] === "charges") { const mapped = chargeAlignment.mappedChargeIndices[parts[1]]; if (mapped === undefined) continue; parts[1] = String(mapped); }
     let field: FieldValue;
     try { field = resolveField(actual, parts.join(".")); } catch { continue; }
     const equal = numericFields.has(parts.at(-1)!) ? Boolean(decimal(field.value)?.eq(decimal(gold.value) ?? "NaN")) : canonical(field.value ?? "") === canonical(gold.value ?? "");
@@ -52,9 +52,8 @@ export function auditExtractionReadiness(expected: FixtureRecord, actual: Quotat
   for (const gold of criticalNonValues) {
     const parts = gold.path.split(".");
     if (parts[0] === "items") { const mapped = score.mappedItems[parts[1]]; if (!mapped) continue; parts[1] = mapped; }
-    // Do not turn an absent charge container into a fabricated not-stated charge,
-    // or match the non-value state of a different kind of charge at that index.
-    if (parts[0] === "charges" && actual.charges[Number(parts[1])]?.kind !== expected.quotation.charges[Number(parts[1])]?.kind) continue;
+    // A non-value state does not establish charge identity or verified absence.
+    if (parts[0] === "charges") { const mapped = chargeAlignment.mappedChargeIndices[parts[1]]; if (mapped === undefined) continue; parts[1] = String(mapped); }
     let field: FieldValue;
     try { field = resolveField(actual, parts.join(".")); } catch { continue; }
     if (field.state !== gold.state) continue;
@@ -74,10 +73,11 @@ export function auditExtractionReadiness(expected: FixtureRecord, actual: Quotat
   const fullItemRecall = score.lineItemRecall.numerator === expected.quotation.items.length;
   const noExtraItems = score.lineItemPrecision.numerator === actual.items.length;
   const criticalComplete = critical.length > 0 && supportedPaths.size === critical.length;
-  // The wire deliberately represents not_stated as no assertion, with no raw
-  // citation. State agreement is checkable; verified absence is not implied.
+  // Source-free not_stated charges intentionally remain unresolved under the
+  // strict alignment gate. Do not create evidence or containers to make it pass.
   const nonValuesComplete = correctNonValues === criticalNonValues.length;
-  return { version: "fieldops-readiness-3", passesSelectedAnnotationGate: actual.status === "ready" && parsed.manifest.complete && actual.manifest.complete && fullItemRecall && noExtraItems && completeItems === expected.quotation.items.length && criticalComplete && nonValuesComplete && allSourcesPreserved && !blockers && !unsourcedStatedFields && totalReferences === resolvableReferences,
+  return { version: "fieldops-readiness-4", passesSelectedAnnotationGate: actual.status === "ready" && parsed.manifest.complete && actual.manifest.complete && fullItemRecall && noExtraItems && completeItems === expected.quotation.items.length && criticalComplete && nonValuesComplete && allSourcesPreserved && !blockers && !unsourcedStatedFields && totalReferences === resolvableReferences,
     applicationReady: actual.status === "ready", parserComplete: parsed.manifest.complete, fullItemRecall: score.lineItemRecall, completeExpectedItems: fraction(completeItems, expected.quotation.items.length), correctCriticalStatedFields: fraction(correctCritical, critical.length), evidenceBackedCriticalStatedFields: fraction(supportedPaths.size, critical.length), correctCriticalNonValueStates: fraction(correctNonValues, criticalNonValues.length), sourceLinkedCriticalNonValueStates: fraction(sourceLinkedNonValues, criticalNonValues.length), unverifiedCriticalNonValueStates: correctNonValues - sourceLinkedNonValues, allFieldReferenceResolvability: fraction(resolvableReferences, totalReferences), unsourcedStatedFields, extraOrUnalignedItems: actual.items.length - score.lineItemPrecision.numerator, unresolvedBlockingIssues: blockers, originalSourcesPreserved: allSourcesPreserved,
-    limitations: ["This separate gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields.", "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.", "Annotated charges must have the expected kind at the recorded index. Matching kinds do not prove equivalent application, scope or billing period; this is not full semantic charge matching.", "Critical non-value state agreement is separate from evidence. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence; matching unsourced states remain unverified. Non-value source linkage is diagnostic and is not required by this annotation gate. Never invent a charge or citation to satisfy it.", "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.", "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."] };
+    chargeAlignment,
+    limitations: ["This separate v4 gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields. Its charge alignment differs from older positional gates; results across gate versions are not interchangeable.", "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.", "Charges require mutually unique kind, application, currency, billing-period and amount-location alignment before field scoring. Item-scoped charges also require the independently scored item mapping. Array order and equal amounts do not establish identity.", "Critical non-value agreement is scored only after entity alignment. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence. Source-free not-stated charges intentionally remain unresolved, so documents with these annotated charges cannot pass this conservative gate automatically. Never invent a charge or citation to satisfy it.", "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.", "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."] };
 }

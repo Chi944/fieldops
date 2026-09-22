@@ -4,13 +4,15 @@ import { parseDocument } from "../src/lib/processing";
 
 const csv = "Supplier,Acme,,,,\nCurrency,USD,,,,\nDescription,Identifier,Quantity,Unit,Unit price,Line amount\nWidget,W-1,2,each,10,20";
 function response(request: AIRequest, mutate?: (data: ReturnType<typeof wireData>) => void): AIResult {
-  expect(["quotation-v6", "quotation-v7"]).toContain(request.transport);
+  expect(["quotation-v6", "quotation-v7", "quotation-v8"]).toContain(request.transport);
   const wire = compactExtractionRequest(request);
-  expect(JSON.stringify(wire.request.schema)).toContain("$ref");
+  if (request.transport === "quotation-v8") expect(JSON.stringify(wire.request.schema)).not.toContain("$ref");
+  else expect(JSON.stringify(wire.request.schema)).toContain("$ref");
   const data = wireData(JSON.parse(wire.request.user).sources);
   mutate?.(data);
   const partition = (fields: typeof data.quotation) => ({ numeric: fields.filter(field => ["quantity", "unitPrice", "lineAmount"].includes(field.key)), text: fields.filter(field => !["quantity", "unitPrice", "lineAmount"].includes(field.key)) });
-  const payload = request.transport === "quotation-v7" ? { ...data, quotation: partition(data.quotation), attributes: { decimal: [], text: [] }, items: data.items.map(item => ({ ...item, fields: partition(item.fields), attributes: { decimal: [], text: [] } })) } : data;
+  const facts = (section: string, entity: string, fields: typeof data.quotation) => fields.map(field => ({ ...field, section, entity, type: ["quantity", "unitPrice", "lineAmount"].includes(field.key) ? "decimal" : "text" }));
+  const payload = request.transport === "quotation-v8" ? { facts: [...facts("supplier", "document", data.supplier), ...facts("quotation", "document", data.quotation), ...facts("terms", "document", data.terms), ...data.items.flatMap((item, index) => facts("item", `i${index + 1}`, item.fields))], excluded: data.excluded, uncertainties: data.uncertainties } : request.transport === "quotation-v7" ? { ...data, quotation: partition(data.quotation), attributes: { decimal: [], text: [] }, items: data.items.map(item => ({ ...item, fields: partition(item.fields), attributes: { decimal: [], text: [] } })) } : data;
   return { data: wire.restore(payload), model: "INJECTED-NO-PROVIDER", inputTokens: 0, outputTokens: 0, elapsedMs: 0, costUsd: null, usageAvailable: false };
 }
 function wireData(sources: { id: string; cell: string }[]) {
@@ -23,7 +25,7 @@ function wireData(sources: { id: string; cell: string }[]) {
 }
 async function document() { return parseDocument({ documentId: "typed-boundary", filename: "quotation.csv", bytes: Buffer.from(csv) }); }
 
-describe.each(["typed_fields_v1", "typed_fields_v2"] as const)("%s source evidence through wire restoration and domain integration", extractionTransport => {
+describe.each(["typed_fields_v1", "typed_fields_v2", "fact_ledger_v1"] as const)("%s source evidence through wire restoration and domain integration", extractionTransport => {
   it("preserves valid decimal strings, cell evidence and original sources", async () => {
     const parsed = await document();
     const quote = await extractQuotation(parsed, { extractionTransport, request: async request => response(request) });

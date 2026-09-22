@@ -11,7 +11,7 @@ export interface DevelopmentOptions {
   maxRequests: number; maxReservedTokens: number; maxWaitMs: number; envFile?: ".env.ai.local";
   baselineName?: string;
   chunkFailurePolicy: "reject_document" | "retain_valid_chunks_v1";
-  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2";
+  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1";
 }
 export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   const values = new Map<string, string>(); let live = false;
@@ -43,7 +43,7 @@ export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   if (!["reject_document", "retain_valid_chunks_v1"].includes(chunkFailurePolicy)) throw new Error("Use a supported explicit chunk failure policy.");
   if (chunkFailurePolicy !== "reject_document" && (!live || phase !== "after")) throw new Error("Retaining validated chunks requires an explicit live after phase.");
   const extractionTransport = values.get("--extraction-transport") ?? "legacy_v5";
-  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
   if (extractionTransport !== "legacy_v5" && !live) throw new Error("Typed extraction transport requires an explicit live development run.");
   return { name, phase, live, documentIds, maxRequests: number("--max-requests", 24, 24), maxReservedTokens: number("--max-reserved-tokens", 170000, 170000), maxWaitMs: number("--max-wait-ms", 600000, 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}) };
 }

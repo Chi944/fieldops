@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "name": "full-quotes-2026-09-23-facts",
+  "auditedAt": "2026-09-22T21:38:02.470Z",
+  "reportSha256": "5d3f3032525bf5f7496eab371c9d84c9cf35b3ecb9686403644e196ef239e2fd",
+  "auditCodeSha256": "e9428b6963b187df3ca9e5771aa447ed906879200e28d66cf10cbdbacca27c91",
+  "configurationHash": "e258d315073c1351f9ff8a8eb89d312ecd50ce299c9a77a981b558a41513a982",
+  "providerCalls": 0,
+  "acceptedOutputs": 0,
+  "checkpointWrites": 0,
+  "heldoutReads": 0,
+  "capturedRequests": 11,
+  "rejectedRecords": 9,
+  "providerRequestSchemaRejectedDocuments": 0,
+  "countsByStage": {
+    "provider_schema_rejected": 4,
+    "transport": 5
+  },
+  "countsByOutcome": {
+    "wire_schema_invalid": 4,
+    "wire_schema_valid_cause_unavailable": 5
+  },
+  "rejections": [
+    {
+      "documentId": "office-2",
+      "section": 1,
+      "requestSha256": "05627bc650857ffa1eeb7e2701a7b688cc16a3018356ace45d30ba800ee7a1a1",
+      "rejectionSha256": "892a54bd7c0780752e781c033a623ff3458df0184fe22bb6db74e8e88d66b43a",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": true,
+      "stage": "transport",
+      "outcome": "wire_schema_valid_cause_unavailable",
+      "issues": []
+    },
+    {
+      "documentId": "translation-2",
+      "section": 4,
+      "requestSha256": "39662eba462bfe0c3de6ef4c211f472823a961c48818f999d1c8ec5beb1e0ab9",
+      "rejectionSha256": "96755c928ee2f7b10ea7679678902addc45068fbfcb704fb0f4e1bea5fb42f5e",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": true,
+      "stage": "transport",
+      "outcome": "wire_schema_valid_cause_unavailable",
+      "issues": []
+    },
+    {
+      "documentId": "translation-2",
+      "section": 1,
+      "requestSha256": "750a6c850ee36e04044155ef98941d1a15deaf7ae26aae3918451bd99c1b770b",
+      "rejectionSha256": "2ceb32d6ad6cb73445f16d6898149745e63ea7f7cb0e257f3c540d085cded997",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": true,
+      "stage": "transport",
+      "outcome": "wire_schema_valid_cause_unavailable",
+      "issues": []
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 3,
+      "requestSha256": "763bc828ce245fd5d413437f2c2d3f396ea5d72e493b12adff6ad7c9ba7970ed",
+      "rejectionSha256": "2c0fdff91853b6a03259bf0b6b28ed627f3dfd196df71d755726ea1e3cdf1bd7",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_value",
+          "path": "/excluded/2/sourceIds/0"
+        },
+        {
+          "code": "invalid_value",
+          "path": "/excluded/2/sourceIds/1"
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 1,
+      "requestSha256": "822fd549f03d9ecd6baceaf19871a6ee47f76aaf8d49c85cbe944aca8fab086f",
+      "rejectionSha256": "d37ba44f4599c3097bc62c0d1892016830cae86941080c41a721c0277c1b8695",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": true,
+      "stage": "transport",
+      "outcome": "wire_schema_valid_cause_unavailable",
+      "issues": []
+    },
+    {
+      "documentId": "office-2",
+      "section": 3,
+      "requestSha256": "c07f0498b53256804a6fc7c78f123412702c25f5e9bea055086dd84c3dc5567b",
+      "rejectionSha256": "c79ae247f9c4a59def94d7bbd8e7978c5edf793e9475dc0577b4d96bae1f28af",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_value",
+          "path": "/excluded/0/sourceIds/0"
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 4,
+      "requestSha256": "cbe091612f564d1c1b84328392b2a1a9d4d9f528bec563afbeeb00d1a1586670",
+      "rejectionSha256": "85fd7b94266f567e7c67270aa359c18ed6c220355a394e08eebdd6120ff19695",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": true,
+      "stage": "transport",
+      "outcome": "wire_schema_valid_cause_unavailable",
+      "issues": []
+    },
+    {
+      "documentId": "office-2",
+      "section": 2,
+      "requestSha256": "cf0cd2b5841180115b0a48e0c0eb4efbadaeacef4f5ea4c24f38983ceed98482",
+      "rejectionSha256": "2781fabc315ed2dc0ddd13752f5168e105539f3c72775a8237185987ed0d91b9",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_value",
+          "path": "/excluded/0/sourceIds/0"
+        }
+      ]
+    },
+    {
+      "documentId": "industrial-1",
+      "section": 2,
+      "requestSha256": "d2eb6420fa9d815b58ee9c2b73bcf2fb61472e81e686e4a3a658bc2cdcd1f8bd",
+      "rejectionSha256": "7dc8e0f82c81081cc0423a93e38f64da99d3faa8581ea99738c83478d9766247",
+      "recordedErrorCode": "invalid_output",
+      "cached": false,
+      "usageAvailable": false,
+      "stage": "provider_schema_rejected",
+      "outcome": "wire_schema_invalid",
+      "issues": [
+        {
+          "code": "invalid_value",
+          "path": "/excluded/2/sourceIds/0"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Saved raw bodies are checked against the reconstructed recorded wire schema; this does not accept, repair or replay an extraction.",
+    "A locally wire-valid response can still fail state, normalization, source-evidence or business validation; its specific cause is unavailable here.",
+    "Domain-stage records are already expanded and are not misvalidated as raw wire responses. Their recorded error category is retained; detailed cause is unavailable.",
+    "Provider schema rejection means the provider rejected generated output; request-schema rejection documents are counted separately from the finalized report.",
+    "Issue messages, received values, source aliases, citations and arbitrary unknown-key names are never published. Known structural names and bounded indices are allowed.",
+    "Diagnostics are limited to 100 issues per record, four nested union levels, 24 path components and 30 unknown-key names per issue; they are not exhaustive.",
+    "Records include cached rejections if present and need not equal fresh provider attempts. This audit does not remeasure usage or extraction accuracy."
+  ]
+}
