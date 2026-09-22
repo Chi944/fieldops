@@ -101,3 +101,30 @@ npx tsx scripts/audit-development-rejections.ts --name $typedStudyName
 New reports include a separate selected-annotation readiness gate with fixed critical-field/item denominators, counting rejected and unattempted documents as failures. Historical field metrics remain unchanged. An application-ready quotation or identifier-only item recall is not sufficient to pass this gate. Inspect all material unannotated terms independently before making a broader reliability claim. No held-out fixture or gold value is supplied to extraction.
 
 Critical non-value states must agree as well: a source-linked invented shipping price still fails. Missing charge containers are not backfilled to satisfy expected states. A matching `not_stated` means absence of assertion, not independently verified absence; source-linked non-value counts are diagnostics separate from gate eligibility. Request-schema diagnostics contain only validated structural metadata, never provider messages, generations or quotation text. Earlier schema diagnostics made additional, explicitly recorded requests; the new error classification records the cause on the original failed request.
+
+## Homogeneous facts and decoder replay
+
+The [23 September study](release-study-2026-09-23.md) uses the explicit `fact_ledger_v1` development transport with the same cohort, model and budgets. Its original live implementation and original offline audits are preserved at **`92e786f`**, including all 30 matching fingerprinted files. Use a separate checkout at that commit and a new experiment name to reproduce that generation contract. Do not overwrite `full-quotes-2026-09-23-facts` or treat the current decoder as the historical implementation.
+
+```powershell
+# In the measured checkout, with a new, explicitly authorized experiment name.
+$factStudyName = 'fact-study-reproduction-2026-09-24'
+npx tsx scripts/preflight-development.ts --name $factStudyName --extraction-transport fact_ledger_v1
+npm run eval:dev -- --name $factStudyName --phase after --live --env-file .env.ai.local --baseline-name full-quotes-2026-09-21-v2 --chunk-failure-policy retain_valid_chunks_v1 --extraction-transport fact_ledger_v1
+npx tsx scripts/compare-development.ts --name $factStudyName
+npx tsx scripts/audit-development-sections.ts --name $factStudyName
+npx tsx scripts/audit-development-rejections.ts --name $factStudyName
+```
+
+The later decoder accepts an exact root-section alias where `document` was previously mandatory, rejecting inconsistent aliases. Prompts, schemas, raw excerpts, values and evidence do not change. Its **offline** replay is separate from the live measurement:
+
+```powershell
+# Requires that run's private saved responses and the exact recorded runtime.
+# Apply only the documented decoder fix; keep all other fingerprinted files fixed.
+# The original study already has this immutable replay, so do not rerun over it.
+npx tsx scripts/replay-development-facts.ts --name $factStudyName
+```
+
+The replay script refuses an unfinished/wrong-split report, unexpected source/code drift, altered request hashes, ambiguous duplicate responses, or existing output paths. It does not load an environment file or call a provider. It preserves recorded provider-schema/truncation failures without decoding, and stops a document on missing or operational responses. Accepted checkpoints and eligible local rejections still pass normal domain validation. Originals, reports, checkpoints and journals are never rewritten; private reconstructed quotations and immutable public aggregate reports use separate paths. Own-code, audit-helper, manifest, OCR, source and response hashes are rechecked before publication.
+
+Readiness **v4** aligns charges by unique kind, known scope, currency, billing period and amount-source location, never by position or equal amounts. Its fixed denominators retain unresolved charges. Source-free `not_stated` charge placeholders cannot establish identity under this strict gate, so affected documents cannot automatically pass even with otherwise correct fields. This is an explicit annotation/identity limitation, not proof of model error. Historical positional metrics and older gate reports remain unchanged. A saved-response replay is post-hoc debugging evidence and cannot replace independent held-out validation.

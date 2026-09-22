@@ -4,6 +4,8 @@ Measured 2026-09-20T11:36:30.702Z. Mode: **baseline**. Run `baseline-all-768b9c5
 
 The [20 September AI reliability review](ai-reliability-2026-09-20.md) is separate: eight returned development responses, no accepted complete quotation, and zero held-out model calls. Hosted AI remains disabled. The historical September baseline is preserved in [archived JSON](../eval/results/baseline-2026-09-13.json).
 
+Latest AI follow-up: the [23 September complete-document study](https://github.com/Chi944/fieldops/blob/main/docs/release-study-2026-09-23.md) is separate from this unchanged offline baseline. A new live fact contract returned 0/3 complete quotations and 6/129 correct critical fields. A narrow decoder fix, replayed on the same saved responses without new model calls, retained two partial quotations and 34/129 critical fields; complete extraction remains 0/3. All eight retained prices stay blocked by review issues. No held-out model calls or production AI enablement occurred. These are post-hoc development results, not general accuracy claims.
+
 ## Dataset and protocol
 
 24 self-authored originals, 8 unrelated comparison scenarios, 144 logical items and 1106 selected field assertions. Development and held-out splits each have 12 documents. Formats: 8 text_pdf, 4 scan_pdf, 4 xlsx, 4 text, 2 csv, 2 png. Eight robustness cases are separate. Untuned held-out content; offline measurement only.

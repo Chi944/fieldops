@@ -21,3 +21,41 @@ After that phase and its original audits finish, preserve its measured code in G
 Replay only this phase's saved responses through the changed decoder and existing domain checks, with zero provider calls and separately named immutable artifacts. Never revive provider-schema failures, truncation, unavailable responses or operational failures. The original live result and usage journal stay intact. This is a post-hoc application-decoder experiment on development responses, not a fresh model result, held-out evaluation or evidence of generalization. No further live phase is authorized by this probe.
 
 Readiness v4 separately replaces positional charge scoring with unique commercial-context and source-location alignment. Its strict gate cannot automatically verify source-free `not_stated` charge placeholders. Report that annotation/identity limitation independently of model failures; do not invent absence evidence or compare v4 gate scores directly with historical positional versions.
+
+## Measured result
+
+The frozen live implementation is preserved at **`92e786f`**. All 30 fingerprinted source blobs matched the staged Git snapshot before commit. Configuration stayed identical throughout the phase. [Original live report](../eval/results/development/full-quotes-2026-09-23-facts/live-after.json), [paired comparison with the original baseline](../eval/results/development/full-quotes-2026-09-23-facts/comparison.md), [separate decoder replay](../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay.json).
+
+| Measurement | Original live fact decoder | Same responses, corrected decoder |
+|---|---:|---:|
+| Complete quotations | 0/3 | 0/3 |
+| Partial / rejected quotations | 1 / 2 | 2 / 1 |
+| Correct critical stated fields | 6/129 | 34/129 |
+| Correct stated fields | 6/138 | 39/138 |
+| Aligned expected items found | 1/18 | 5/18 |
+| Aligned items / retained rows | 1/4 | 5/8 |
+| Critical stated fields with matching source location | 6/129 | 30/129 |
+| Fully correct, source-linked annotated items | 0/18 | 0/18 |
+| Selected-annotation gate v4 | 0/3 | 0/3 |
+| Validated sections | 2/11 | 5/11 |
+| New provider dispatches | 11 | 0 |
+
+This is an improvement in available validated data from a narrow application fix, **not reliable full-document extraction**. It also remains below the previous 21 September recovery result of 42/129 critical fields and 6/18 aligned items. Neither this transport nor the recovery policy becomes the application default; production stays parser-only.
+
+The three complete originals contain 18 logical items, 140 field annotations, 138 stated values and two critical non-value states. Their bytes and gold hashes are unchanged. No held-out original or annotation was used. The fixtures are self-authored; no human verification or general supplier accuracy is claimed. Historical positional field metrics remain unchanged alongside the stricter v4 charge alignment. V4's inability to verify source-free missing-charge identities is an evaluation limitation, separate from the observed extraction failures.
+
+## Diagnosed failure and fix
+
+The homogeneous shape avoided nested item/charge property confusion, but it did not eliminate failures. The original offline rejection audit found nine rejected responses: four provider-schema rejections involving excluded source references, and five locally rejected, schema-valid responses. All nine contained syntactically valid JSON. [Sanitized original rejection audit](../eval/results/development/full-quotes-2026-09-23-facts/rejection-audit.json).
+
+The first schema-valid response used the exact root section names as entity labels. It ended with `finishReason=stop` and 2,064 output tokens; there is no evidence of truncation in that response. The decoder unnecessarily required the label `document` even though the section already fixed the destination. The fix accepts either spelling only when it identifies the same root, with one consistent spelling per section. Cross-section aliases, arbitrary root IDs and mixed aliases still reject. Tests exercise all eight valid root combinations and confirm identical decoded data, unchanged inputs, and continuing rejection of fabricated excerpts or unsupported numbers. No prompt, schema, value, citation, source span or non-root identity changed.
+
+The offline replay bound all 11 saved responses to exact original request hashes. Four provider-schema failures remained rejected without decoding. One local response still failed decoding and one failed domain evidence validation. It never selected a more favorable response, replaced an excerpt, removed an exclusion or overwrote a live checkpoint.
+
+Both partial replay outputs preserve the complete original source arrays. **87/87 field references resolve**, with no unsourced stated field; this is reference integrity, not semantic entailment. Exact failed target sets remain unresolved. **All eight retained prices remain blocked, with zero cost recommendations** in the in-memory guard test. The narrower annotated-field metric has 35/40 correct-location agreements; resolving a source ID alone does not establish that it supports a claim. These distinctions explain why full extraction and the stricter gate still fail.
+
+## Usage and release decision
+
+The live phase took **652.6 seconds**, including **599.8 seconds of quota pacing**. Eleven dispatches reserved 22 attempt slots and 118,920 estimated tokens. Known returned usage was **9,827 input + 12,879 output = 22,706 tokens**; four responses lack usage. Provider invoice cost is unavailable. The offline replay has no fresh provider latency, token usage or cost measurement. No purchase, billing change, paid fallback, production key change or held-out model call occurred.
+
+The release retains the working personal and invited parser/manual workflow. Reliable automatic full-document extraction remains a release blocker. Further work needs a separately declared development experiment, then independent validation on a frozen viable candidate; changing a run name or passing software tests does not establish model reliability.

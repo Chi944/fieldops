@@ -61,3 +61,11 @@ Production hardening on 20 September reproduced an expiry defect: deleting one a
 The same work reproduced managed-account deletion failing on two non-cascading owner foreign keys. The incremental migration fixes those two relationships and uses document deletion triggers to retain private-object cleanup and reserved bytes until cleanup succeeds. A hosted synthetic recovery drill then copied five originals and 197 source spans into a verified local restore. These are concrete persistence/recovery results; they do not improve or substitute for the still-incomplete AI accuracy benchmark.
 
 The live duplicate-upload check also exposed a user-facing failure: the server correctly returned a `duplicate` code, but the interface had discarded it and searched the human-readable message for that word. Its generic Retry therefore repeated the rejection. Recovery now preserves the structured code and validated document ID, offers the existing original, and enables a separate copy only after an explicit buyer action. A browser regression uploads identical CSV bytes and checks that rejection creates no extra record before that action.
+
+## Separating a decoder bug from model reliability
+
+On 23 September, a homogeneous fact contract produced valid structured JSON that the application rejected because root facts used `supplier` or `quotation` as their local entity label instead of `document`. The section already identified the destination. Requiring that one bookkeeping spelling discarded otherwise usable source-linked data.
+
+The original live phase was frozen and committed before fixing the decoder. The fix accepts only an exact root-section alias and rejects mixed identities within a root; it leaves source excerpts, values and citations untouched. Replaying all saved responses through normal validation, with zero new model calls, improved correct critical fields from 6/129 to 34/129. Four provider-schema failures remained rejected, other evidence failures stayed visible, and all eight retained prices remained blocked.
+
+That result distinguishes a measured software improvement from an AI claim. Complete extraction stayed 0/3 and the result remained below an earlier candidate's partial-field recovery. Production AI was therefore left disabled. [Full result and reproduction boundary](release-study-2026-09-23.md).

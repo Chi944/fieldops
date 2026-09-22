@@ -4,6 +4,8 @@ FieldOps is a deployed, invited personal-workspace pilot. The supported path is 
 
 The [22 September development follow-up](ai-development-study-2026-09-22.md) preserves this boundary. It tests stricter source completeness and versioned request contracts, with separate schema-failure diagnostics and fixed-denominator field/evidence gates. Experimental transport acceptance and passing software tests do not authorize production AI.
 
+The [23 September release study](release-study-2026-09-23.md) measures another complete-cohort generation and a separate saved-response decoder replay. The replay improves critical fields from 6/129 to 34/129 while preserving evidence and all price-review blocks, but complete extraction remains 0/3. It does not pass the AI release gate or replace independent validation. The parser/manual pilot remains the supported release; final software and deployment checks are recorded in that study and [progress](progress.md).
+
 ## Evidence from 20 September 2026
 
 | Area | Evidence and boundary |

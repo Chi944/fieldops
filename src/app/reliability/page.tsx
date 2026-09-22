@@ -1,5 +1,6 @@
 import Link from "next/link";
 import result from "../../../eval/results/latest.json";
+import study from "../../../eval/results/development/full-quotes-2026-09-23-facts/fact-decoder-replay.json";
 export const metadata = { title: "Reliability evidence — FieldOps" };
 export default function ReliabilityPage() {
   return (
@@ -71,21 +72,24 @@ export default function ReliabilityPage() {
       <section>
         <h2>What happened with real AI</h2>
         <p>
-          Two small, one-item synthetic quotations completed local AI extraction
-          in September, followed by an evidence-linked match and buyer approval.
-          The latest development review on 20 September tested one larger,
-          two-page quotation: eight provider responses produced two validated
-          intermediate chunks and six rejections, with no complete quotation.
-          No partial quotation was accepted as complete.
+          The latest study used three complete synthetic development quotations:
+          a two-page PDF, a CSV and pasted text. The live run returned one partial
+          quotation and {study.before.fields!.criticalFieldAccuracy.numerator}/{study.before.fields!.criticalFieldAccuracy.denominator} correct
+          critical fields. A decoder fix, tested offline on those same saved
+          responses, retained {study.after.completion.partialDocuments} partial quotations
+          and {study.after.fields.criticalFieldAccuracy.numerator}/{study.after.fields.criticalFieldAccuracy.denominator} correct
+          critical fields. Complete extraction remained {study.after.completion.completeDocuments}/{study.after.completion.requestedDocuments}.
         </p>
         <p>
-          Hosted AI remains disabled. The held-out set has received no model
-          requests, and these small probes do not establish general accuracy.
-          Missing usage from rejected responses is recorded as unknown.
+          Hosted AI remains disabled. The offline replay made no new model calls
+          and is not independent validation. All retained prices remained blocked
+          by review issues. The held-out set has received no model requests;
+          missing provider usage is recorded as unknown. Source review, manual
+          entry, approved matching and exports remain available.
         </p>
         <a
           className="text-button"
-          href="https://github.com/Chi944/fieldops/blob/main/docs/ai-reliability-2026-09-20.md"
+          href="https://github.com/Chi944/fieldops/blob/main/docs/release-study-2026-09-23.md"
         >
           Inspect the real AI results and failures →
         </a>

@@ -60,6 +60,87 @@ describe("homogeneous fact ledger transport", () => {
     expect(result.terms).toEqual([]);
   });
 
+  it("accepts only each root's own alias or document without changing facts, evidence or coverage", () => {
+    const canonical = wire();
+    canonical.facts.push(fact("terms", "document", "payment", "Net 30", "s5"));
+    canonical.excluded[0].sourceIds = ["s3", "s4"];
+    const expected = expandFactExtraction(canonical, targets);
+    const roots = ["supplier", "quotation", "terms"] as const;
+    for (let mask = 0; mask < 8; mask++) {
+      const data = structuredClone(canonical);
+      data.facts.forEach(f => { const index = roots.indexOf(f.section as typeof roots[number]); if (index >= 0 && (mask & (1 << index))) f.entity = f.section; });
+      const before = structuredClone(data);
+      expect(expandFactExtraction(data, targets)).toEqual(expected);
+      expect(data).toEqual(before);
+    }
+  });
+
+  it("rejects foreign, arbitrary and loosely normalized root aliases", () => {
+    for (const section of ["supplier", "quotation", "terms"] as const) {
+      for (const entity of ["supplier", "quotation", "terms", "i1", "arbitrary", section.toUpperCase(), ` ${section}`, `${section} `, ""].filter(entity => entity !== section)) {
+        const data = wire();
+        data.facts.push(fact(section, entity, section === "supplier" ? "contact" : section === "quotation" ? "revision" : "payment", "Synthetic", "s0"));
+        expect(() => expandFactExtraction(data, targets)).toThrow(/namespace|identifier/i);
+      }
+    }
+  });
+
+  it("rejects mixed aliases within one root in either order even for distinct field keys", () => {
+    for (const [section, keys] of [["supplier", ["name", "phone"]], ["quotation", ["currency", "revision"]], ["terms", ["payment", "delivery"]]] as const) {
+      for (const aliases of [["document", section], [section, "document"]]) {
+        const data: Wire = { facts: keys.map((key, index) => fact(section, aliases[index], key, "Synthetic", "s0")), excluded: [{ sourceIds: targets.slice(1), disposition: "header", reason: "Unused synthetic records" }], uncertainties: [] };
+        expect(() => expandFactExtraction(data, targets)).toThrow(/mixed.*alias/i);
+        data.facts[1].entity = data.facts[0].entity;
+        expect(() => expandFactExtraction(data, targets)).not.toThrow();
+        data.facts[1].key = data.facts[0].key;
+        expect(() => expandFactExtraction(data, targets)).toThrow(/duplicate/i);
+      }
+    }
+  });
+
+  it("preserves opaque non-root identifiers and their existing namespace fences", () => {
+    for (const entity of ["supplier", "quotation", "terms"]) {
+      const data = wire(); rules(data);
+      data.facts.filter(f => f.entity === "document").forEach(f => { f.entity = f.section; });
+      data.facts.forEach(f => { if (f.entity === "i1") f.entity = entity; else if (f.entity.startsWith("i1:")) f.entity = `${entity}${f.entity.slice(2)}`; });
+      const result = expandFactExtraction(data, targets);
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].tiers).toHaveLength(1);
+      expect(result.items[0].discount?.value).toBe("5");
+      const charge = wire(); charge.excluded[0].sourceIds = ["s3", "s4"];
+      charge.facts.push(fact("charge", entity, "amount", "5", "s5", "decimal"));
+      expect(expandFactExtraction(charge, targets).charges).toHaveLength(1);
+    }
+    for (const section of ["item", "charge", "tier", "discount"] as const) {
+      const data = wire(); data.facts.push(fact(section, "document", "extra", "Synthetic"));
+      expect(() => expandFactExtraction(data, targets)).toThrow(/namespace/i);
+    }
+  });
+
+  it("does not synthesize missing root facts or allow an alias to bypass structural validation", () => {
+    const missing = wire(); missing.facts = missing.facts.filter(f => f.section !== "supplier"); missing.excluded[0].sourceIds.push("s0");
+    expect(expandFactExtraction(missing, targets).supplier).toEqual([]);
+    const aliased = wire(); aliased.facts.filter(f => ["supplier", "quotation"].includes(f.section)).forEach(f => { f.entity = f.section; });
+    const foreign = structuredClone(aliased); foreign.facts[0].sourceIds = ["foreign-document"];
+    expect(() => expandFactExtraction(foreign, targets)).toThrow();
+    const extra = structuredClone(aliased); Object.assign(extra.facts[0], { unexpected: true });
+    expect(() => expandFactExtraction(extra, targets)).toThrow();
+    const state = structuredClone(aliased); state.facts[0].state = "not_stated";
+    expect(() => expandFactExtraction(state, targets)).toThrow(/state/i);
+    const decimal = structuredClone(aliased); decimal.facts.find(f => f.key === "quantity")!.value = "2 each";
+    expect(() => expandFactExtraction(decimal, targets)).toThrow(/decimal/i);
+  });
+
+  it("keeps exact excerpt and numeric evidence checks after accepting root aliases", async () => {
+    const data = wire(); data.facts.filter(f => ["supplier", "quotation"].includes(f.section)).forEach(f => { f.entity = f.section; });
+    const valid = await integrate(data);
+    expect(valid.supplier.name.value).toBe("Acme");
+    const raw = structuredClone(data); raw.facts[0].raw = "Invented label: Acme";
+    await expect(integrate(raw)).rejects.toMatchObject({ code: "invalid_evidence" });
+    const numeric = structuredClone(data); numeric.facts.find(f => f.key === "unitPrice")!.value = "100";
+    await expect(integrate(numeric)).rejects.toMatchObject({ code: "invalid_evidence" });
+  });
+
   it.each(["2 each", "1,250", "1e3", "9%"])("rejects noncanonical core decimal %s without lexical repair", value => {
     const data = wire(); data.facts.find(f => f.key === "quantity")!.value = value;
     expect(() => expandFactExtraction(data, targets)).toThrow(/decimal/);

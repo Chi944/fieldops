@@ -59,13 +59,19 @@ export function expandFactExtraction(data: unknown, targetIds: string[], context
   if (!parsed.success) throw new ProcessingError(parsed.error.issues.some(issue => issue.path.includes("sourceIds")) ? "invalid_evidence" : "invalid_output", "The model output did not match the source-linked fact ledger schema.");
   const ledger = parsed.data, targetSet = new Set(targetIds);
   const groups = new Map<string, { section: Fact["section"]; facts: Fact[] }>(), seen = new Set<string>();
+  const rootEntities = new Map<Fact["section"], string>();
   for (const fact of ledger.facts) {
     if (!fact.key.trim() || fact.key.length > 100 || !/^[A-Za-z][A-Za-z0-9_-]{0,31}(?::[A-Za-z][A-Za-z0-9_-]{0,31})?$/.test(fact.entity)) return invalid("A fact key or entity identifier is invalid.");
     if ((fact.state === "value") !== (fact.value !== null) || (fact.state === "not_stated" && (fact.raw !== null || fact.sourceIds.length))) return invalid("A fact has an inconsistent state, value or absent-source evidence.");
     if (new Set(fact.sourceIds).size !== fact.sourceIds.length || (fact.state !== "not_stated" && (!fact.sourceIds.length || !fact.raw?.trim()))) throw new ProcessingError("invalid_evidence", "A fact has missing or repeated source evidence.");
     normalize(fact);
     const root = ["supplier", "quotation", "terms"].includes(fact.section);
-    if (root !== (fact.entity === "document")) return invalid("A fact uses an invalid root or entity namespace.");
+    if (root ? fact.entity !== "document" && fact.entity !== fact.section : fact.entity === "document") return invalid("A fact uses an invalid root or entity namespace.");
+    if (root) {
+      const previous = rootEntities.get(fact.section);
+      if (previous !== undefined && previous !== fact.entity) return invalid("A root fact section uses mixed entity aliases.");
+      rootEntities.set(fact.section, fact.entity);
+    }
     const groupKey = root ? `${fact.section}:document` : fact.entity;
     const group = groups.get(groupKey);
     if (group && group.section !== fact.section) return invalid("An entity identifier is shared by incompatible fact sections.");
