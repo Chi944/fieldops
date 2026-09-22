@@ -62,6 +62,8 @@ The [22 September follow-up](docs/ai-development-study-2026-09-22.md) adds sourc
 
 The [23 September release study](docs/release-study-2026-09-23.md) preserves a failed live experiment and two separate offline corrections. The latest replay of the same saved responses **without model calls** retains three partial quotations, **47/129 correct critical fields and 7/18 aligned expected items**, compared with 6/129 and 1/18 in the original live run. Complete extraction and the annotation gate remain **0/3**; all **10 retained comparison rows** stay blocked. This is post-hoc development evidence, not a fresh model result, semantic matching benchmark or permission to enable hosted AI.
 
+The [Groq focused follow-up](docs/groq-focused-study-v2-2026-09-23.md) preserves an interrupted live study and fixes a source-supported written-date contract mismatch. Replaying the same responses for **one** complete development original improves critical fields from **40/43 to 43/43**, but its result remains partial and all six prices remain blocked. The new resumable study harness passes local verification (**577 tests and 10 browser workflows**); the fresh full-cohort model comparison awaits free-budget admission. Production AI remains disabled.
+
 ```powershell
 npm run typecheck
 npm run lint

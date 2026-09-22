@@ -1,0 +1,408 @@
+{
+  "version": 1,
+  "name": "groq-focused-2026-09-23",
+  "phase": "before",
+  "status": "interrupted",
+  "modelComparisonEligible": false,
+  "reportedAt": "2026-09-22T22:43:43.478Z",
+  "originalRunnerAbsent": true,
+  "interruptionCause": "unverified",
+  "firstRecordedStart": "2026-09-22T22:26:35.970Z",
+  "lastRecordedEvent": "2026-09-22T22:33:03.693Z",
+  "providerCallsByThisReporter": 0,
+  "heldoutReadsByThisReporter": 0,
+  "configuration": {
+    "promptVersion": "fieldops-extraction-6",
+    "model": "openai/gpt-oss-120b",
+    "chunkFailurePolicy": "retain_valid_chunks_v1",
+    "extractionTransport": "focused_fields_v1",
+    "comparisonKind": "model",
+    "modelProfile": {
+      "version": "gpt-oss-low-v1",
+      "reasoning_effort": "low"
+    },
+    "allowPreviewModel": true,
+    "maxTransportAttempts": 1,
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "90d1132d85a9ca64bf63bb6322450713450a445e47fb6191164fb61b512dd79a"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "d175c825226cc13b9c6bb12dede80cfedb3f330a453013d426557dcabd42153f"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+      },
+      {
+        "file": "src/lib/ai/typed-transport.ts",
+        "sha256": "d3fd5a0718c4d00663fbb069368eae591a9838e9bab498d30e5f501685f5a575"
+      },
+      {
+        "file": "src/lib/ai/provider-schema.ts",
+        "sha256": "6eb17400b165c4abf73829b3ab2567cbb2bcc67abadc5b50cacccc02f08b7a21"
+      },
+      {
+        "file": "src/lib/ai/completeness.ts",
+        "sha256": "477e8d435750583b28be2395422569eee7051c2dff8c9df25eedf91e9d4522f1"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "e047a8f1f17db5954ccdb740fe64125cc5239b75e4487a15b33905f84ec4a1b8"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "39d9541d2c4c96fa550f976a30b31c988d765d5bc94f33b879d7642d763bcc40"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/readiness.ts",
+        "sha256": "2359d9b6eca36c29732bf82f74563cab50e1abf573e4ff5c3ce1c0d3948aceeb"
+      },
+      {
+        "file": "eval/charge-alignment.ts",
+        "sha256": "263900aae3311b56fe14032140292a3c79c20f455b84ce343dbc937e6ad2a574"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "e89f7c487e8c3d3f0526bc3f03a648bf452425721ea467a14213403df921e185"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "e4fedfce1b187d332e90682c8d77d5fb244a9313dd5a08a985fde9b865a85252"
+      },
+      {
+        "file": "src/lib/ai/partitioned-transport.ts",
+        "sha256": "6b2d69f017d76a9f815060fc775a15195ec36f9f531ae3a6f22d4926d6ae4d1c"
+      },
+      {
+        "file": "src/lib/ai/provider-error.ts",
+        "sha256": "40925831ccf9cbe850d5054d46c4f7c077eb42c433e5f8435594869ac2bacb8e"
+      },
+      {
+        "file": "src/lib/ai/fact-transport.ts",
+        "sha256": "14c72a0d7232c981894b167bf3fb29b63cd16635c3ed4edd4107ec9019ad828a"
+      },
+      {
+        "file": "src/lib/ai/focused-transport.ts",
+        "sha256": "d0eac8c9427ec9ab3cd413e5247bb986b2a0efc3865c2140e9f9855604108d0b"
+      },
+      {
+        "file": "eval/model-study-control.ts",
+        "sha256": "f701a33b3c825a4d0bdad66c732af4e93924432973f431003e46e97e9b60f3e5"
+      },
+      {
+        "file": "scripts/preflight-development.ts",
+        "sha256": "07cc1dd5206d75255cb69ad9e2cf3de303a8752ff954fffb719010604439303a"
+      },
+      {
+        "file": "scripts/compare-development.ts",
+        "sha256": "69d19e832474c6b37c6cd7baf81c059a3551adc5036134623ff5240b4bac20e7"
+      }
+    ],
+    "sha256": "2ba1f0fb649d081a8ef05ed9c097f7e6ef170ed44c100abf996fe5d1ea8d8257"
+  },
+  "preflightSha256": "750d348f1c0f5ff5e6a0dea1833982ae2f8b8310b2ca7d5832d138bf4448bf1a",
+  "planSha256": "0c5e7c5d922b3f8c5b742e0f203d8315229c1d66903405ce2900651ba72a29a7",
+  "journalSha256": "eb84eaad1c20d914744f66f1644de6b9f3ee8a3e980a30e96d41ffab04f5e4c4",
+  "lockSha256": "6b082c42afa3adb0966ab8ea087e1e910141771cddc46a25639f35aad3462d6e",
+  "reporterSha256": "6296f099c3a3fc465531b34dfef664169deab896f40cb0137a528cdd9244f602",
+  "dataset": {
+    "requestedDocuments": 3,
+    "logicalItems": 18,
+    "split": "dev",
+    "synthetic": true
+  },
+  "observedUsage": {
+    "dispatches": 7,
+    "reservedAttemptSlots": 7,
+    "reservedTokens": 33278,
+    "waitedMs": 419926,
+    "returnedResponses": 7,
+    "responsesWithoutUsage": 0,
+    "inputTokens": 26888,
+    "outputTokens": 9421,
+    "responseElapsedMs": 25228,
+    "failures": 0,
+    "rejections": 1,
+    "providerInvoiceUsd": null,
+    "scope": "Durable reservations are conservative attempt counts and heuristic token estimates, not measured billing or a hard tokenizer bound. Two attempt slots cover one possible internal transient retry. Returned token totals exclude explicitly unavailable usage; transport failures can have unreported usage. A reservation survives interruption, including dispatches whose outcome is unknown."
+  },
+  "budget": {
+    "utcDay": "2026-09-22",
+    "ceiling": 180000,
+    "committedEstimatedTokens": 178920,
+    "remainingEstimatedTokens": 1080,
+    "fullPhaseAllocation": 60000,
+    "fullPairFits": false,
+    "phaseFits": false,
+    "scope": "Shared local estimated reservations across development journals and both models; unknown/interrupted usage is never refunded. This does not measure provider/account quota or other applications."
+  },
+  "fields": {
+    "statedFieldAccuracy": {
+      "numerator": 40,
+      "denominator": 138,
+      "value": 0.2898550724637681
+    },
+    "criticalFieldAccuracy": {
+      "numerator": 40,
+      "denominator": 129,
+      "value": 0.31007751937984496
+    },
+    "annotatedMissingStateAccuracy": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "lineItemPrecision": {
+      "numerator": 6,
+      "denominator": 6,
+      "value": 1
+    },
+    "lineItemRecall": {
+      "numerator": 6,
+      "denominator": 18,
+      "value": 0.3333333333333333
+    },
+    "annotatedReviewSignalRecall": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "sourceReferenceResolvability": {
+      "numerator": 40,
+      "denominator": 40,
+      "value": 1
+    },
+    "correctFieldLocationAgreement": {
+      "numerator": 40,
+      "denominator": 40,
+      "value": 1
+    }
+  },
+  "documents": [
+    {
+      "id": "industrial-1",
+      "status": "partial",
+      "providerDispatches": 4,
+      "retainedFinalQuotation": true,
+      "outputSha256": "823338eacf636e263da6e98a815be1d3c0a01ced2e565cd3a7c5cbbaf53d6440",
+      "originalSourceArrayPreserved": true,
+      "sourceCount": 40,
+      "retainedItems": 6,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 40,
+          "denominator": 46,
+          "value": 0.8695652173913043
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 40,
+          "denominator": 43,
+          "value": 0.9302325581395349
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemPrecision": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "translation-2",
+      "status": "interrupted_without_final_quotation",
+      "providerDispatches": 3,
+      "retainedFinalQuotation": false,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 48,
+          "value": 0
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 45,
+          "value": 0
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemRecall": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      }
+    },
+    {
+      "id": "office-2",
+      "status": "not_attempted",
+      "providerDispatches": 0,
+      "retainedFinalQuotation": false,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 44,
+          "value": 0
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 0,
+          "denominator": 41,
+          "value": 0
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemRecall": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "This is not a finalized live-before report and must not enter the planned two-model comparison.",
+    "Only saved final quotation outputs are scored. Incomplete documents and unattempted documents receive zero recall credit against the entire fixed cohort; cached sections are not fabricated into final quotations.",
+    "Source references resolving or retained source arrays matching does not prove semantic correctness.",
+    "Recorded quota waits may include a wait interrupted before completion. Full end-to-end latency and provider invoice cost are unavailable.",
+    "Known returned token use may exceed character-based estimates; the original estimated reservations and full-phase allocation remain unchanged, with no refund.",
+    "Original results, private responses and both stopped-run lock files remain untouched. No model response was retried or repaired."
+  ]
+}

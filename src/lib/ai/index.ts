@@ -14,6 +14,8 @@ import { factExtractionInstruction, factExtractionWireSchemaForTargets, factProv
 import { extractionCompletenessIssues } from "./completeness";
 import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
+import { planFocusedExtraction, focusedExtractionWireSchema, focusedProviderSchema, focusedExtractionInstruction } from "./focused-transport";
+import { normalizeWrittenDate } from "./dates";
 export { extractionChunks, extractionContext } from "./chunks";
 export * from "./groq";
 export { AIUnavailableError } from "../processing/errors";
@@ -78,6 +80,7 @@ function assertSources(ids: string[], sources: Map<string, SourceSpan>, requireS
   if (new Set(ids).size !== ids.length || ids.some(id => !sources.has(id))) throw new ProcessingError("invalid_evidence", "The model returned a source reference outside this document section. The result was rejected.");
 }
 function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<string, SourceSpan>, typedAttribute = false, tierEvidence: TierEvidence = []): FieldValue {
+  let normalizedValue = field.value;
   if ((field.state === "value") !== (field.value !== null)) throw new ProcessingError("invalid_output", "The model returned an inconsistent field state and value.");
   assertSources(field.sourceIds, sources, field.state !== "not_stated");
   if (field.state !== "not_stated") {
@@ -95,10 +98,11 @@ function convertField(field: ExtractedField | ExtractedAttribute, sources: Map<s
   if (field.state === "value" && field.key === "currency" && !/^[A-Z]{3}$/.test(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid currency code. Currency must be explicitly stated and use its three-letter code.");
   if (field.state === "value" && field.key === "currency" && !hasCurrencyEvidence(field.value!, field.raw ?? "")) throw new ProcessingError("invalid_evidence", "The extracted currency is not supported by an explicit code or unambiguous currency name in its excerpt. A bare currency symbol needs review.");
   if (field.state === "value" && (field.key === "date" || (typedAttribute && field.type === "date"))) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(field.value!) || Number.isNaN(Date.parse(field.value!)) || new Date(field.value!).toISOString().slice(0, 10) !== field.value) throw new ProcessingError("invalid_output", "The model returned an invalid calendar date.");
+    normalizedValue = /^\d{4}-\d{2}-\d{2}$/.test(field.value!) ? field.value : normalizeWrittenDate(field.value!, field.raw!);
+    if (!normalizedValue || Number.isNaN(Date.parse(normalizedValue)) || new Date(normalizedValue).toISOString().slice(0, 10) !== normalizedValue) throw new ProcessingError("invalid_output", "The model returned an invalid calendar date.");
   }
   if (field.state === "value" && typedAttribute && field.type === "boolean" && !["true", "false"].includes(field.value!)) throw new ProcessingError("invalid_output", "The model returned an invalid typed boolean attribute.");
-  return { state: field.state, value: field.value, raw: field.raw, sourceIds: [...field.sourceIds], origin: "supplier" };
+  return { state: field.state, value: normalizedValue, raw: field.raw, sourceIds: [...field.sourceIds], origin: "supplier" };
 }
 function attributes(fields: ExtractedAttribute[], sources: Map<string, SourceSpan>, tierEvidence: TierEvidence = []): Attribute[] {
   return fields.map(attribute => ({ key: attribute.key, label: attribute.label, type: attribute.type, value: convertField(attribute, sources, true, tierEvidence), ...(attribute.unit ? { unit: attribute.unit } : {}) }));
@@ -124,31 +128,35 @@ function applyFields(target: Record<string, unknown>, fields: ExtractedField[], 
 
 
 export async function extractQuotation(parsed: ParsedDocument, options: AIOptions = {}): Promise<Quotation> {
-  if (!options.request) requireLiveAI(); checkCancelled(options.signal);
+  if (!options.request) requireLiveAI(options); checkCancelled(options.signal);
   if (!parsed.sources.length) throw new ProcessingError("unreadable", "There is no readable source text to extract. Upload a clearer quotation or paste the text.");
   if (parsed.sources.some(source => source.documentId !== parsed.documentId) || new Set(parsed.sources.map(source => source.id)).size !== parsed.sources.length) throw new ProcessingError("invalid_evidence", "Source ownership or source identifiers are invalid.");
   let quotation = { ...emptyQuotation(parsed.documentId, parsed.filename), ...parsed, extractionVersion: options.extractionVersion ?? 1, status: "extracting" as const, isDemo: false } as Quotation;
-  const chunks = extractionChunks(parsed); const usage: AIResult[] = [];
+  const focusedTransport = options.extractionTransport === "focused_fields_v1";
+  const tasks = focusedTransport ? planFocusedExtraction(parsed) : extractionChunks(parsed).map(sources => ({ sources, context: extractionContext(parsed, sources), kind: "document" as const, slots: [], structuralHeaderIds: [] }));
+  const usage: AIResult[] = [];
   const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
   const typedTransport = options.extractionTransport === "typed_fields_v1";
   const partitionedTransport = options.extractionTransport === "typed_fields_v2";
   const factTransport = options.extractionTransport === "fact_ledger_v1";
   const rejectedUsage: RejectedAIUsage[] = [], rejectedSources: string[] = [];
-  for (let index = 0; index < chunks.length; index++) {
-    await progress(options, "extracting", 35 + Math.round(index / chunks.length * 45), `Extracting quotation section ${index + 1} of ${chunks.length}`);
-    const targets = chunks[index], context = extractionContext(parsed, targets);
+  for (let index = 0; index < tasks.length; index++) {
+    await progress(options, "extracting", 35 + Math.round(index / tasks.length * 45), `Extracting quotation section ${index + 1} of ${tasks.length}`);
+    const task = tasks[index], targets = task.sources, context = task.context;
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
     try {
       const targetIds = targets.map(source => source.id), knownIds = [...targets, ...context].map(source => source.id);
-      const requestSchema = factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
-      const accepted = await requestAI({ purpose: "extraction", transport: factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
-        user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: chunks.length, sources: targets.map(sourceRecord), context: context.map(sourceRecord) }), maxOutputTokens: 3600 }, options, result => {
+      const requestSchema = focusedTransport ? focusedProviderSchema(focusedExtractionWireSchema(task.kind, task.slots.map(slot => slot.id), knownIds)) : factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
+      const slotBySource = new Map(task.slots.flatMap(slot => slot.sourceIds.map(id => [id, slot.id] as const)));
+      const structuralHeaders = new Set(task.structuralHeaderIds);
+      const accepted = await requestAI({ purpose: "extraction", transport: focusedTransport ? "quotation-v9" : factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: focusedTransport ? focusedExtractionInstruction(task.kind) : factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
+        user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: tasks.length, ...(focusedTransport ? { task: task.kind } : {}), sources: targets.map(source => ({ ...sourceRecord(source), ...(slotBySource.has(source.id) ? { slot: slotBySource.get(source.id) } : {}), ...(structuralHeaders.has(source.id) ? { structuralHeader: true } : {}) })), context: context.map(sourceRecord) }), maxOutputTokens: focusedTransport ? task.kind === "document" ? 3000 : 2400 : 3600 }, options, result => {
         const validated = extractionSchema.safeParse(result.data);
         if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
         // Integration can reject after applying earlier fields. Keep that tentative
         // state isolated so invalid cached responses cannot pollute a fresh retry.
         const candidate = structuredClone(quotation);
-        integrateChunk(candidate, validated.data, sourceMap);
+        integrateChunk(candidate, validated.data, sourceMap, focusedTransport ? new Set(targetIds) : undefined);
         if (candidate.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
         return { quotation: candidate, result };
       });
@@ -159,7 +167,7 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
       // The tentative candidate was never committed. Quarantine the entire
       // response, not individual fields, and retain every failed target for review.
       const sourceIds = targets.map(source => source.id);
-      issue(quotation, "incomplete_extraction", `Section ${index + 1} of ${chunks.length} failed interpretation validation (${error.code}). Its model response was discarded. Review every highlighted source section manually.`, sourceIds);
+      issue(quotation, "incomplete_extraction", `Section ${index + 1} of ${tasks.length} failed interpretation validation (${error.code}). Its model response was discarded. Review every highlighted source section manually.`, sourceIds);
       rejectedSources.push(...sourceIds); rejectedUsage.push(error.usage);
     }
   }
@@ -189,7 +197,7 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   return reconcileQuotation(quotation);
 }
 
-function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Map<string, SourceSpan>): void {
+function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Map<string, SourceSpan>, omissionTargets?: Set<string>): void {
   const referenced = new Set<string>();
   function collect(value: unknown): void { if (!value || typeof value !== "object") return; for (const [key, child] of Object.entries(value)) { if (key === "sourceIds" && Array.isArray(child)) for (const id of child) { assertSources([id], sources); referenced.add(id); } else collect(child); } }
   collect({ supplier: chunk.supplier, quotation: chunk.quotation, terms: chunk.terms, items: chunk.items, charges: chunk.charges, attributes: chunk.attributes });
@@ -280,7 +288,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
     if (coverage.disposition === "unreadable" || (["used", "continuation", "terms"].includes(coverage.disposition) && !referenced.has(coverage.sourceId))) issue(quotation, "incomplete_extraction", coverage.reason || "A source row was not fully interpreted.", [coverage.sourceId]);
     const text = sources.get(coverage.sourceId)!.text;
     const possiblePrice = /(?:[$€£¥]\s*\d|\d+[.,]\d{2}\b|\b(?:unit\s*price|line\s*(?:amount|total)|price|amount|rate)\s*[:=]?\s*(?:[A-Z]{3}\s*)?\d)/i.test(text);
-    if (["header", "non_quotation"].includes(coverage.disposition) && possiblePrice && !referenced.has(coverage.sourceId)) issue(quotation, "incomplete_extraction", "A source containing a possible price was excluded. Review it for omitted line items or charges.", [coverage.sourceId]);
+    if ((!omissionTargets || omissionTargets.has(coverage.sourceId)) && ["header", "non_quotation"].includes(coverage.disposition) && possiblePrice && !referenced.has(coverage.sourceId)) issue(quotation, "incomplete_extraction", "A source containing a possible price was excluded. Review it for omitted line items or charges.", [coverage.sourceId]);
   }
   if (covered.size !== sources.size) throw new ProcessingError("invalid_output", "The model did not account for every source section. Partial coverage was rejected.");
   // Coverage of one cell (or a generic note) does not establish that a priced row
@@ -301,7 +309,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
       : source.kind === "pdf_text" && source.box ? `pdf:${source.page}:${Math.round(source.box.y / 3)}` : `source:${source.id}`;
     const row = rows.get(key) ?? []; row.push(source); rows.set(key, row);
   }
-  const missing = [...rows.values()].filter(row => pricedRow(row) && !row.some(source => interpreted.has(source.id))).flatMap(row => row.map(source => source.id));
+  const missing = [...rows.values()].filter(row => (!omissionTargets || row.some(source => omissionTargets.has(source.id))) && pricedRow(row) && !row.some(source => interpreted.has(source.id))).flatMap(row => row.filter(source => !omissionTargets || omissionTargets.has(source.id)).map(source => source.id));
   if (missing.length) {
     const message = "A possible priced row has no corresponding item or charge evidence. Review the highlighted source sections for omitted items, amounts or terms.";
     const existing = quotation.issues.find(value => value.code === "incomplete_extraction" && value.message === message);

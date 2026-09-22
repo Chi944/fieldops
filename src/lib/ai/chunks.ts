@@ -4,7 +4,7 @@ import { ProcessingError } from "../processing/errors";
 export function sourceRecord(source: SourceSpan): Record<string, unknown> {
   return { id: source.id, text: source.text, ...(source.page ? { page: source.page } : {}), ...(source.sheet ? { sheet: source.sheet, cell: source.cell, ...(source.mergedMaster ? { mergedMaster: source.mergedMaster } : {}) } : {}), ...(source.box ? { x: Math.round(source.box.x), y: Math.round(source.box.y) } : {}) };
 }
-function rows(parsed: ParsedDocument): SourceSpan[][] {
+export function rows(parsed: ParsedDocument): SourceSpan[][] {
   const result: SourceSpan[][] = []; let previousKey = "";
   for (const source of parsed.sources) {
     const row = source.cell?.match(/\d+$/)?.[0];
@@ -24,13 +24,13 @@ export function pricedRow(row: SourceSpan[]): boolean {
   return row[0]?.kind === "sheet" && row.filter(source => /^\s*[-+]?\d[\d., '\u00a0\u202f]*(?:\s*\[formula:.*)?\s*$/.test(source.text)).length >= 2 && row.some(source => /[a-z]/i.test(source.text)) && !/^\s*(?:sub\s*total|grand total|tax|vat|gst|shipping)\b/i.test(text);
 }
 
-function commercialSummary(row: SourceSpan[]): boolean {
+export function commercialSummary(row: SourceSpan[]): boolean {
   return /^(?:sub\s*total|grand total|quoted total|total amount|shipping|freight|tax\b|vat\b|gst\b|payment\b|valid (?:until|for)\b|lead time\b|delivery terms\b)/i.test(row.map(source => source.text).join(" ").trim());
 }
 
 /** Explicit item starts keep following scope/package/MOQ rows with their anchor.
  * This is a batching boundary, not a claim that arbitrary prose is one item. */
-function extractionBlocks(parsed: ParsedDocument): { rows: SourceSpan[][]; item: boolean }[] {
+export function extractionBlocks(parsed: ParsedDocument): { rows: SourceSpan[][]; item: boolean }[] {
   const result: { rows: SourceSpan[][]; item: boolean }[] = [];
   let current: SourceSpan[][] = [];
   const flush = () => { if (current.length) { result.push({ rows: current, item: true }); current = []; } };

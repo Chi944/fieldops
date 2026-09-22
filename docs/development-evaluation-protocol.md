@@ -1,5 +1,7 @@
 # Complete quotation development comparison
 
+For the newer Groq model/profile comparison, use the [focused follow-up protocol](groq-focused-study-v2-2026-09-23.md). It preserves the [interrupted first study](groq-focused-study-2026-09-23.md), adds durable exact-request outcomes, and keeps single-attempt full-cohort admission under a shared persistent UTC-day budget. The historical implementation-comparison commands below retain their original semantics and results.
+
 This is a small adaptive development study, separate from the public offline benchmark and any held-out evaluation. Its initial pair is fixed before model changes: `industrial-1` (text PDF, mixed goods/services), `translation-2` (text, services), and `office-2` (CSV, mixed goods/services). All three originals are supplied in full: 18 authored line items. No successful section replaces a complete quotation.
 
 The runner reads only `eval/development/gold.json` and exact allowlisted paths in `eval/originals/dev`. The development manifest was copied once by filtering the existing generated manifest; no originals were regenerated and no held-out content was emitted. Runtime loading of the combined gold, held-out gold/originals or shared robustness cases is prohibited. Expected values are used for scoring only; model input consists of parsed source records. This study makes extraction calls only, with no extra AI matching task.
