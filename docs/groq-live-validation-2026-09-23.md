@@ -1,6 +1,6 @@
 # Groq live validation — 23 September 2026
 
-The user requested the frozen full-document run and production AI activation only if it works. This is the live execution of [protocol 2](groq-focused-study-v2-2026-09-23.md), using the existing dedicated Groq Free development configuration. No prompt, parser, schema, expected annotation or model profile changes are made between the two phases.
+The user requested the frozen full-document run and production AI activation only if it works. This is the live execution of [protocol 2](groq-focused-study-v2-2026-09-23.md), using the existing dedicated Groq Free development configuration. No prompt, parser, schema or expected annotation changes are made between the two phases; each phase uses its predeclared model/reasoning profile.
 
 ## Scope and decision boundary
 
