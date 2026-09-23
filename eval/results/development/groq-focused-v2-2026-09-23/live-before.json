@@ -1,0 +1,1231 @@
+{
+  "version": 1,
+  "name": "groq-focused-v2-2026-09-23",
+  "phase": "before",
+  "mode": "live",
+  "pair": {
+    "mode": "live",
+    "split": "dev",
+    "selection": [
+      {
+        "id": "industrial-1",
+        "format": "text_pdf",
+        "sha256": "cf6db8674bb62a530679287c05a8444614905723dac00d6dc2b7e88cef918680",
+        "goldSha256": "a940f84a663cdaf4ccf15151f6bc3e7e87d726c3f923b6f7bc94c56729798461"
+      },
+      {
+        "id": "translation-2",
+        "format": "text",
+        "sha256": "98eae449f4e0fbf2897cceb5f5336ba689fb4694993b8e995f63d94e2d7d9e18",
+        "goldSha256": "47c8fd33b9de153de91d9e17ad8cebae6628bcd8ff55c7174775c7c6d183a9c1"
+      },
+      {
+        "id": "office-2",
+        "format": "csv",
+        "sha256": "a6b21462a7f184cf2468b8323124cc37715eea0f10604a31a5ff73481f46314b",
+        "goldSha256": "7cc472c8f2cdc9fa97bfe230722f8789d251be54bef96a93521d0fedf814b0f9"
+      }
+    ],
+    "limits": {
+      "maxRequests": 12,
+      "maxReservedTokens": 90000,
+      "maxWaitMs": 720000
+    },
+    "metricVersion": "fieldops-model-study-2-fixed-unattempted",
+    "synthetic": true,
+    "comparisonKind": "model",
+    "modelStudyProtocolVersion": 2,
+    "models": [
+      "openai/gpt-oss-120b",
+      "qwen/qwen3.8-27b"
+    ],
+    "maxTransportAttempts": 1
+  },
+  "startedAt": "2026-09-23T04:41:41.805Z",
+  "measuredAt": "2026-09-23T04:53:25.002Z",
+  "elapsedMs": 703197,
+  "executionTiming": {
+    "originalPhaseStartedAt": "2026-09-23T04:41:41.805Z",
+    "currentSessionStartedAt": "2026-09-23T04:41:41.805Z",
+    "currentSessionElapsedMs": 703195.8759,
+    "sessionCount": 1,
+    "scope": "Phase elapsed time includes interruptions, resumes and quota pacing. Per-document durations in this report include revalidation of saved responses; they are not fresh-generation latency."
+  },
+  "configuration": {
+    "promptVersion": "fieldops-extraction-6",
+    "model": "openai/gpt-oss-120b",
+    "chunkFailurePolicy": "retain_valid_chunks_v1",
+    "extractionTransport": "focused_fields_v1",
+    "comparisonKind": "model",
+    "modelStudyProtocolVersion": 2,
+    "modelProfile": {
+      "version": "gpt-oss-low-v1",
+      "reasoning_effort": "low"
+    },
+    "allowPreviewModel": true,
+    "maxTransportAttempts": 1,
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "1173e5b783f70fd0ccbc6432ac84e58e91b4022103e6744b3e0964fe77498e39"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "755150f26675b6ed9cde17d5c019726d7659e94fe0f6597279e2fde1acd3a318"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+      },
+      {
+        "file": "src/lib/ai/typed-transport.ts",
+        "sha256": "d3fd5a0718c4d00663fbb069368eae591a9838e9bab498d30e5f501685f5a575"
+      },
+      {
+        "file": "src/lib/ai/provider-schema.ts",
+        "sha256": "6eb17400b165c4abf73829b3ab2567cbb2bcc67abadc5b50cacccc02f08b7a21"
+      },
+      {
+        "file": "src/lib/ai/completeness.ts",
+        "sha256": "477e8d435750583b28be2395422569eee7051c2dff8c9df25eedf91e9d4522f1"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "e047a8f1f17db5954ccdb740fe64125cc5239b75e4487a15b33905f84ec4a1b8"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "39d9541d2c4c96fa550f976a30b31c988d765d5bc94f33b879d7642d763bcc40"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/readiness.ts",
+        "sha256": "2359d9b6eca36c29732bf82f74563cab50e1abf573e4ff5c3ce1c0d3948aceeb"
+      },
+      {
+        "file": "eval/charge-alignment.ts",
+        "sha256": "263900aae3311b56fe14032140292a3c79c20f455b84ce343dbc937e6ad2a574"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "15300732dbaad72a6bd254f6439020f73534386c9f5216fa0b290df52637809f"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "b20cf083aa07fe8b968feea8e6c206e430abac95ead488fd46a3042efa33c3a4"
+      },
+      {
+        "file": "src/lib/ai/partitioned-transport.ts",
+        "sha256": "6b2d69f017d76a9f815060fc775a15195ec36f9f531ae3a6f22d4926d6ae4d1c"
+      },
+      {
+        "file": "src/lib/ai/provider-error.ts",
+        "sha256": "40925831ccf9cbe850d5054d46c4f7c077eb42c433e5f8435594869ac2bacb8e"
+      },
+      {
+        "file": "src/lib/ai/fact-transport.ts",
+        "sha256": "14c72a0d7232c981894b167bf3fb29b63cd16635c3ed4edd4107ec9019ad828a"
+      },
+      {
+        "file": "src/lib/ai/dates.ts",
+        "sha256": "65d6a6758eca340e174bbdd5b5388f311ff492d71c32f6c4756d6c7b929abcae"
+      },
+      {
+        "file": "src/lib/ai/focused-transport.ts",
+        "sha256": "7f8a4ae29ccc793f87488d2cb9886759a256f6be3cf5bcfbb7d15d3f1dc210ec"
+      },
+      {
+        "file": "eval/model-study-control.ts",
+        "sha256": "08d1d44f1040e0c5617c007ea45d8123ca73216dc5dd1e42fae84d8b36e4c9fc"
+      },
+      {
+        "file": "eval/development-outcomes.ts",
+        "sha256": "ffdca144a7ac0359a43640d8eaa80a9aa21752fd380ebc37e4347e73012f9934"
+      },
+      {
+        "file": "scripts/preflight-development.ts",
+        "sha256": "e1bccbbb4dc2704780fdcecc126d8c3cc6d2c6ced412242ecff5730ed4c2978c"
+      },
+      {
+        "file": "scripts/compare-development.ts",
+        "sha256": "69d19e832474c6b37c6cd7baf81c059a3551adc5036134623ff5240b4bac20e7"
+      }
+    ],
+    "sha256": "ed2325459633c4c4e6524dbdaad3722671e903ccbe6ffe3ac8e6d444ce54d8a3"
+  },
+  "configurationStableDuringRun": true,
+  "modelStudyBudget": {
+    "admission": {
+      "utcDay": "2026-09-23",
+      "ceiling": 180000,
+      "committedEstimatedTokens": 0,
+      "remainingEstimatedTokens": 180000,
+      "fullPhaseAllocation": 90000,
+      "fullPairFits": true,
+      "phaseFits": true,
+      "scope": "For each phase/day, charge at least its full-phase allocation and the sum of each request's greater reserved estimate or known usage. Unknown requests retain their individual reservation even when another request overruns. Prior metadata is not rewritten. This does not measure provider/account quota or other applications."
+    },
+    "atCompletion": {
+      "utcDay": "2026-09-23",
+      "ceiling": 180000,
+      "committedEstimatedTokens": 90000,
+      "remainingEstimatedTokens": 90000,
+      "fullPhaseAllocation": 90000,
+      "fullPairFits": false,
+      "phaseFits": true,
+      "scope": "For each phase/day, charge at least its full-phase allocation and the sum of each request's greater reserved estimate or known usage. Unknown requests retain their individual reservation even when another request overruns. Prior metadata is not rewritten. This does not measure provider/account quota or other applications."
+    },
+    "preflightSha256": "7846499d29f60e23c5291bc41d9cd5cd0e78ded5fbcd16456cb0a9c609ef0a6c",
+    "noAutomaticRetries": true
+  },
+  "dataset": {
+    "requestedDocuments": 3,
+    "logicalItems": 18,
+    "annotatedFields": 140,
+    "formats": [
+      "text_pdf",
+      "text",
+      "csv"
+    ],
+    "synthetic": true,
+    "split": "dev",
+    "heldoutDocumentsRead": 0,
+    "heldoutModelCalls": 0
+  },
+  "completion": {
+    "completeDocuments": 0,
+    "partialDocuments": 3,
+    "rejectedDocuments": 0,
+    "parserFailures": 0,
+    "unattemptedDocuments": 0,
+    "halted": null
+  },
+  "fields": {
+    "statedFieldAccuracy": {
+      "numerator": 83,
+      "denominator": 138,
+      "value": 0.6014492753623188
+    },
+    "criticalFieldAccuracy": {
+      "numerator": 77,
+      "denominator": 129,
+      "value": 0.5968992248062015
+    },
+    "annotatedMissingStateAccuracy": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "lineItemPrecision": {
+      "numerator": 10,
+      "denominator": 10,
+      "value": 1
+    },
+    "lineItemRecall": {
+      "numerator": 10,
+      "denominator": 18,
+      "value": 0.5555555555555556
+    },
+    "annotatedReviewSignalRecall": {
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0
+    },
+    "sourceReferenceResolvability": {
+      "numerator": 86,
+      "denominator": 86,
+      "value": 1
+    },
+    "correctFieldLocationAgreement": {
+      "numerator": 79,
+      "denominator": 86,
+      "value": 0.9186046511627907
+    }
+  },
+  "readiness": {
+    "passingDocuments": 0,
+    "requestedDocuments": 3,
+    "auditedOutputs": 3,
+    "correctCriticalFields": {
+      "numerator": 77,
+      "denominator": 129
+    },
+    "evidenceBackedCriticalFields": {
+      "numerator": 73,
+      "denominator": 129
+    },
+    "correctCriticalNonValueStates": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "sourceLinkedCriticalNonValueStates": {
+      "numerator": 0,
+      "denominator": 2
+    },
+    "completeExpectedItems": {
+      "numerator": 8,
+      "denominator": 18
+    },
+    "scope": "Separate selected-annotation quality gate; application complete/ready status and identifier-only row recall are insufficient. Rejected and unattempted documents do not pass and remain in the fixed quality denominators. Critical non-value states must agree without synthesizing absent containers; not_stated is absence of assertion, not verified absence. Source-linked non-value counts are separate diagnostics. No claim of unannotated semantic correctness or held-out reliability."
+  },
+  "missingStateAudit": {
+    "unsourcedMatchingStates": 0,
+    "scope": "Historical missing-state scoring is unchanged. A matching not-stated/not-applicable/ambiguous default without source evidence is not verified absence, especially after rejected sections. Inspect this diagnostic separately from accuracy."
+  },
+  "observedUsage": {
+    "dispatches": 12,
+    "reservedAttemptSlots": 12,
+    "reservedTokens": 58648,
+    "accountedTokenFloor": 61058,
+    "waitedMs": 659663,
+    "returnedResponses": 12,
+    "responsesWithoutUsage": 2,
+    "inputTokens": 38643,
+    "outputTokens": 12530,
+    "responseElapsedMs": 40637,
+    "failures": 4,
+    "rejections": 4,
+    "providerInvoiceUsd": null,
+    "scope": "One attempt per dispatch with no automatic retry. Whole-phase estimated reservations are additionally charged to the shared UTC-day ledger; unknown usage is never refunded. Returned token totals exclude unavailable usage and are not measured billing or account-wide remaining quota."
+  },
+  "measurements": [
+    {
+      "id": "industrial-1",
+      "status": "partial",
+      "parser": {
+        "complete": true,
+        "units": 2,
+        "parsedUnits": 2,
+        "sourceCount": 40,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 40,
+          "denominator": 40,
+          "value": 1
+        }
+      },
+      "parserElapsedMs": 1320.4768,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 31,
+          "denominator": 46,
+          "value": 0.6739130434782609
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 29,
+          "denominator": 43,
+          "value": 0.6744186046511628
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "lineItemPrecision": {
+          "numerator": 4,
+          "denominator": 4,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 31,
+          "denominator": 32,
+          "value": 0.96875
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Alder Industrial supplies",
+            "actual": "Alder Industrial",
+            "state": "value"
+          },
+          {
+            "path": "items.industrial-1-line-1.identifier",
+            "expected": "INDUSTRIAL-1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-1.quantity",
+            "expected": "200",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-1.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-1.unitPrice",
+            "expected": "0.18",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-1.lineAmount",
+            "expected": "36.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.identifier",
+            "expected": "INDUSTRIAL-2",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.quantity",
+            "expected": "3",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.unit",
+            "expected": "pack",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.unitPrice",
+            "expected": "24.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.lineAmount",
+            "expected": "72.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageSize",
+            "expected": "10",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.industrial-1-line-2.packageUnit",
+            "expected": "pair",
+            "actual": null,
+            "state": "missing"
+          }
+        ],
+        "mappedItems": {
+          "industrial-1-line-3": "item-c096bfb7709b2d254201",
+          "industrial-1-line-4": "item-5ff4dbc36d8a5b383485",
+          "industrial-1-line-5": "item-f48d1b5d9586f6ae9e9e",
+          "industrial-1-line-6": "item-e86b2161d81c1f8d999a"
+        }
+      },
+      "readiness": {
+        "version": "fieldops-readiness-4",
+        "passesSelectedAnnotationGate": false,
+        "applicationReady": false,
+        "parserComplete": true,
+        "fullItemRecall": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "completeExpectedItems": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "correctCriticalStatedFields": {
+          "numerator": 29,
+          "denominator": 43,
+          "value": 0.6744186046511628
+        },
+        "evidenceBackedCriticalStatedFields": {
+          "numerator": 29,
+          "denominator": 43,
+          "value": 0.6744186046511628
+        },
+        "correctCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "sourceLinkedCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        },
+        "unverifiedCriticalNonValueStates": 0,
+        "allFieldReferenceResolvability": {
+          "numerator": 52,
+          "denominator": 52,
+          "value": 1
+        },
+        "unsourcedStatedFields": 0,
+        "extraOrUnalignedItems": 0,
+        "unresolvedBlockingIssues": 11,
+        "originalSourcesPreserved": true,
+        "chargeAlignment": {
+          "version": "fieldops-charge-alignment-1",
+          "mappedChargeIndices": {},
+          "entries": [
+            {
+              "expectedIndex": 0,
+              "actualIndex": null,
+              "status": "unmatched",
+              "reason": "context_mismatch",
+              "candidateCount": 0
+            },
+            {
+              "expectedIndex": 1,
+              "actualIndex": null,
+              "status": "unmatched",
+              "reason": "context_mismatch",
+              "candidateCount": 0
+            }
+          ],
+          "coverage": {
+            "numerator": 0,
+            "denominator": 2,
+            "value": 0
+          },
+          "unmatchedActualIndices": [
+            0,
+            1
+          ],
+          "limitations": [
+            "Alignment identifies annotated charge candidates; it does not score amount accuracy or prove semantic entailment.",
+            "Only mutually unique context-and-location candidates align. Duplicates and shared evidence ambiguity remain unmatched; no best-price or positional tie-break is used.",
+            "Currency must be stated, application scope known, and recurring billing period explicit. Item charges require an independently supplied item mapping. Missing context does not rank favourably.",
+            "Absent periods on both non-recurring charges mean no period assertion, not a fabricated one-time term. Period wording is compared exactly after case/whitespace normalization; no equivalence or conversion is inferred.",
+            "Only amount evidence establishes charge location. Currency headers, page-only citations, missing containers and evidence-free not-stated placeholders do not prove alignment or verified absence.",
+            "The denominator includes every expected charge; unaligned actual charges remain explicit. This helper does not mutate quotations or historical metrics."
+          ]
+        },
+        "limitations": [
+          "This separate v4 gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields. Its charge alignment differs from older positional gates; results across gate versions are not interchangeable.",
+          "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.",
+          "Charges require mutually unique kind, application, currency, billing-period and amount-location alignment before field scoring. Item-scoped charges also require the independently scored item mapping. Array order and equal amounts do not establish identity.",
+          "Critical non-value agreement is scored only after entity alignment. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence. Source-free not-stated charges intentionally remain unresolved, so documents with these annotated charges cannot pass this conservative gate automatically. Never invent a charge or citation to satisfy it.",
+          "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.",
+          "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."
+        ]
+      },
+      "unsourcedMatchingMissingStates": 0,
+      "unresolvedIssues": 12,
+      "retainedOutput": {
+        "path": "outputs/industrial-1-1790138698204.json",
+        "sha256": "3c410504385a66511474b49bfec77256bc424fb28becb6b99b30e38ad12d9e18",
+        "quotationHash": "30834b0ee80c6bbc5579bf77e853a25c082d00a1e04a3f6c436adbb2c3149ae1"
+      },
+      "extractionElapsedMs": 195098.7559
+    },
+    {
+      "id": "translation-2",
+      "status": "partial",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 32,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 32,
+          "denominator": 32,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 0.37880000000586733,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 33,
+          "denominator": 48,
+          "value": 0.6875
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 31,
+          "denominator": 45,
+          "value": 0.6888888888888889
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 4,
+          "denominator": 4,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 34,
+          "denominator": 34,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 33,
+          "denominator": 34,
+          "value": 0.9705882352941176
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Beacon Translation services",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "items.translation-2-line-1.identifier",
+            "expected": "TRANSLATION-1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.quantity",
+            "expected": "1200",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.unit",
+            "expected": "word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.unitPrice",
+            "expected": "0.11",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.lineAmount",
+            "expected": "132.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-1.billingBasis",
+            "expected": "per_word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.identifier",
+            "expected": "TRANSLATION-2",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.quantity",
+            "expected": "1200",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.unit",
+            "expected": "word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.unitPrice",
+            "expected": "0.04",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.lineAmount",
+            "expected": "48.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.translation-2-line-2.billingBasis",
+            "expected": "per_word",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "charges.0.amount",
+            "expected": null,
+            "actual": "55.96",
+            "state": "value"
+          }
+        ],
+        "mappedItems": {
+          "translation-2-line-3": "item-aad0f5fb594a46577920",
+          "translation-2-line-4": "item-3add7071eac1a0525ecb",
+          "translation-2-line-5": "item-6315156049a913f1d903",
+          "translation-2-line-6": "item-e844e774d9ad67f32335"
+        }
+      },
+      "readiness": {
+        "version": "fieldops-readiness-4",
+        "passesSelectedAnnotationGate": false,
+        "applicationReady": false,
+        "parserComplete": true,
+        "fullItemRecall": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "completeExpectedItems": {
+          "numerator": 4,
+          "denominator": 6,
+          "value": 0.6666666666666666
+        },
+        "correctCriticalStatedFields": {
+          "numerator": 31,
+          "denominator": 45,
+          "value": 0.6888888888888889
+        },
+        "evidenceBackedCriticalStatedFields": {
+          "numerator": 31,
+          "denominator": 45,
+          "value": 0.6888888888888889
+        },
+        "correctCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceLinkedCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "unverifiedCriticalNonValueStates": 0,
+        "allFieldReferenceResolvability": {
+          "numerator": 51,
+          "denominator": 51,
+          "value": 1
+        },
+        "unsourcedStatedFields": 0,
+        "extraOrUnalignedItems": 0,
+        "unresolvedBlockingIssues": 11,
+        "originalSourcesPreserved": true,
+        "chargeAlignment": {
+          "version": "fieldops-charge-alignment-1",
+          "mappedChargeIndices": {
+            "1": 0
+          },
+          "entries": [
+            {
+              "expectedIndex": 0,
+              "actualIndex": null,
+              "status": "unmatched",
+              "reason": "context_mismatch",
+              "candidateCount": 0
+            },
+            {
+              "expectedIndex": 1,
+              "actualIndex": 0,
+              "status": "aligned",
+              "reason": "unique_context_and_location",
+              "candidateCount": 1
+            }
+          ],
+          "coverage": {
+            "numerator": 1,
+            "denominator": 2,
+            "value": 0.5
+          },
+          "unmatchedActualIndices": [],
+          "limitations": [
+            "Alignment identifies annotated charge candidates; it does not score amount accuracy or prove semantic entailment.",
+            "Only mutually unique context-and-location candidates align. Duplicates and shared evidence ambiguity remain unmatched; no best-price or positional tie-break is used.",
+            "Currency must be stated, application scope known, and recurring billing period explicit. Item charges require an independently supplied item mapping. Missing context does not rank favourably.",
+            "Absent periods on both non-recurring charges mean no period assertion, not a fabricated one-time term. Period wording is compared exactly after case/whitespace normalization; no equivalence or conversion is inferred.",
+            "Only amount evidence establishes charge location. Currency headers, page-only citations, missing containers and evidence-free not-stated placeholders do not prove alignment or verified absence.",
+            "The denominator includes every expected charge; unaligned actual charges remain explicit. This helper does not mutate quotations or historical metrics."
+          ]
+        },
+        "limitations": [
+          "This separate v4 gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields. Its charge alignment differs from older positional gates; results across gate versions are not interchangeable.",
+          "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.",
+          "Charges require mutually unique kind, application, currency, billing-period and amount-location alignment before field scoring. Item-scoped charges also require the independently scored item mapping. Array order and equal amounts do not establish identity.",
+          "Critical non-value agreement is scored only after entity alignment. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence. Source-free not-stated charges intentionally remain unresolved, so documents with these annotated charges cannot pass this conservative gate automatically. Never invent a charge or citation to satisfy it.",
+          "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.",
+          "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."
+        ]
+      },
+      "unsourcedMatchingMissingStates": 0,
+      "unresolvedIssues": 13,
+      "retainedOutput": {
+        "path": "outputs/translation-2-1790138951534.json",
+        "sha256": "24cdaa18b90c211f61a90b0d7f5df77904e810f962d95fae30e11a845a4fc37c",
+        "quotationHash": "606b669d8f4ae876f5f70b48e98f4471b9ede229608d2cb2de7b5f800559a578"
+      },
+      "extractionElapsedMs": 253308.7978
+    },
+    {
+      "id": "office-2",
+      "status": "partial",
+      "parser": {
+        "complete": true,
+        "units": 1,
+        "parsedUnits": 1,
+        "sourceCount": 27,
+        "itemIdentifierCoverage": {
+          "numerator": 6,
+          "denominator": 6,
+          "value": 1
+        },
+        "sourceLocationsPresent": {
+          "numerator": 27,
+          "denominator": 27,
+          "value": 1
+        },
+        "boxesWithinPage": {
+          "numerator": 0,
+          "denominator": 0,
+          "value": null
+        }
+      },
+      "parserElapsedMs": 224.28800000000047,
+      "score": {
+        "statedFieldAccuracy": {
+          "numerator": 19,
+          "denominator": 44,
+          "value": 0.4318181818181818
+        },
+        "criticalFieldAccuracy": {
+          "numerator": 17,
+          "denominator": 41,
+          "value": 0.4146341463414634
+        },
+        "annotatedMissingStateAccuracy": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "lineItemPrecision": {
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1
+        },
+        "lineItemRecall": {
+          "numerator": 2,
+          "denominator": 6,
+          "value": 0.3333333333333333
+        },
+        "annotatedReviewSignalRecall": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceReferenceResolvability": {
+          "numerator": 20,
+          "denominator": 20,
+          "value": 1
+        },
+        "correctFieldLocationAgreement": {
+          "numerator": 15,
+          "denominator": 20,
+          "value": 0.75
+        },
+        "failures": [
+          {
+            "path": "supplier.name",
+            "expected": "Beacon Office IT",
+            "actual": null,
+            "state": "not_stated"
+          },
+          {
+            "path": "items.office-2-line-1.identifier",
+            "expected": "OFFICE-1",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-1.quantity",
+            "expected": "4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-1.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-1.unitPrice",
+            "expected": "206.80",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-1.lineAmount",
+            "expected": "827.20",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-1.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.identifier",
+            "expected": "OFFICE-2",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.quantity",
+            "expected": "10",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.unitPrice",
+            "expected": "11.28",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.lineAmount",
+            "expected": "112.80",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-2.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.identifier",
+            "expected": "OFFICE-3",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.quantity",
+            "expected": "4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.unit",
+            "expected": "each",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.unitPrice",
+            "expected": "42.30",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.lineAmount",
+            "expected": "169.20",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-3.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.identifier",
+            "expected": "OFFICE-4",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.quantity",
+            "expected": "100",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.unit",
+            "expected": "m",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.unitPrice",
+            "expected": "1.13",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.lineAmount",
+            "expected": "113.00",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "items.office-2-line-4.currency",
+            "expected": "SGD",
+            "actual": null,
+            "state": "missing"
+          },
+          {
+            "path": "charges.0.amount",
+            "expected": null,
+            "actual": "170.91",
+            "state": "value"
+          }
+        ],
+        "mappedItems": {
+          "office-2-line-5": "item-a6ca4be5b012eb477562",
+          "office-2-line-6": "item-7acd1bb0fa57e3ef833b"
+        }
+      },
+      "readiness": {
+        "version": "fieldops-readiness-4",
+        "passesSelectedAnnotationGate": false,
+        "applicationReady": false,
+        "parserComplete": true,
+        "fullItemRecall": {
+          "numerator": 2,
+          "denominator": 6,
+          "value": 0.3333333333333333
+        },
+        "completeExpectedItems": {
+          "numerator": 0,
+          "denominator": 6,
+          "value": 0
+        },
+        "correctCriticalStatedFields": {
+          "numerator": 17,
+          "denominator": 41,
+          "value": 0.4146341463414634
+        },
+        "evidenceBackedCriticalStatedFields": {
+          "numerator": 13,
+          "denominator": 41,
+          "value": 0.3170731707317073
+        },
+        "correctCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "sourceLinkedCriticalNonValueStates": {
+          "numerator": 0,
+          "denominator": 1,
+          "value": 0
+        },
+        "unverifiedCriticalNonValueStates": 0,
+        "allFieldReferenceResolvability": {
+          "numerator": 31,
+          "denominator": 31,
+          "value": 1
+        },
+        "unsourcedStatedFields": 0,
+        "extraOrUnalignedItems": 0,
+        "unresolvedBlockingIssues": 18,
+        "originalSourcesPreserved": true,
+        "chargeAlignment": {
+          "version": "fieldops-charge-alignment-1",
+          "mappedChargeIndices": {
+            "1": 0
+          },
+          "entries": [
+            {
+              "expectedIndex": 0,
+              "actualIndex": null,
+              "status": "unmatched",
+              "reason": "context_mismatch",
+              "candidateCount": 0
+            },
+            {
+              "expectedIndex": 1,
+              "actualIndex": 0,
+              "status": "aligned",
+              "reason": "unique_context_and_location",
+              "candidateCount": 1
+            }
+          ],
+          "coverage": {
+            "numerator": 1,
+            "denominator": 2,
+            "value": 0.5
+          },
+          "unmatchedActualIndices": [],
+          "limitations": [
+            "Alignment identifies annotated charge candidates; it does not score amount accuracy or prove semantic entailment.",
+            "Only mutually unique context-and-location candidates align. Duplicates and shared evidence ambiguity remain unmatched; no best-price or positional tie-break is used.",
+            "Currency must be stated, application scope known, and recurring billing period explicit. Item charges require an independently supplied item mapping. Missing context does not rank favourably.",
+            "Absent periods on both non-recurring charges mean no period assertion, not a fabricated one-time term. Period wording is compared exactly after case/whitespace normalization; no equivalence or conversion is inferred.",
+            "Only amount evidence establishes charge location. Currency headers, page-only citations, missing containers and evidence-free not-stated placeholders do not prove alignment or verified absence.",
+            "The denominator includes every expected charge; unaligned actual charges remain explicit. This helper does not mutate quotations or historical metrics."
+          ]
+        },
+        "limitations": [
+          "This separate v4 gate preserves historical metric values and fixed expected denominators, including missing rows and uncited fields. Its charge alignment differs from older positional gates; results across gate versions are not interchangeable.",
+          "Identifier alignment is necessary, not sufficient: every annotated critical stated item field must also be correct and source-linked.",
+          "Charges require mutually unique kind, application, currency, billing-period and amount-location alignment before field scoring. Item-scoped charges also require the independently scored item mapping. Array order and equal amounts do not establish identity.",
+          "Critical non-value agreement is scored only after entity alignment. Missing containers are not backfilled. The wire's not_stated is absence of an assertion, not evidence of verified absence. Source-free not-stated charges intentionally remain unresolved, so documents with these annotated charges cannot pass this conservative gate automatically. Never invent a charge or citation to satisfy it.",
+          "Location agreement establishes a recorded location, not semantic entailment. Material unannotated descriptions, scope, discounts, tiers and terms still require independent review.",
+          "Passing the selected-annotation gate is not proof of universal document completeness or permission to enable production AI."
+        ]
+      },
+      "unsourcedMatchingMissingStates": 0,
+      "unresolvedIssues": 20,
+      "retainedOutput": {
+        "path": "outputs/office-2-1790139204981.json",
+        "sha256": "c934bbf33341cc26dd4e966925ce20c76af4894991ea459099a5780b01f087a3",
+        "quotationHash": "a61920f121d586aaaabdaadae1f65a745c9a460f39504f252f2b6d0f24a1fc2b"
+      },
+      "extractionElapsedMs": 253222.33790000004
+    }
+  ],
+  "limitations": [
+    "Development-only adaptive evidence; no held-out or general supplier-format accuracy claim.",
+    "All complete selected documents are supplied; no cropped successful section is substituted for a quotation.",
+    "Field metrics include partial accepted output. Rejected attempted documents earn zero credit; unattempted documents are counted separately. Zero source/precision denominators mean unavailable.",
+    "Item alignment uses exact identifiers. Source reference resolvability and location agreement are narrower than independent semantic correctness.",
+    "Matching and arithmetic are not remeasured by this extraction-only cohort. No model matching calls are made.",
+    "A complete extraction status does not imply every field is correct or every review issue resolved. Inspect accuracy denominators and issues.",
+    "Code/runtime drift during execution invalidates a paired causal comparison and is exposed explicitly.",
+    "This executable imports no deployment client and makes no production writes. Its environment guard is defense in depth, not an audit of other simultaneously running processes."
+  ]
+}

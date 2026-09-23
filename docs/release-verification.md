@@ -2,13 +2,19 @@
 
 Updated on 23 September 2026. The public demonstration, local personal workflow and invited hosted parser/manual workflow work through comparison and Excel export. Hosted text PDF, scanned PDF, PNG, XLSX and CSV parsing and a five-original recovery drill passed in the recorded hosted checks. Complete-document AI extraction remains unreliable; held-out AI acceptance remains open. [Production readiness](production-readiness.md) defines the private-pilot boundary.
 
+## Frozen Groq live validation — 23 September
+
+The user requested the prepared run and production activation only if it works. The [final measured report](groq-live-validation-2026-09-23.md) records GPT-OSS at **77/129 critical fields, 10/18 items and 0/3 complete**, and Qwen at **54/129, 8/18 and 0/3**, with its final quotation stopped by quota. No prompt, source, annotation or runtime code changed between phases. Both immutable source/score audits and the comparison command passed without new inference or held-out reads. Every retained price remains blocked by coverage/evidence review.
+
+The activation condition was not met. This results/documentation publication does not alter runtime code, credentials, billing or the Trigger worker. The previously passing 577-test/10-browser implementation verification below remains the software evidence; these live failures are separate model evidence. At 05:01 UTC production still reported parser-only with extraction disabled, and all 11 private environment hashes matched their pre-run values.
+
 ## Groq development integration — 23 September
 
 [PR #3](https://github.com/Chi944/fieldops/pull/3) merged as `b11ce8d` after the exact head `6aecd42` passed both [branch Linux CI](https://github.com/Chi944/fieldops/actions/runs/35795424710) and [PR Linux CI](https://github.com/Chi944/fieldops/actions/runs/35795428980), plus its Vercel preview. All three repository PRs are merged, with no unresolved review threads.
 
 The final local implementation passes **577/577 tests across 67 files**, including real PostgreSQL integration, TypeScript, ESLint, production build and **10/10 isolated browser workflows in 34.7 seconds**. Both Linux runs repeat the full dependency/audit/type/lint/test/build/browser checks. The development protocol adds single-attempt durable outcomes, interruption recovery without quota refunds, and a narrowly source-backed date correction. No database migration, provider setting, billing change or Trigger worker deployment is part of this integration.
 
-The [measured report](groq-focused-study-v2-2026-09-23.md) preserves the interrupted live run and a separate zero-call replay of one complete original. That replay improves critical fields from 40/43 to 43/43 but remains partial; all six retained prices remain blocked. The fresh full-cohort model comparison has not run. Production AI stays disabled, and the broader release gates remain open.
+The [measured report](groq-focused-study-v2-2026-09-23.md) preserves the interrupted live run and a separate zero-call replay of one complete original. That replay improves critical fields from 40/43 to 43/43 but remains partial; all six retained prices remain blocked. The fresh full-cohort comparison was still pending at that merge and is recorded separately above. Production AI stays disabled, and the broader release gates remain open.
 
 Git deployed `b11ce8d` to production successfully ([Vercel deployment](https://vercel.com/chi944s-projects/fieldops/CT6Bf8WtaDGkFWJ8ySJeGRLQMTy5), GitHub deployment `6602591741`). The canonical application passed **6/6 applicable public browser checks in 29.4 seconds**; four private/local-only cases were intentionally skipped there and passed in the isolated local suite. At 23:08:00 UTC on 22 September (07:08 Singapore on 23 September), production status returned `mode=cloud`, `processingMode=parse_only`, `canExtract=false`; anonymous comparisons returned HTTP 401 with `Cache-Control: no-store`. These are public deployment checks, not a new signed-in hosted upload or model evaluation.
 

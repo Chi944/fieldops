@@ -1,5 +1,7 @@
 # Groq follow-up: date contract and interrupted-run recovery
 
+**Execution update:** the frozen v2 live phases subsequently finalized on 23 September. Both returned **0/3 complete quotations**; Qwen stopped during its final document with a quota error. See the [measured live validation and activation decision](groq-live-validation-2026-09-23.md). The pre-run protocol below is preserved as the declared study boundary; production AI remains disabled.
+
 ## Original evidence and decision
 
 The first focused study is **closed as interrupted**, not a completed model comparison. Seven responses were received before the local runner stopped; the process was subsequently confirmed absent. The interruption cause was not established. No rejected request was retried. The [sealed interruption report](../eval/results/development/groq-focused-2026-09-23/interrupted-before.json) preserves the original code, source, journal and returned-quotation hashes.
