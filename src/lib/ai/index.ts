@@ -15,6 +15,7 @@ import { extractionCompletenessIssues } from "./completeness";
 import { typedProviderSchema } from "./provider-schema";
 import { extractionChunks, extractionContext, pricedRow, sourceRecord } from "./chunks";
 import { planFocusedExtraction, focusedExtractionWireSchema, focusedProviderSchema, focusedExtractionInstruction } from "./focused-transport";
+import { focusedContractWireSchema, focusedContractInstruction, focusedBillingRequiresReview } from "./focused-contract";
 import { normalizeWrittenDate } from "./dates";
 export { extractionChunks, extractionContext } from "./chunks";
 export * from "./groq";
@@ -132,7 +133,8 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   if (!parsed.sources.length) throw new ProcessingError("unreadable", "There is no readable source text to extract. Upload a clearer quotation or paste the text.");
   if (parsed.sources.some(source => source.documentId !== parsed.documentId) || new Set(parsed.sources.map(source => source.id)).size !== parsed.sources.length) throw new ProcessingError("invalid_evidence", "Source ownership or source identifiers are invalid.");
   let quotation = { ...emptyQuotation(parsed.documentId, parsed.filename), ...parsed, extractionVersion: options.extractionVersion ?? 1, status: "extracting" as const, isDemo: false } as Quotation;
-  const focusedTransport = options.extractionTransport === "focused_fields_v1";
+  const focusedContract = options.extractionTransport === "focused_fields_v2";
+  const focusedTransport = options.extractionTransport === "focused_fields_v1" || focusedContract;
   const tasks = focusedTransport ? planFocusedExtraction(parsed) : extractionChunks(parsed).map(sources => ({ sources, context: extractionContext(parsed, sources), kind: "document" as const, slots: [], structuralHeaderIds: [] }));
   const usage: AIResult[] = [];
   const retainValid = options.chunkFailurePolicy === "retain_valid_chunks_v1";
@@ -146,17 +148,17 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
     const sourceMap = new Map([...targets, ...context].map(source => [source.id, source]));
     try {
       const targetIds = targets.map(source => source.id), knownIds = [...targets, ...context].map(source => source.id);
-      const requestSchema = focusedTransport ? focusedProviderSchema(focusedExtractionWireSchema(task.kind, task.slots.map(slot => slot.id), knownIds)) : factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
+      const requestSchema = focusedTransport ? focusedProviderSchema((focusedContract ? focusedContractWireSchema : focusedExtractionWireSchema)(task.kind, task.slots.map(slot => slot.id), knownIds)) : factTransport ? factProviderSchema(factExtractionWireSchemaForTargets(targetIds, knownIds)) : partitionedTransport ? typedProviderSchema(partitionedExtractionWireSchemaForTargets(targetIds, knownIds)) : typedTransport ? typedProviderSchema(typedExtractionWireSchemaForTargets(targetIds, knownIds)) : strictSchema(extractionSchema);
       const slotBySource = new Map(task.slots.flatMap(slot => slot.sourceIds.map(id => [id, slot.id] as const)));
       const structuralHeaders = new Set(task.structuralHeaderIds);
-      const accepted = await requestAI({ purpose: "extraction", transport: focusedTransport ? "quotation-v9" : factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: focusedTransport ? focusedExtractionInstruction(task.kind) : factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
+      const accepted = await requestAI({ purpose: "extraction", transport: focusedContract ? "quotation-v10" : focusedTransport ? "quotation-v9" : factTransport ? "quotation-v8" : partitionedTransport ? "quotation-v7" : typedTransport ? "quotation-v6" : "quotation-v5", ...(retainValid ? { chunkFailurePolicy: "retain_valid_chunks_v1" as const } : {}), schema: requestSchema, system: focusedTransport ? (focusedContract ? focusedContractInstruction : focusedExtractionInstruction)(task.kind) : factTransport ? factExtractionInstruction : partitionedTransport ? partitionedExtractionInstruction : typedTransport ? typedExtractionInstruction : extractionInstruction,
         user: JSON.stringify({ document: parsed.documentId, section: index + 1, totalSections: tasks.length, ...(focusedTransport ? { task: task.kind } : {}), sources: targets.map(source => ({ ...sourceRecord(source), ...(slotBySource.has(source.id) ? { slot: slotBySource.get(source.id) } : {}), ...(structuralHeaders.has(source.id) ? { structuralHeader: true } : {}) })), context: context.map(sourceRecord) }), maxOutputTokens: focusedTransport ? task.kind === "document" ? 3000 : 2400 : 3600 }, options, result => {
         const validated = extractionSchema.safeParse(result.data);
         if (!validated.success) throw new ProcessingError("invalid_output", "The model output failed the quotation schema. The result was rejected; retry this file.");
         // Integration can reject after applying earlier fields. Keep that tentative
         // state isolated so invalid cached responses cannot pollute a fresh retry.
         const candidate = structuredClone(quotation);
-        integrateChunk(candidate, validated.data, sourceMap, focusedTransport ? new Set(targetIds) : undefined);
+        integrateChunk(candidate, validated.data, sourceMap, focusedTransport ? new Set(targetIds) : undefined, focusedContract);
         if (candidate.items.length > LIMITS.items) throw new ProcessingError("limit_exceeded", `This quotation exceeds ${LIMITS.items} line items. Split it into smaller comparisons.`);
         return { quotation: candidate, result };
       });
@@ -197,7 +199,7 @@ export async function extractQuotation(parsed: ParsedDocument, options: AIOption
   return reconcileQuotation(quotation);
 }
 
-function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Map<string, SourceSpan>, omissionTargets?: Set<string>): void {
+function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Map<string, SourceSpan>, omissionTargets?: Set<string>, verifyBilling = false): void {
   const referenced = new Set<string>();
   function collect(value: unknown): void { if (!value || typeof value !== "object") return; for (const [key, child] of Object.entries(value)) { if (key === "sourceIds" && Array.isArray(child)) for (const id of child) { assertSources([id], sources); referenced.add(id); } else collect(child); } }
   collect({ supplier: chunk.supplier, quotation: chunk.quotation, terms: chunk.terms, items: chunk.items, charges: chunk.charges, attributes: chunk.attributes });
@@ -220,6 +222,7 @@ function integrateChunk(quotation: Quotation, chunk: ExtractedChunk, sources: Ma
     }
     const optionalText = candidate.fields.filter(field => (itemAttributeFieldKeys as readonly string[]).includes(field.key));
     applyFields(item as unknown as Record<string, unknown>, candidate.fields.filter(field => !(itemAttributeFieldKeys as readonly string[]).includes(field.key)), itemKeys, sources, quotation, `items.${item.id}.`);
+    if (verifyBilling && focusedBillingRequiresReview(item.billingBasis, sources)) issue(quotation, "unverified_evidence", "The billing assertion lacks clear supporting billing wording in its cited source. A unit or service description alone is insufficient; confirm the original billing basis before comparison.", item.billingBasis.sourceIds, `items.${item.id}.billingBasis`);
     // Unified transport metadata is normalized only for a defined relationship.
     // Its literal unit must pass the same source-excerpt validation as any field.
     for (const [quantityKey, unitKey] of [["quantity", "unit"], ["packageSize", "packageUnit"]] as const) {

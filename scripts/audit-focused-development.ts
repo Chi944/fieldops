@@ -39,7 +39,7 @@ export function assertFocusedAuditReport(value: unknown, name: string, phase: "b
   const report = value as Report;
   if (!report || report.name !== name || report.phase !== phase || report.mode !== "live" || !report.configurationStableDuringRun
     || !Number.isFinite(Date.parse(report.startedAt)) || !Number.isFinite(Date.parse(report.measuredAt)) || Date.parse(report.measuredAt) < Date.parse(report.startedAt)
-    || report.configuration?.comparisonKind !== "model" || report.configuration?.extractionTransport !== "focused_fields_v1" || report.configuration?.chunkFailurePolicy !== "retain_valid_chunks_v1" || report.configuration?.maxTransportAttempts !== 1
+    || report.configuration?.comparisonKind !== "model" || !["focused_fields_v1", "focused_fields_v2"].includes(report.configuration?.extractionTransport) || report.configuration?.chunkFailurePolicy !== "retain_valid_chunks_v1" || report.configuration?.maxTransportAttempts !== 1
     || !["openai/gpt-oss-120b", "qwen/qwen3.8-27b"].includes(report.configuration?.model)
     || report.pair?.comparisonKind !== "model" || report.pair?.metricVersion !== MODEL_STUDY_METRIC_VERSION
     || JSON.stringify(report.pair?.selection?.map(document => document.id)) !== JSON.stringify(PAIRED_COHORT)
@@ -107,7 +107,7 @@ export async function auditFocusedDevelopment(name: string, phase: "before" | "a
   try { reportBytes = await trackedRead(reportPath); } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") throw new Error("The selected phase has no finalized report. This audit stops without polling or inspecting private outputs."); throw error; }
   const report = json<Report>(reportBytes); assertFocusedAuditReport(report, name, phase);
   const model = report.configuration.model as NonNullable<DevelopmentOptions["model"]>;
-  const current = () => fingerprint(root, "retain_valid_chunks_v1", "focused_fields_v1", { model });
+  const current = () => fingerprint(root, "retain_valid_chunks_v1", report.configuration.extractionTransport, { model });
   if ((await current()).sha256 !== report.configuration.sha256) throw new Error("The current source/runtime differs from the measured focused phase; use its recorded revision.");
   await trackedRead(path.join(root, "eval/development/gold.json"));
   const manifest = await readDevelopmentManifest(root), privateDirectory = path.join(root, "eval/runs/private/development", name, `live-${phase}`);

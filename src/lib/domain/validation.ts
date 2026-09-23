@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { billingBasis } from "./billing";
 import { calculateItem, decimal, money } from "./calculate";
 import { Quotation, ReviewIssue, valueOf } from "./types";
 
@@ -14,6 +15,16 @@ export function validateQuotation(quotation: Quotation): ReviewIssue[] {
       const field = item[key];
       if (field.state === "not_stated" || field.state === "ambiguous") issue(field.state === "ambiguous" ? "ambiguous_value" : "missing_field", `${key} is ${field.state.replace("_", " ")}.`, field.sourceIds, item.id, `items.${item.id}.${key}`);
       if (field.state === "value" && field.origin === "supplier" && (!field.sourceIds.length || field.sourceIds.some(id => !available.has(id)))) issue("unverified_evidence", `${key} has no valid supporting source reference.`, field.sourceIds.filter(id => available.has(id)), item.id, `items.${item.id}.${key}`);
+    }
+    // Mirror the existing calculation/matching veto in extraction review. A unit
+    // or service-like description never supplies an omitted billing assertion.
+    if (item.kind !== "goods") {
+      const field = item.billingBasis, fieldPath = `items.${item.id}.billingBasis`;
+      if (!billingBasis(valueOf(field))) {
+        const sourceIds = [...new Set([...field.sourceIds, ...item.sourceIds])].filter(id => available.has(id));
+        issue(field.state === "ambiguous" ? "ambiguous_value" : "missing_field", "The billing basis is missing, ambiguous, or unsupported. Confirm an explicit hourly, daily, fixed-project, per-word, per-unit, or recurring basis before comparing this item.", sourceIds, item.id, fieldPath);
+      }
+      if (field.state === "value" && field.origin === "supplier" && (!field.sourceIds.length || field.sourceIds.some(id => !available.has(id)))) issue("unverified_evidence", "billingBasis has no valid supporting source reference.", field.sourceIds.filter(id => available.has(id)), item.id, fieldPath);
     }
     const calculation = calculateItem(item);
     if (calculation.discrepancy) issue("amount_mismatch", `Supplier line amount ${calculation.discrepancy.stated} differs from calculated ${calculation.discrepancy.calculated} by ${calculation.discrepancy.difference}.`, item.sourceIds, item.id, `items.${item.id}.lineAmount`);

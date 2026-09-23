@@ -18,7 +18,7 @@ export interface DevelopmentOptions {
   comparisonKind?: "model";
   model?: "openai/gpt-oss-120b" | "qwen/qwen3.8-27b";
   chunkFailurePolicy: "reject_document" | "retain_valid_chunks_v1";
-  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1" | "focused_fields_v1";
+  extractionTransport?: "legacy_v5" | "typed_fields_v1" | "typed_fields_v2" | "fact_ledger_v1" | "focused_fields_v1" | "focused_fields_v2";
 }
 export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   const values = new Map<string, string>(); let live = false;
@@ -54,7 +54,7 @@ export function parseDevelopmentOptions(args: string[]): DevelopmentOptions {
   if (!["reject_document", "retain_valid_chunks_v1"].includes(chunkFailurePolicy)) throw new Error("Use a supported explicit chunk failure policy.");
   if (chunkFailurePolicy !== "reject_document" && (!live || (phase !== "after" && comparisonKind !== "model"))) throw new Error("Retaining validated chunks requires an explicit live after phase or model study.");
   const extractionTransport = values.get("--extraction-transport") ?? "legacy_v5";
-  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1", "focused_fields_v2"].includes(extractionTransport)) throw new Error("Use a supported explicit extraction transport.");
   if (extractionTransport !== "legacy_v5" && !live) throw new Error("Typed extraction transport requires an explicit live development run.");
   const study = comparisonKind === "model";
   return { name, phase, live, documentIds, maxRequests: number("--max-requests", study ? 12 : 24, study ? 12 : 24), maxReservedTokens: number("--max-reserved-tokens", study ? 90000 : 170000, study ? 90000 : 170000), maxWaitMs: number("--max-wait-ms", study ? 720000 : 600000, study ? 720000 : 600000, 0), chunkFailurePolicy: chunkFailurePolicy as DevelopmentOptions["chunkFailurePolicy"], extractionTransport: extractionTransport as DevelopmentOptions["extractionTransport"], ...(envFile ? { envFile } : {}), ...(baselineName ? { baselineName } : {}), ...(study ? { comparisonKind: "model" as const, model: model as DevelopmentOptions["model"] } : {}) };

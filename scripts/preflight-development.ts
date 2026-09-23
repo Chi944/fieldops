@@ -16,7 +16,7 @@ export async function captureDevelopmentRequests(root: string, extractionTranspo
     if (!fixture) throw new Error("The fixed development cohort is incomplete.");
     const bytes = await sourceFile(root, fixture);
     const parsed = await parseDocument({ documentId: id, filename: path.basename(fixture.path), bytes });
-    const planned = extractionTransport === "focused_fields_v1" ? planFocusedExtraction(parsed) : extractionChunks(parsed);
+    const planned = extractionTransport === "focused_fields_v1" || extractionTransport === "focused_fields_v2" ? planFocusedExtraction(parsed) : extractionChunks(parsed);
     const requests: { section: number; task?: string; targetSourceCount: number; contextSourceCount: number; attemptSlots: number; reservedTokens: number }[] = [];
     const targetIds = new Set<string>();
     const request = async (input: AIRequest): Promise<AIResult> => {
@@ -40,7 +40,7 @@ export async function captureDevelopmentRequests(root: string, extractionTranspo
 export async function preflightDevelopment(name: string, root = process.cwd(), extractionTransport: DevelopmentOptions["extractionTransport"] = "legacy_v5", comparisonKind?: "model") {
   if (!/^[a-z][a-z0-9-]{2,63}$/.test(name)) throw new Error("Use a fresh development experiment name.");
   assertDevelopmentEnvironment(process.env);
-  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1"].includes(extractionTransport)) throw new Error("Unknown extraction transport.");
+  if (!["legacy_v5", "typed_fields_v1", "typed_fields_v2", "fact_ledger_v1", "focused_fields_v1", "focused_fields_v2"].includes(extractionTransport)) throw new Error("Unknown extraction transport.");
   const policy = "retain_valid_chunks_v1" as const;
   if (comparisonKind === "model") {
     const manifest = await readDevelopmentManifest(root);
