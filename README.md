@@ -64,6 +64,8 @@ The [23 September release study](docs/release-study-2026-09-23.md) preserves a f
 
 The [Groq focused follow-up](docs/groq-focused-study-v2-2026-09-23.md) preserves an interrupted study and a source-supported date correction; its frozen implementation passes **577 tests and 10 browser workflows**. The [completed live comparison](docs/groq-live-validation-2026-09-23.md) runs that code on three complete synthetic development originals: GPT-OSS retains **77/129 critical fields and 10/18 items**; Qwen retains **54/129 and 8/18**, with its last document stopped by quota. Both produce **0/3 complete quotations**. All retained prices remain blocked. The quota-limited comparison cannot rank intrinsic model quality; production AI remains disabled.
 
+The [typed item contract fix](docs/groq-typed-contract-2026-09-23.md) makes numeric and billing fields explicit, surfaces missing billing in review and flags unit-only billing evidence. Its offline audit rejects three unchanged invalid numeric fragments earlier while preserving all six historical rejected replies. **600 software tests pass**; no fresh model inference or extraction-accuracy improvement is claimed. The next bounded live run is prepared for quota admission.
+
 ```powershell
 npm run typecheck
 npm run lint

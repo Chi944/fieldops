@@ -1,0 +1,1097 @@
+{
+  "version": 1,
+  "sourceName": "groq-focused-v2-2026-09-23",
+  "candidateName": "groq-focused-contract-v2-2026-09-23",
+  "mode": "offline_contract_audit",
+  "measuredAt": "2026-09-23T05:27:34.171Z",
+  "providerCalls": 0,
+  "acceptedOutputs": 0,
+  "checkpointWrites": 0,
+  "heldoutReads": 0,
+  "auditCodeSha256": "297088ebda8baa79d9db41c69f63dedf3133d23bd62776583dc38ea8b9cbb80f",
+  "configuration": {
+    "promptVersion": "fieldops-extraction-6",
+    "model": "openai/gpt-oss-120b",
+    "chunkFailurePolicy": "retain_valid_chunks_v1",
+    "extractionTransport": "focused_fields_v2",
+    "comparisonKind": "model",
+    "modelStudyProtocolVersion": 2,
+    "modelProfile": {
+      "version": "gpt-oss-low-v1",
+      "reasoning_effort": "low"
+    },
+    "allowPreviewModel": true,
+    "maxTransportAttempts": 1,
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "win32",
+      "architecture": "x64",
+      "ocrSha256": "ed350f3752f81ee8f38769edc14d92d997dababe23b565c59879372cc46a2468"
+    },
+    "files": [
+      {
+        "file": "package.json",
+        "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+      },
+      {
+        "file": "package-lock.json",
+        "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+      },
+      {
+        "file": "src/lib/ai/index.ts",
+        "sha256": "a7ce3394e7e6e7853788a42793fce0b5ecd3e562ec6ea958c6c997937348090e"
+      },
+      {
+        "file": "src/lib/ai/schema.ts",
+        "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+      },
+      {
+        "file": "src/lib/ai/groq.ts",
+        "sha256": "6cd8dc0778290e166bacf8e9e0e1664972cf64d0f79c0d6156a81656e4cbf601"
+      },
+      {
+        "file": "src/lib/ai/transport.ts",
+        "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+      },
+      {
+        "file": "src/lib/ai/typed-transport.ts",
+        "sha256": "d3fd5a0718c4d00663fbb069368eae591a9838e9bab498d30e5f501685f5a575"
+      },
+      {
+        "file": "src/lib/ai/provider-schema.ts",
+        "sha256": "6eb17400b165c4abf73829b3ab2567cbb2bcc67abadc5b50cacccc02f08b7a21"
+      },
+      {
+        "file": "src/lib/ai/completeness.ts",
+        "sha256": "477e8d435750583b28be2395422569eee7051c2dff8c9df25eedf91e9d4522f1"
+      },
+      {
+        "file": "src/lib/ai/chunks.ts",
+        "sha256": "e047a8f1f17db5954ccdb740fe64125cc5239b75e4487a15b33905f84ec4a1b8"
+      },
+      {
+        "file": "src/lib/processing/index.ts",
+        "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+      },
+      {
+        "file": "src/lib/processing/ocr.ts",
+        "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+      },
+      {
+        "file": "src/lib/processing/errors.ts",
+        "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+      },
+      {
+        "file": "src/lib/domain/types.ts",
+        "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+      },
+      {
+        "file": "src/lib/domain/corrections.ts",
+        "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+      },
+      {
+        "file": "src/lib/domain/matching.ts",
+        "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+      },
+      {
+        "file": "src/lib/domain/calculate.ts",
+        "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+      },
+      {
+        "file": "src/lib/domain/numeric.ts",
+        "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+      },
+      {
+        "file": "src/lib/domain/billing.ts",
+        "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+      },
+      {
+        "file": "src/lib/domain/decisions.ts",
+        "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+      },
+      {
+        "file": "src/lib/domain/validation.ts",
+        "sha256": "a64021691cce9fe02bb10caa31c8506e8eeb1bbb86962fe09ec63bc4fabb0d51"
+      },
+      {
+        "file": "eval/metrics.ts",
+        "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+      },
+      {
+        "file": "eval/readiness.ts",
+        "sha256": "2359d9b6eca36c29732bf82f74563cab50e1abf573e4ff5c3ce1c0d3948aceeb"
+      },
+      {
+        "file": "eval/charge-alignment.ts",
+        "sha256": "263900aae3311b56fe14032140292a3c79c20f455b84ce343dbc937e6ad2a574"
+      },
+      {
+        "file": "eval/live-control.ts",
+        "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+      },
+      {
+        "file": "eval/development-control.ts",
+        "sha256": "1bf523c8db2d76c27831edc721cb25b4e91516ef2c90ed6d4b3ef3c287f00801"
+      },
+      {
+        "file": "scripts/evaluate-development.ts",
+        "sha256": "6c28e3546e7deb13156acca03dc84cf33231faa7342d2f3e60d964fa39417a1d"
+      },
+      {
+        "file": "src/lib/ai/partitioned-transport.ts",
+        "sha256": "6b2d69f017d76a9f815060fc775a15195ec36f9f531ae3a6f22d4926d6ae4d1c"
+      },
+      {
+        "file": "src/lib/ai/provider-error.ts",
+        "sha256": "40925831ccf9cbe850d5054d46c4f7c077eb42c433e5f8435594869ac2bacb8e"
+      },
+      {
+        "file": "src/lib/ai/fact-transport.ts",
+        "sha256": "14c72a0d7232c981894b167bf3fb29b63cd16635c3ed4edd4107ec9019ad828a"
+      },
+      {
+        "file": "src/lib/ai/dates.ts",
+        "sha256": "65d6a6758eca340e174bbdd5b5388f311ff492d71c32f6c4756d6c7b929abcae"
+      },
+      {
+        "file": "src/lib/ai/focused-transport.ts",
+        "sha256": "f7bd12b27f4a984ec7d2cee6ff726fb1dbde3b8699aea4f7e41b649eb7dab522"
+      },
+      {
+        "file": "src/lib/ai/focused-contract.ts",
+        "sha256": "a13c201d4a2d23134105b3db4efac0335d010532a35dffcfadf27c444c0b2473"
+      },
+      {
+        "file": "eval/model-study-control.ts",
+        "sha256": "08d1d44f1040e0c5617c007ea45d8123ca73216dc5dd1e42fae84d8b36e4c9fc"
+      },
+      {
+        "file": "eval/development-outcomes.ts",
+        "sha256": "ffdca144a7ac0359a43640d8eaa80a9aa21752fd380ebc37e4347e73012f9934"
+      },
+      {
+        "file": "scripts/preflight-development.ts",
+        "sha256": "3fefa5ba6dcc6cbedfce51f17a9da2021943b2ca395f79eb3295480297c5412b"
+      },
+      {
+        "file": "scripts/compare-development.ts",
+        "sha256": "69d19e832474c6b37c6cd7baf81c059a3551adc5036134623ff5240b4bac20e7"
+      }
+    ],
+    "sha256": "6bd525798774f45fd1717868892ea68f48630afc071367c7caa417f0d36013ad"
+  },
+  "changedOriginalFiles": [
+    "eval/development-control.ts",
+    "scripts/evaluate-development.ts",
+    "scripts/preflight-development.ts",
+    "src/lib/ai/focused-transport.ts",
+    "src/lib/ai/groq.ts",
+    "src/lib/ai/index.ts",
+    "src/lib/domain/validation.ts"
+  ],
+  "planning": {
+    "documents": 3,
+    "expectedItems": 18,
+    "sourceRecords": 99,
+    "targetPartitionUnchanged": true,
+    "legacy": {
+      "requests": 12,
+      "estimatedReservedTokens": 58648,
+      "maximumRequestEstimatedTokens": 5843,
+      "schemaCharacters": 48380,
+      "outputTokenCaps": [
+        2400,
+        2400,
+        2400,
+        3000,
+        2400,
+        2400,
+        2400,
+        3000,
+        2400,
+        2400,
+        2400,
+        3000
+      ]
+    },
+    "candidate": {
+      "requests": 12,
+      "estimatedReservedTokens": 63339,
+      "maximumRequestEstimatedTokens": 5843,
+      "schemaCharacters": 55057,
+      "outputTokenCaps": [
+        2400,
+        2400,
+        2400,
+        3000,
+        2400,
+        2400,
+        2400,
+        3000,
+        2400,
+        2400,
+        2400,
+        3000
+      ]
+    }
+  },
+  "dailyBudget": {
+    "utcDay": "2026-09-23",
+    "ceiling": 180000,
+    "committedEstimatedTokens": 180000,
+    "remainingEstimatedTokens": 0,
+    "fullPhaseAllocation": 90000,
+    "fullPairFits": false,
+    "phaseFits": false,
+    "scope": "For each phase/day, charge at least its full-phase allocation and the sum of each request's greater reserved estimate or known usage. Unknown requests retain their individual reservation even when another request overruns. Prior metadata is not rewritten. This does not measure provider/account quota or other applications."
+  },
+  "phases": [
+    {
+      "phase": "before",
+      "model": "openai/gpt-oss-120b",
+      "originalReportSha256": "1ed851828a4edee59bf0b2bd7a7fd77b199acde0122e7dc679da04dbc6a14d6f",
+      "originalConfigurationHash": "ed2325459633c4c4e6524dbdaad3722671e903ccbe6ffe3ac8e6d444ce54d8a3",
+      "rejectedRecords": 4,
+      "expandedAcceptedCheckpoints": 8,
+      "acceptedCheckpointWireValidation": "unavailable_original_wire_not_saved",
+      "rejected": [
+        {
+          "documentId": "industrial-1",
+          "section": 1,
+          "requestSha256": "0c66170ece915f11cc960c1e3e475b13fb37d07659f3bde72698d19a4ce98210",
+          "artifactSha256": "a47b11f73bedf80902deba2f16ce30ba7c2c1f6d16d94cfbe9ce646dd51bc515",
+          "originalDisposition": "provider_schema_rejected",
+          "accepted": false,
+          "providerFailurePreserved": true,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": false,
+          "originalAdapterValid": false,
+          "scalarChecks": [],
+          "duplicateKnownFields": [],
+          "originalIssues": [
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/fields"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/attributes"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/tiers"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/discounts"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/fields"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/attributes"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/tiers"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/discounts"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/uncertainties"
+            }
+          ]
+        },
+        {
+          "documentId": "office-2",
+          "section": 2,
+          "requestSha256": "983d53a971eb0c94bf359eb1d0fef0e9655d0569b2a1aaede56c18edbccf8a64",
+          "artifactSha256": "3a959cf85c7c6d164b27bb4f052d36be45eb0af44eca87e60f63fab109a6e39a",
+          "originalDisposition": "transport_rejected",
+          "accepted": false,
+          "providerFailurePreserved": false,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": true,
+          "originalAdapterValid": false,
+          "scalarChecks": [
+            {
+              "field": "minimumOrder",
+              "numeric": true,
+              "valid": false
+            }
+          ],
+          "duplicateKnownFields": [],
+          "originalIssues": []
+        },
+        {
+          "documentId": "office-2",
+          "section": 1,
+          "requestSha256": "d21615353e6b1741c03e6978d4b4cfebf01d9b6961b6e8b663d2a7a11ac818d1",
+          "artifactSha256": "b4860685a24f6b1cb8198ac4c336c1a72accb2ca7feab43093eca4f912d281c9",
+          "originalDisposition": "provider_schema_rejected",
+          "accepted": false,
+          "providerFailurePreserved": true,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": false,
+          "originalAdapterValid": false,
+          "scalarChecks": [],
+          "duplicateKnownFields": [],
+          "originalIssues": [
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/fields"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/attributes"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/tiers"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/discounts"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/fields"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/attributes"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/tiers"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/discounts"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/uncertainties"
+            }
+          ]
+        },
+        {
+          "documentId": "translation-2",
+          "section": 1,
+          "requestSha256": "dbf0349997f8022101fc823dc982e37142bf578911a144063004b16252a04330",
+          "artifactSha256": "fc103958fd8ebcbdd82147cf4e59655cab0f33ff22a0f505cd373988efd419f8",
+          "originalDisposition": "transport_rejected",
+          "accepted": false,
+          "providerFailurePreserved": false,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": true,
+          "originalAdapterValid": false,
+          "scalarChecks": [
+            {
+              "field": "billingBasis",
+              "numeric": false,
+              "valid": true
+            },
+            {
+              "field": "scope",
+              "numeric": false,
+              "valid": true
+            },
+            {
+              "field": "scope",
+              "numeric": false,
+              "valid": true
+            },
+            {
+              "field": "scope",
+              "numeric": false,
+              "valid": true
+            },
+            {
+              "field": "billingBasis",
+              "numeric": false,
+              "valid": true
+            },
+            {
+              "field": "scope",
+              "numeric": false,
+              "valid": true
+            }
+          ],
+          "duplicateKnownFields": [
+            "scope",
+            "scope"
+          ],
+          "originalIssues": []
+        }
+      ],
+      "billing": [
+        {
+          "documentId": "industrial-1",
+          "outputAvailable": true,
+          "expectedStatedBillingAssertions": 2,
+          "alignedItems": 2,
+          "statedAssertions": 2,
+          "correctAssertions": 2,
+          "assertionsWithReferences": 2,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        },
+        {
+          "documentId": "translation-2",
+          "outputAvailable": true,
+          "expectedStatedBillingAssertions": 6,
+          "alignedItems": 4,
+          "statedAssertions": 4,
+          "correctAssertions": 4,
+          "assertionsWithReferences": 4,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        },
+        {
+          "documentId": "office-2",
+          "outputAvailable": true,
+          "expectedStatedBillingAssertions": 2,
+          "alignedItems": 2,
+          "statedAssertions": 2,
+          "correctAssertions": 2,
+          "assertionsWithReferences": 2,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        }
+      ],
+      "originalCompletion": {
+        "completeDocuments": 0,
+        "partialDocuments": 3,
+        "rejectedDocuments": 0,
+        "parserFailures": 0,
+        "unattemptedDocuments": 0,
+        "halted": null
+      },
+      "historicalUsage": {
+        "dispatches": 12,
+        "reservedAttemptSlots": 12,
+        "reservedTokens": 58648,
+        "accountedTokenFloor": 61058,
+        "waitedMs": 659663,
+        "returnedResponses": 12,
+        "responsesWithoutUsage": 2,
+        "inputTokens": 38643,
+        "outputTokens": 12530,
+        "responseElapsedMs": 40637,
+        "failures": 4,
+        "rejections": 4,
+        "providerInvoiceUsd": null,
+        "scope": "One attempt per dispatch with no automatic retry. Whole-phase estimated reservations are additionally charged to the shared UTC-day ledger; unknown usage is never refunded. Returned token totals exclude unavailable usage and are not measured billing or account-wide remaining quota."
+      }
+    },
+    {
+      "phase": "after",
+      "model": "qwen/qwen3.8-27b",
+      "originalReportSha256": "afa83b268a55333beb246c23ba6b4601fb2ee1a997c00f99c509abe7e56ea951",
+      "originalConfigurationHash": "644f358e770d520dfef49503c61c8b3d71b7cdfa50123e46cd7c2f51482eae62",
+      "rejectedRecords": 2,
+      "expandedAcceptedCheckpoints": 7,
+      "acceptedCheckpointWireValidation": "unavailable_original_wire_not_saved",
+      "rejected": [
+        {
+          "documentId": "translation-2",
+          "section": 2,
+          "requestSha256": "1a477854380974715abecc890f55f3cc1dae53dc314715bf0c3e904b6d86afd3",
+          "artifactSha256": "3816fc1cbcffacfd7ec170d2efc85d62aa330fcc5f6fcd31b6fdb75f5359eb3e",
+          "originalDisposition": "provider_schema_rejected",
+          "accepted": false,
+          "providerFailurePreserved": true,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": false,
+          "originalAdapterValid": false,
+          "scalarChecks": [],
+          "duplicateKnownFields": [],
+          "originalIssues": [
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/unit"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/unitPrice"
+            },
+            {
+              "code": "invalid_value",
+              "path": "/items/[redacted]/taxBasis"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]/tiers"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/items/[redacted]"
+            },
+            {
+              "code": "invalid_type",
+              "path": "/uncertainties"
+            }
+          ]
+        },
+        {
+          "documentId": "industrial-1",
+          "section": 1,
+          "requestSha256": "1daf56bdd8b8fec69201aa7fa08d80c0c4c2e2eaac3cd82380e6cb8837d8b5fb",
+          "artifactSha256": "85c803d3b454b3a663e191ea1ca4f6d8ef4aa35e9a1dbd82d236cf860c75174a",
+          "originalDisposition": "transport_rejected",
+          "accepted": false,
+          "providerFailurePreserved": false,
+          "candidateWireCompatibilityMeasured": false,
+          "diagnostic": "contract_fragments_only",
+          "originalWireValid": true,
+          "originalAdapterValid": false,
+          "scalarChecks": [
+            {
+              "field": "packageSize",
+              "numeric": true,
+              "valid": false
+            },
+            {
+              "field": "orderIncrement",
+              "numeric": true,
+              "valid": false
+            }
+          ],
+          "duplicateKnownFields": [],
+          "originalIssues": []
+        }
+      ],
+      "billing": [
+        {
+          "documentId": "industrial-1",
+          "outputAvailable": true,
+          "expectedStatedBillingAssertions": 2,
+          "alignedItems": 2,
+          "statedAssertions": 0,
+          "correctAssertions": 0,
+          "assertionsWithReferences": 0,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        },
+        {
+          "documentId": "translation-2",
+          "outputAvailable": true,
+          "expectedStatedBillingAssertions": 6,
+          "alignedItems": 4,
+          "statedAssertions": 0,
+          "correctAssertions": 0,
+          "assertionsWithReferences": 0,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        },
+        {
+          "documentId": "office-2",
+          "outputAvailable": false,
+          "expectedStatedBillingAssertions": 2,
+          "alignedItems": 0,
+          "statedAssertions": 0,
+          "correctAssertions": 0,
+          "assertionsWithReferences": 0,
+          "scope": "Historical finalized outputs only, with fixed annotated billing assertions. Missing output earns no credit; citations are not semantic entailment. No missing value is populated."
+        }
+      ],
+      "originalCompletion": {
+        "completeDocuments": 0,
+        "partialDocuments": 2,
+        "rejectedDocuments": 1,
+        "parserFailures": 0,
+        "unattemptedDocuments": 0,
+        "halted": "quota"
+      },
+      "historicalUsage": {
+        "dispatches": 10,
+        "reservedAttemptSlots": 10,
+        "reservedTokens": 48394,
+        "accountedTokenFloor": 48394,
+        "waitedMs": 572541,
+        "returnedResponses": 9,
+        "responsesWithoutUsage": 1,
+        "inputTokens": 6361,
+        "outputTokens": 7170,
+        "responseElapsedMs": 17874,
+        "failures": 3,
+        "rejections": 2,
+        "providerInvoiceUsd": null,
+        "scope": "One attempt per dispatch with no automatic retry. Whole-phase estimated reservations are additionally charged to the shared UTC-day ledger; unknown usage is never refunded. Returned token totals exclude unavailable usage and are not measured billing or account-wide remaining quota."
+      }
+    }
+  ],
+  "inputArtifacts": [
+    {
+      "path": "scripts/audit-focused-contract.ts",
+      "sha256": "297088ebda8baa79d9db41c69f63dedf3133d23bd62776583dc38ea8b9cbb80f"
+    },
+    {
+      "path": "scripts/audit-focused-development.ts",
+      "sha256": "f1d4f311a5565720f06c00348984ed7420ba833beebbae7e7ed3cb6538566a03"
+    },
+    {
+      "path": "scripts/audit-development-rejections.ts",
+      "sha256": "b2184f2a589f030442664b6626d7b78810e57b5c5fc65527c5384c09bd82a3ee"
+    },
+    {
+      "path": "eval/results/development/groq-focused-v2-2026-09-23/live-before.json",
+      "sha256": "1ed851828a4edee59bf0b2bd7a7fd77b199acde0122e7dc679da04dbc6a14d6f"
+    },
+    {
+      "path": "eval/results/development/groq-focused-v2-2026-09-23/live-after.json",
+      "sha256": "afa83b268a55333beb246c23ba6b4601fb2ee1a997c00f99c509abe7e56ea951"
+    },
+    {
+      "path": "package.json",
+      "sha256": "5e1025b60f708068947e233776206de0e83671b5b909d456ac67d68c76f5dc80"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "96dcb77205b2331a927884b5a5194319a5e28606e677c5b43e829122f1570feb"
+    },
+    {
+      "path": "src/lib/ai/index.ts",
+      "sha256": "a7ce3394e7e6e7853788a42793fce0b5ecd3e562ec6ea958c6c997937348090e"
+    },
+    {
+      "path": "src/lib/ai/schema.ts",
+      "sha256": "a2ea46a85e826396efcc8c3895237595b2b74267b2f5c800f43e3847e0f153ed"
+    },
+    {
+      "path": "src/lib/ai/groq.ts",
+      "sha256": "6cd8dc0778290e166bacf8e9e0e1664972cf64d0f79c0d6156a81656e4cbf601"
+    },
+    {
+      "path": "src/lib/ai/transport.ts",
+      "sha256": "bd8955de733661a2c703fe825119b74006689edb5b8ee4619be62f86fb08c6ef"
+    },
+    {
+      "path": "src/lib/ai/typed-transport.ts",
+      "sha256": "d3fd5a0718c4d00663fbb069368eae591a9838e9bab498d30e5f501685f5a575"
+    },
+    {
+      "path": "src/lib/ai/provider-schema.ts",
+      "sha256": "6eb17400b165c4abf73829b3ab2567cbb2bcc67abadc5b50cacccc02f08b7a21"
+    },
+    {
+      "path": "src/lib/ai/completeness.ts",
+      "sha256": "477e8d435750583b28be2395422569eee7051c2dff8c9df25eedf91e9d4522f1"
+    },
+    {
+      "path": "src/lib/ai/chunks.ts",
+      "sha256": "e047a8f1f17db5954ccdb740fe64125cc5239b75e4487a15b33905f84ec4a1b8"
+    },
+    {
+      "path": "src/lib/processing/index.ts",
+      "sha256": "cc0e1a4e424be7577ce2ac880264295b7e3d46c667a007b78d6d0ded361d6947"
+    },
+    {
+      "path": "src/lib/processing/ocr.ts",
+      "sha256": "3de72affee3322031c807952abafd2f3a396c9995b5d2a6677f7c1cf31360940"
+    },
+    {
+      "path": "src/lib/processing/errors.ts",
+      "sha256": "0b5be22f4666a14ddaf40f56622408075cbdfd551129537f81581340e62dcb88"
+    },
+    {
+      "path": "src/lib/domain/types.ts",
+      "sha256": "9e1997ad4840761cedd147a5c374b2e1d77875947233e4c8ddbafbcfbfe14e5f"
+    },
+    {
+      "path": "src/lib/domain/corrections.ts",
+      "sha256": "36e84d36c664749ecbcdfb8ba0b6acfd573780e4df10b70f1731405b192e9778"
+    },
+    {
+      "path": "src/lib/domain/matching.ts",
+      "sha256": "ebb1cf5161bb481ada58a11c33bbf4496f39bbc25cbb119784f64224dea1a983"
+    },
+    {
+      "path": "src/lib/domain/calculate.ts",
+      "sha256": "56e49e51ea32cce290ff4eda9a248c94e839bd84966e724a021d4cfc33497b91"
+    },
+    {
+      "path": "src/lib/domain/numeric.ts",
+      "sha256": "59d775dfc6646f6bddb9b1a1d07dd27a9e9ff2578b5e5cabb3a9c5384f1f2e66"
+    },
+    {
+      "path": "src/lib/domain/billing.ts",
+      "sha256": "1929017fe6b940d2d540a0617a348fc81c7d1aba0623fb82cf96ca5b4ebe1329"
+    },
+    {
+      "path": "src/lib/domain/decisions.ts",
+      "sha256": "0e5fd38c5990042e87bff6ff8f0b9541ea3a30604b662be5ccf9bd776fdb1409"
+    },
+    {
+      "path": "src/lib/domain/validation.ts",
+      "sha256": "a64021691cce9fe02bb10caa31c8506e8eeb1bbb86962fe09ec63bc4fabb0d51"
+    },
+    {
+      "path": "eval/metrics.ts",
+      "sha256": "378c2ece0b38ddbc71b00f52dfd9950c70af6afad7592aa3fe21ff2b8de7f245"
+    },
+    {
+      "path": "eval/readiness.ts",
+      "sha256": "2359d9b6eca36c29732bf82f74563cab50e1abf573e4ff5c3ce1c0d3948aceeb"
+    },
+    {
+      "path": "eval/charge-alignment.ts",
+      "sha256": "263900aae3311b56fe14032140292a3c79c20f455b84ce343dbc937e6ad2a574"
+    },
+    {
+      "path": "eval/live-control.ts",
+      "sha256": "c4a3bee490f2598a61304c2811b097df3c8b4f93477b40c393e42c0f479b2e40"
+    },
+    {
+      "path": "eval/development-control.ts",
+      "sha256": "1bf523c8db2d76c27831edc721cb25b4e91516ef2c90ed6d4b3ef3c287f00801"
+    },
+    {
+      "path": "scripts/evaluate-development.ts",
+      "sha256": "6c28e3546e7deb13156acca03dc84cf33231faa7342d2f3e60d964fa39417a1d"
+    },
+    {
+      "path": "src/lib/ai/partitioned-transport.ts",
+      "sha256": "6b2d69f017d76a9f815060fc775a15195ec36f9f531ae3a6f22d4926d6ae4d1c"
+    },
+    {
+      "path": "src/lib/ai/provider-error.ts",
+      "sha256": "40925831ccf9cbe850d5054d46c4f7c077eb42c433e5f8435594869ac2bacb8e"
+    },
+    {
+      "path": "src/lib/ai/fact-transport.ts",
+      "sha256": "14c72a0d7232c981894b167bf3fb29b63cd16635c3ed4edd4107ec9019ad828a"
+    },
+    {
+      "path": "src/lib/ai/dates.ts",
+      "sha256": "65d6a6758eca340e174bbdd5b5388f311ff492d71c32f6c4756d6c7b929abcae"
+    },
+    {
+      "path": "src/lib/ai/focused-transport.ts",
+      "sha256": "f7bd12b27f4a984ec7d2cee6ff726fb1dbde3b8699aea4f7e41b649eb7dab522"
+    },
+    {
+      "path": "eval/model-study-control.ts",
+      "sha256": "08d1d44f1040e0c5617c007ea45d8123ca73216dc5dd1e42fae84d8b36e4c9fc"
+    },
+    {
+      "path": "eval/development-outcomes.ts",
+      "sha256": "ffdca144a7ac0359a43640d8eaa80a9aa21752fd380ebc37e4347e73012f9934"
+    },
+    {
+      "path": "scripts/preflight-development.ts",
+      "sha256": "3fefa5ba6dcc6cbedfce51f17a9da2021943b2ca395f79eb3295480297c5412b"
+    },
+    {
+      "path": "scripts/compare-development.ts",
+      "sha256": "69d19e832474c6b37c6cd7baf81c059a3551adc5036134623ff5240b4bac20e7"
+    },
+    {
+      "path": "eval/development/gold.json",
+      "sha256": "80448912d863cb12f7e719fc44bb3cd7521a77e290caa668da7ceed5a4f539d5"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/plan.json",
+      "sha256": "3467e00bba5bae886e20aaa4389c505683063d0b982a11ce4a6548a99c32469d"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/usage.jsonl",
+      "sha256": "516df0841fd2b91141a6539a7b44a5a141ec4a767cbf7c31388cff2f211550fd"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/0c66170ece915f11cc960c1e3e475b13fb37d07659f3bde72698d19a4ce98210.reservation.json",
+      "sha256": "c21a054e5bac7877c0ccdc6d034a42a8c76ab60e43bf9da2bd354bb8d4bfa367"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/rejected/0c66170ece915f11cc960c1e3e475b13fb37d07659f3bde72698d19a4ce98210-1790138507614-1.json",
+      "sha256": "a47b11f73bedf80902deba2f16ce30ba7c2c1f6d16d94cfbe9ce646dd51bc515"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/0c66170ece915f11cc960c1e3e475b13fb37d07659f3bde72698d19a4ce98210.rejected.json",
+      "sha256": "be6bdf4dced39fb39f7b3097228d6b802bfe5c30dc727da7269cd2713ae8852c"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/983d53a971eb0c94bf359eb1d0fef0e9655d0569b2a1aaede56c18edbccf8a64.reservation.json",
+      "sha256": "c862af6735e8309cbc1c94e3b7a7d32541f9c2e96e5aceec58b0f8a44c9ab0cf"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/rejected/983d53a971eb0c94bf359eb1d0fef0e9655d0569b2a1aaede56c18edbccf8a64-1790139078084-43.json",
+      "sha256": "3a959cf85c7c6d164b27bb4f052d36be45eb0af44eca87e60f63fab109a6e39a"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/983d53a971eb0c94bf359eb1d0fef0e9655d0569b2a1aaede56c18edbccf8a64.rejected.json",
+      "sha256": "3ad5578b74b9255baab492bfc4ce1d709e4b2bcf449dbde57f6dc33e06557cb6"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/d21615353e6b1741c03e6978d4b4cfebf01d9b6961b6e8b663d2a7a11ac818d1.reservation.json",
+      "sha256": "02993938f6a7456b935e464b0a5bd2af30c000c18ba1f08303e75f628c1f6836"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/rejected/d21615353e6b1741c03e6978d4b4cfebf01d9b6961b6e8b663d2a7a11ac818d1-1790139014550-37.json",
+      "sha256": "b4860685a24f6b1cb8198ac4c336c1a72accb2ca7feab43093eca4f912d281c9"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/d21615353e6b1741c03e6978d4b4cfebf01d9b6961b6e8b663d2a7a11ac818d1.rejected.json",
+      "sha256": "c52c625d4f584da1f10e6139419ea893750a049c059b3f72c1e55358c100fcc9"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/dbf0349997f8022101fc823dc982e37142bf578911a144063004b16252a04330.reservation.json",
+      "sha256": "a8ab55fe115cc89df6ba90cf08d56ab737d7bee03268be197b8f73229a541902"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/rejected/dbf0349997f8022101fc823dc982e37142bf578911a144063004b16252a04330-1790138761264-19.json",
+      "sha256": "fc103958fd8ebcbdd82147cf4e59655cab0f33ff22a0f505cd373988efd419f8"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/dbf0349997f8022101fc823dc982e37142bf578911a144063004b16252a04330.rejected.json",
+      "sha256": "31e48f24e07c88a6c324f9ffffb3628633e2da8c692f81b34649b0f66f6f46fd"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/504fec3db4ce648a4d59c1a9a8498b422aea1a377deb0a0da6a13349aeb3a6af.json",
+      "sha256": "e28f1c691a4cf54dda186b7ffcd4239d8e6bca79eae5182c94796a5b8064940e"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/504fec3db4ce648a4d59c1a9a8498b422aea1a377deb0a0da6a13349aeb3a6af.reservation.json",
+      "sha256": "90b90fbc637a8523f9cd87f5e5affb215797bace60165bc0da90a4ec22f87d49"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/504fec3db4ce648a4d59c1a9a8498b422aea1a377deb0a0da6a13349aeb3a6af.returned.json",
+      "sha256": "164dc58cc3225fee0b4fb58e2dc02d13a7fc1af28ab9ffaf4406df5276190ff8"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/9b9f8dd25017dff4d3e75f7b1df66f94711f69d3c3cb4ba5be8e72f65cc6db63.json",
+      "sha256": "676bd8e2518770e94608669596b45cc2886e295539b4b011430b1406d7381f25"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/9b9f8dd25017dff4d3e75f7b1df66f94711f69d3c3cb4ba5be8e72f65cc6db63.reservation.json",
+      "sha256": "ae48ef52d0dc35a6ea98e007d9c34b6fef33e69a9114961343ec438885904c54"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/9b9f8dd25017dff4d3e75f7b1df66f94711f69d3c3cb4ba5be8e72f65cc6db63.returned.json",
+      "sha256": "0f5fce7b81fab5664796627bf925f7554d043814672ff1025bd93d52e8dcdb37"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/a39651bb78292a6d05fbfb4cb30f12bed8fca67b4975f133c1d934f8fd812c2d.json",
+      "sha256": "f9f0dcaf10826c6ab92ac386d8efd19b03b2a10e2064c2927e448da806728391"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/a39651bb78292a6d05fbfb4cb30f12bed8fca67b4975f133c1d934f8fd812c2d.reservation.json",
+      "sha256": "8af2b567b34e10c3ba3c8cc1788b6b9ff2bebeccd068601b4e5967c45968a725"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/a39651bb78292a6d05fbfb4cb30f12bed8fca67b4975f133c1d934f8fd812c2d.returned.json",
+      "sha256": "b9acd25805838e486b6280bfddc62298d347a046241d07643f29d68f507cf539"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/c8f5f582a41288cb6ce0e2884ae30d66a7bf2c8fdc1e24b5bfe621d8f2f80b1a.json",
+      "sha256": "f1be8bcb6e5e080d413a8b570bb3d19d0cb19b13a12a982b223d96b96e067d72"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/c8f5f582a41288cb6ce0e2884ae30d66a7bf2c8fdc1e24b5bfe621d8f2f80b1a.reservation.json",
+      "sha256": "35eaa96100ec1ec67fb1cdd4bb4160e576820af33a8d439d75315718304dce20"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/c8f5f582a41288cb6ce0e2884ae30d66a7bf2c8fdc1e24b5bfe621d8f2f80b1a.returned.json",
+      "sha256": "69af6dce21da414854b225ac8a2e156000e8f308cc7ad344925e6c473decce86"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/d7b95efa31b161466aa25b36ed59afafec4ef5429640ba92e7f12472c1019860.json",
+      "sha256": "662d7d9c5cda7955a4bc9765b7dce5683ec2570bd29423f481af89eedb8c1215"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/d7b95efa31b161466aa25b36ed59afafec4ef5429640ba92e7f12472c1019860.reservation.json",
+      "sha256": "c97ca3c5fc06350b7b705aac23ab2cdfa476ae0014ef4b1e4059c4d477d45ebd"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/d7b95efa31b161466aa25b36ed59afafec4ef5429640ba92e7f12472c1019860.returned.json",
+      "sha256": "72551ec4d86ffc6519e7ee4f795a88dd79bafcdaedf03b7d9c264fb58009f5f2"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/e3a66159813aecff60817987637a6b2a4faaff8155d034b3dd86c82eff32b7cd.json",
+      "sha256": "740437be0b7a098427e65b7ed700199627f644a756374feadcd612176703b574"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/e3a66159813aecff60817987637a6b2a4faaff8155d034b3dd86c82eff32b7cd.reservation.json",
+      "sha256": "62bfd436886a34cdf0eb6d6bba6c2569b5cc9a2f1260f7f6c4471c5eb801d864"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/e3a66159813aecff60817987637a6b2a4faaff8155d034b3dd86c82eff32b7cd.returned.json",
+      "sha256": "b2d99cf0c2592906257a0cbf9894e306dd492f208186d9860e10703d754b10c3"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/e8ed1a19c66c47273f5322bf8e5bf5fdebc30fb9e2c899bc883c95b26d1a2a53.json",
+      "sha256": "ace4f6bb5a430f0242f4335254b1c7635fac68e0ff58b2462f4aa15506c128c0"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/e8ed1a19c66c47273f5322bf8e5bf5fdebc30fb9e2c899bc883c95b26d1a2a53.reservation.json",
+      "sha256": "dfbceaa533330aa9a84fd1c80af8b3c9f4ace49473f5c7a1abdade64d149b610"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/e8ed1a19c66c47273f5322bf8e5bf5fdebc30fb9e2c899bc883c95b26d1a2a53.returned.json",
+      "sha256": "813d96a9f491aba54b836118f0b647ba607cdfe75b8ef63d1c1b3c613ef4e0c2"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/requests/ea77b5eb0f73f9387e898a629312ce094ec511f20fcfb203a1b5f91390703dd7.json",
+      "sha256": "5df5aaffc80ddfc690a0ab57b0e63cb2baf319e6845dd910a4afec094cd68b58"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/ea77b5eb0f73f9387e898a629312ce094ec511f20fcfb203a1b5f91390703dd7.reservation.json",
+      "sha256": "9481ef08c9116fdac5be92b3505f58cd38d938ebf42a3265c4cb4a6e28fb8086"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outcomes/ea77b5eb0f73f9387e898a629312ce094ec511f20fcfb203a1b5f91390703dd7.returned.json",
+      "sha256": "49c6cc3f70ab391653a4a135c92ec76c611a74ad85665985172350bf47f88e08"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outputs/industrial-1-1790138698204.json",
+      "sha256": "3c410504385a66511474b49bfec77256bc424fb28becb6b99b30e38ad12d9e18"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outputs/translation-2-1790138951534.json",
+      "sha256": "24cdaa18b90c211f61a90b0d7f5df77904e810f962d95fae30e11a845a4fc37c"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-before/outputs/office-2-1790139204981.json",
+      "sha256": "c934bbf33341cc26dd4e966925ce20c76af4894991ea459099a5780b01f087a3"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/plan.json",
+      "sha256": "e834a20ccfa39420d712c1fc78461467651fdee3f78d1632307795bdc540c7ea"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/usage.jsonl",
+      "sha256": "031b5baf647c61574c347e9ca4923c901506ddc133b1141f7d1267209b1416ea"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/1a477854380974715abecc890f55f3cc1dae53dc314715bf0c3e904b6d86afd3.reservation.json",
+      "sha256": "ed539b6ef7ee414592e27c6b1d85609ea24deb8eaf5d178a6e3a948bbc99a518"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/rejected/1a477854380974715abecc890f55f3cc1dae53dc314715bf0c3e904b6d86afd3-1790139576335-25.json",
+      "sha256": "3816fc1cbcffacfd7ec170d2efc85d62aa330fcc5f6fcd31b6fdb75f5359eb3e"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/1a477854380974715abecc890f55f3cc1dae53dc314715bf0c3e904b6d86afd3.rejected.json",
+      "sha256": "2eef304bf00a23b2318c4607468a848a1904ad787a563e7eb65ba1830e46a0e2"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/1daf56bdd8b8fec69201aa7fa08d80c0c4c2e2eaac3cd82380e6cb8837d8b5fb.reservation.json",
+      "sha256": "094447826a308ff9226d61cf65dea2489519222abf61f4dc070f338f0a0b134e"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/rejected/1daf56bdd8b8fec69201aa7fa08d80c0c4c2e2eaac3cd82380e6cb8837d8b5fb-1790139266968-3.json",
+      "sha256": "85c803d3b454b3a663e191ea1ca4f6d8ef4aa35e9a1dbd82d236cf860c75174a"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/1daf56bdd8b8fec69201aa7fa08d80c0c4c2e2eaac3cd82380e6cb8837d8b5fb.rejected.json",
+      "sha256": "b5af721f405352a301672e685df5a6033fc248153604f2bfbe0e50bb2da11a84"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/0ae9f88d30d1432d6a53e26821d2082fd42b881377aa2797a7d15d47b5ed27ad.json",
+      "sha256": "ad1ab20982fe6733e6a2dc1930be944abcfad71decbbd7cbd53a490aac0ead02"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/0ae9f88d30d1432d6a53e26821d2082fd42b881377aa2797a7d15d47b5ed27ad.reservation.json",
+      "sha256": "9d8029350eba2fccec7e3b2f6ec1dad130574d342b83efa16706388fb6d02576"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/0ae9f88d30d1432d6a53e26821d2082fd42b881377aa2797a7d15d47b5ed27ad.returned.json",
+      "sha256": "4f24aabe15a550efbfd6d2bb1dd02db394501fde7d4f4b3dea8e486256d0aaa0"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/20096ca2938f0fc6c89e761827b35b82ed82cea68a308aac6ac75a283dd171da.json",
+      "sha256": "3ed0b029fdb247d3053932496c8c48b6c72ea6b2cd2ea4e262e62cb404902f3a"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/20096ca2938f0fc6c89e761827b35b82ed82cea68a308aac6ac75a283dd171da.reservation.json",
+      "sha256": "6ee6ada6cec10f56408183af5a71c50bdaa8e624b94e6a0dbf6dbd2b9a3b38ac"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/20096ca2938f0fc6c89e761827b35b82ed82cea68a308aac6ac75a283dd171da.returned.json",
+      "sha256": "707fd025ccf012e04604cef957dafca5ced812b329bc2f8c98b743708a5ae57d"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/34cebd609f8d4ba5f2e87d240eacb73778c33875c10a89e1813d0283460b4a06.json",
+      "sha256": "7ad0f780cfa294f7c4da600847ca4fe56ee24410a1482174567cd542fb78ccb1"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/34cebd609f8d4ba5f2e87d240eacb73778c33875c10a89e1813d0283460b4a06.reservation.json",
+      "sha256": "d165380eec2cd66d9e3ad73ae342ef39d8f2753c9539daad09ee5eb8d83b39d0"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/34cebd609f8d4ba5f2e87d240eacb73778c33875c10a89e1813d0283460b4a06.returned.json",
+      "sha256": "c7a14284fa9bbe3e5f29b8e9facda03f7ce1536fc9a02733b3e271115402aa32"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/53403951165f135be37c85734f7b3f7504da6c833f8a294321a4d3a3acd38a8a.json",
+      "sha256": "b304e09dff3a1791dad7f75b5e1e448b0354a922c7e9706375b80ce958fc408a"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/53403951165f135be37c85734f7b3f7504da6c833f8a294321a4d3a3acd38a8a.reservation.json",
+      "sha256": "37acc5371b92b9160a1922220fcc3dbab28359d83a2d527443017d4cb61fea70"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/53403951165f135be37c85734f7b3f7504da6c833f8a294321a4d3a3acd38a8a.returned.json",
+      "sha256": "877363951f6c6be75d6cd29e7d955013a2c64e0ed6ff5f1916096ac2e3228131"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/7bdacc0b13b4961727e912fe4e424534c3e9713a09b29c7eb8d6270d467746d8.json",
+      "sha256": "517045a9242b462f1e6c72d0124743e91e0304de135ccc00f229016ffd381869"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/7bdacc0b13b4961727e912fe4e424534c3e9713a09b29c7eb8d6270d467746d8.reservation.json",
+      "sha256": "29ee3346fd85ac01588b146504b5945cd95fa21e3ada0f0e75b5532180fd39f8"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/7bdacc0b13b4961727e912fe4e424534c3e9713a09b29c7eb8d6270d467746d8.returned.json",
+      "sha256": "2137ad8343ff5648be6cf1c0bb47be6234e19f941ee52c060b4cede4b1d3e40e"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/d2b449a1f5253828315933f881dc86f8ab37db0129b86922843f43895fbc84ad.json",
+      "sha256": "a6968a4c68f7987401902a39e777c5dcc736c32c449dde782e214d25bfad36d6"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/d2b449a1f5253828315933f881dc86f8ab37db0129b86922843f43895fbc84ad.reservation.json",
+      "sha256": "06e5080920a65413cd5bfa1507f0b54eb21dfeed888b282da6076682d71e7f28"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/d2b449a1f5253828315933f881dc86f8ab37db0129b86922843f43895fbc84ad.returned.json",
+      "sha256": "79566bcb957ae43baf965926024bdb092b4b016f03aa28af6842a676b444ed07"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/requests/fb8b80f902af909889db9b23c22ef52097abb5ffd43242c3fc98d49e75e31da9.json",
+      "sha256": "65ebc21b7c4c35c778c3016aa6f05d974a0b94730bed3f78a81b184b29aa4c01"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/fb8b80f902af909889db9b23c22ef52097abb5ffd43242c3fc98d49e75e31da9.reservation.json",
+      "sha256": "a871f74cdcbfcc843b80036ca9b8b14b1f233aa51ffd0dd45d0201614ad55d82"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outcomes/fb8b80f902af909889db9b23c22ef52097abb5ffd43242c3fc98d49e75e31da9.returned.json",
+      "sha256": "4472c2d71f7395200218fe1cfb42fde610dd23a7bdcbdcb2b08e4e38622ac82d"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outputs/industrial-1-1790139453373.json",
+      "sha256": "e3e907a8bcab231a3cb80889eb736b96dca81f93aad32bf284d0153f09ca6afa"
+    },
+    {
+      "path": "eval/runs/private/development/groq-focused-v2-2026-09-23/live-after/outputs/translation-2-1790139701360.json",
+      "sha256": "11da55cf7cc4c5c497e044dabff4928f0775336eb97b9aeb7b6367c6bf82b2f2"
+    }
+  ],
+  "limitations": [
+    "This is a contract audit, not accuracy replay or fresh generation. Every historical rejection remains rejected, including parseable provider-rejected replies.",
+    "Accepted checkpoints contain expanded data, so their original wire compliance with the candidate cannot be measured. No expanded object is reverse-engineered into a model reply.",
+    "Unchanged known optional field fragments are checked against actual candidate schema nodes. A schema shape change does not prove the provider will generate a valid response or fill missing billing facts.",
+    "Fixed named properties remove repeated entries in the old fields array; they do not prove a provider cannot emit duplicate JSON property names. Required state objects still permit truthful not_stated/ambiguous values.",
+    "Billing diagnostics use original finalized outputs and fixed annotations, not model kind; the quota-aborted office checkpoint is not promoted to a quotation. No source or missing value is invented.",
+    "Planning estimates are local heuristics, not token usage, billing or available provider quota. Original usage remains historical, with unknowns and full allocations retained.",
+    "Sanitized schema diagnostics are bounded to100 issues per record. Raw values, messages, quotations and source identifiers are not published. No production settings or original artifacts are changed."
+  ]
+}

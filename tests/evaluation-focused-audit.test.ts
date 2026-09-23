@@ -36,6 +36,10 @@ describe("offline focused audit scope", () => {
     expect(parseFocusedAuditArguments(["--name", "synthetic-audit", "--phase", "before"])).toEqual({ name: "synthetic-audit", phase: "before" });
     for (const args of [["--name", "../outside", "--phase", "after"], ["--name", "synthetic-audit"], ["--name", "synthetic-audit", "--phase", "after", "--live"], ["--name", "synthetic-audit", "--phase", "heldout"]]) expect(() => parseFocusedAuditArguments(args)).toThrow();
     const original = report(); expect(() => assertFocusedAuditReport(original, original.name, "before")).not.toThrow();
+    const fixed = structuredClone(original); fixed.configuration.extractionTransport = "focused_fields_v2";
+    const { sha256: _previous, ...fixedIdentity } = fixed.configuration; void _previous;
+    fixed.configuration.sha256 = digest(fixedIdentity);
+    expect(() => assertFocusedAuditReport(fixed, fixed.name, "before")).not.toThrow();
     const changed = [
       { ...original, measuredAt: undefined }, { ...original, configurationStableDuringRun: false }, { ...original, phase: "after" },
       { ...original, configuration: { ...original.configuration, extractionTransport: "legacy_v5" } },

@@ -2,6 +2,12 @@
 
 Updated on 23 September 2026. The public demonstration, local personal workflow and invited hosted parser/manual workflow work through comparison and Excel export. Hosted text PDF, scanned PDF, PNG, XLSX and CSV parsing and a five-original recovery drill passed in the recorded hosted checks. Complete-document AI extraction remains unreliable; held-out AI acceptance remains open. [Production readiness](production-readiness.md) defines the private-pilot boundary.
 
+## Typed item contract and service billing review — 23 September
+
+The [versioned contract fix](groq-typed-contract-2026-09-23.md) passes **600/600 tests across 71 files in 38.19 seconds**, including real PostgreSQL, plus TypeScript, ESLint, production build and **10/10 isolated browser workflows in 34.1 seconds**. Meaningful regressions reproduce unit-bearing numeric contract gaps, repeated optional keys, omitted billing review and unit-only/negated billing evidence. The matrix retains unsupported assertions for review while blocking recommendations; no historical model reply is repaired or accepted.
+
+The immutable offline audit and preflight make zero provider calls or accepted outputs. Their original cohort and source partition remain unchanged; measured live accuracy is still the failed pair below. The new transport is an explicit development opt-in, existing application defaults are unchanged, all eleven private environment hashes match, and production remains parser-only at the 05:30 UTC read-only check. Fresh inference awaits free-budget admission; software checks alone do not enable production AI.
+
 ## Frozen Groq live validation — 23 September
 
 The user requested the prepared run and production activation only if it works. The [final measured report](groq-live-validation-2026-09-23.md) records GPT-OSS at **77/129 critical fields, 10/18 items and 0/3 complete**, and Qwen at **54/129, 8/18 and 0/3**, with its final quotation stopped by quota. No prompt, source, annotation or runtime code changed between phases. Both immutable source/score audits and the comparison command passed without new inference or held-out reads. Every retained price remains blocked by coverage/evidence review.

@@ -36,6 +36,8 @@ The synthetic acceptance data was then removed and verified: all nine originals 
 
 ## Remaining broad-release gates
 
+The [typed item contract and billing-review fix](groq-typed-contract-2026-09-23.md) is implemented behind an explicit development transport. Offline tests verify stricter numeric fields, required billing states and retained source evidence; they do not establish improved model output. Fresh generation remains pending the local free-budget reset. The hosted worker stays on its existing parser-only policy.
+
 The [focused Groq follow-up](groq-focused-study-v2-2026-09-23.md) adds safe interrupted-study recovery and a narrow date correction. Its [fresh live comparison](groq-live-validation-2026-09-23.md) is now finalized: GPT-OSS returns three partial quotations (77/129 critical fields, 10/18 items); Qwen returns two partial quotations and a quota-aborted third (54/129, 8/18). Neither completes a quotation. Every retained price remains blocked by unresolved coverage/evidence. The quota-limited comparison cannot rank intrinsic model quality. Production activation was conditional on success; that condition is not met, and the gates below remain open.
 
 - Freeze a viable model/prompt/schema/parser candidate; complete the held-out extraction/matching/ambiguity/evidence benchmark with actual latency and usage. Retain unsuccessful probes and report missing provider usage as unknown.
