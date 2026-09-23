@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "name": "groq-focused-v2-2026-09-23",
+  "phase": "after",
+  "auditedAt": "2026-09-23T05:04:54.832Z",
+  "mode": "offline_focused_task_audit",
+  "reportSha256": "afa83b268a55333beb246c23ba6b4601fb2ee1a997c00f99c509abe7e56ea951",
+  "journalSha256": "031b5baf647c61574c347e9ca4923c901506ddc133b1141f7d1267209b1416ea",
+  "auditCodeSha256": "224c4ad50fe4b50189f8309aa627bd67de121d799448f78eabc3acec9919240f",
+  "configurationHash": "644f358e770d520dfef49503c61c8b3d71b7cdfa50123e46cd7c2f51482eae62",
+  "providerCalls": 0,
+  "heldoutReads": 0,
+  "documents": [
+    {
+      "id": "industrial-1",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "e3e907a8bcab231a3cb80889eb736b96dca81f93aad32bf284d0153f09ca6afa",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 0,
+        "rejectionEvents": 1,
+        "cachedRejectionEvents": 0
+      },
+      "plannedTasks": 4,
+      "taskPlan": [
+        {
+          "section": 1,
+          "kind": "items",
+          "targetCount": 7,
+          "contextCount": 1,
+          "itemSlots": 2
+        },
+        {
+          "section": 2,
+          "kind": "items",
+          "targetCount": 7,
+          "contextCount": 1,
+          "itemSlots": 2
+        },
+        {
+          "section": 3,
+          "kind": "items",
+          "targetCount": 6,
+          "contextCount": 2,
+          "itemSlots": 2
+        },
+        {
+          "section": 4,
+          "kind": "document",
+          "targetCount": 20,
+          "contextCount": 6,
+          "itemSlots": 0
+        }
+      ],
+      "attemptedTasks": 4,
+      "validatedTasks": 3,
+      "rejectedTasks": 1,
+      "taskCountsAgree": true,
+      "failedTargets": {
+        "numerator": 7,
+        "denominator": 40,
+        "allResolvable": true,
+        "exactPlannedTaskSets": true,
+        "allRemainBlocking": true,
+        "tasks": [
+          {
+            "section": 1,
+            "kind": "items",
+            "targetCount": 7,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "f9296a16e6f778544837c8c995f4f5bb567e731365aaa9ca0dc8cf3bbf21643c",
+      "retainedSourceArraySha256": "f9296a16e6f778544837c8c995f4f5bb567e731365aaa9ca0dc8cf3bbf21643c",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 104,
+        "statedFields": 58,
+        "references": 65,
+        "resolvable": 65,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 12,
+        "retainedValuesChecked": 4,
+        "explicitlyCoverageBlockedValues": 4,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "Approved singleton groups probe only the deterministic coverage/evidence gate for retained rows. No matching or cross-supplier ranking accuracy is measured."
+      }
+    },
+    {
+      "id": "translation-2",
+      "status": "partial",
+      "retainedOutputAvailable": true,
+      "retainedOutputSha256": "11da55cf7cc4c5c497e044dabff4928f0775336eb97b9aeb7b6367c6bf82b2f2",
+      "freshJournal": {
+        "dispatchReservations": 4,
+        "returnedResponses": 4,
+        "responsesWithoutUsage": 1,
+        "rejectionEvents": 1,
+        "cachedRejectionEvents": 0
+      },
+      "plannedTasks": 4,
+      "taskPlan": [
+        {
+          "section": 1,
+          "kind": "items",
+          "targetCount": 6,
+          "contextCount": 1,
+          "itemSlots": 2
+        },
+        {
+          "section": 2,
+          "kind": "items",
+          "targetCount": 7,
+          "contextCount": 1,
+          "itemSlots": 2
+        },
+        {
+          "section": 3,
+          "kind": "items",
+          "targetCount": 6,
+          "contextCount": 1,
+          "itemSlots": 2
+        },
+        {
+          "section": 4,
+          "kind": "document",
+          "targetCount": 13,
+          "contextCount": 6,
+          "itemSlots": 0
+        }
+      ],
+      "attemptedTasks": 4,
+      "validatedTasks": 3,
+      "rejectedTasks": 1,
+      "taskCountsAgree": true,
+      "failedTargets": {
+        "numerator": 7,
+        "denominator": 32,
+        "allResolvable": true,
+        "exactPlannedTaskSets": true,
+        "allRemainBlocking": true,
+        "tasks": [
+          {
+            "section": 2,
+            "kind": "items",
+            "targetCount": 7,
+            "matchesPlannedTargets": true,
+            "remainsBlocking": true
+          }
+        ]
+      },
+      "originalSourceArrayPreserved": true,
+      "originalSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "retainedSourceArraySha256": "9671e55e999a7f901d5ce65da1953ae6bf1ceebf578e0286e1fa9100fa9beb3a",
+      "fieldReferences": {
+        "inspectedFieldObjectsIncludingDefaults": 110,
+        "statedFields": 64,
+        "references": 66,
+        "resolvable": 66,
+        "allResolvable": true,
+        "statedFieldsWithoutReferences": 0
+      },
+      "costGuard": {
+        "unresolvedCoverageOrEvidenceIssues": 12,
+        "retainedValuesChecked": 4,
+        "explicitlyCoverageBlockedValues": 4,
+        "costRecommendations": 0,
+        "passes": true,
+        "scope": "Approved singleton groups probe only the deterministic coverage/evidence gate for retained rows. No matching or cross-supplier ranking accuracy is measured."
+      }
+    },
+    {
+      "id": "office-2",
+      "status": "rejected",
+      "retainedOutputAvailable": false,
+      "freshJournal": {
+        "dispatchReservations": 2,
+        "returnedResponses": 1,
+        "responsesWithoutUsage": 0,
+        "rejectionEvents": 0,
+        "cachedRejectionEvents": 0
+      },
+      "plannedTasks": 4,
+      "sourceTargets": 27,
+      "attemptedTasks": null,
+      "validatedTasks": null,
+      "rejectedTasks": null,
+      "failedTargets": null,
+      "limitation": "No returned quotation; exact failed-task attribution and retained-value checks are unavailable. Fresh dispatch/response counts are not silently treated as unique tasks."
+    }
+  ],
+  "limitations": [
+    "Task validation and partial availability are not semantic extraction correctness. Resolvable field references do not prove that cited text supports a claim.",
+    "Failed-target counts use the focused planner, excluding repeated read-only context. No legacy character-chunk assumptions are used.",
+    "Returned task counts are checked against metadata and exact static failed-task issue sets. Fresh journal counts are separate and may include cached reuse or operational failures.",
+    "No output means exact task attribution is unavailable. This audit does not decode, repair, replay or accept rejected replies.",
+    "The cost probe uses approved singleton groups solely to test unresolved coverage/evidence blocking; it is not a comparative recommendation or matching-quality benchmark.",
+    "Only sanitized counts and hashes are published. Source arrays, supplier values, source identifiers and model replies remain private."
+  ]
+}
